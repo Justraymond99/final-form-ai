@@ -9,6 +9,7 @@ import Nutrition from "./pages/Nutrition";
 import Progress from "./pages/Progress";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
+import Awards from "./pages/Awards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/progress" element={<Progress />} />
           <Route path="/social" element={<Social />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/awards" element={<Awards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
