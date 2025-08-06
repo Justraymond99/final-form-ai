@@ -23,16 +23,99 @@ const WorkoutBuilder = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const exerciseDatabase: ExerciseTemplate[] = [
+    // Chest
     { id: "1", name: "Bench Press", muscle: "Chest", sets: 3, reps: "8-10" },
     { id: "2", name: "Incline Dumbbell Press", muscle: "Chest", sets: 3, reps: "10-12" },
-    { id: "3", name: "Overhead Press", muscle: "Shoulders", sets: 3, reps: "6-8" },
-    { id: "4", name: "Lateral Raises", muscle: "Shoulders", sets: 3, reps: "12-15" },
-    { id: "5", name: "Tricep Dips", muscle: "Triceps", sets: 3, reps: "10-12" },
-    { id: "6", name: "Close-Grip Bench Press", muscle: "Triceps", sets: 3, reps: "8-10" },
-    { id: "7", name: "Squats", muscle: "Legs", sets: 3, reps: "8-10" },
-    { id: "8", name: "Deadlifts", muscle: "Back", sets: 3, reps: "5-6" },
-    { id: "9", name: "Pull-ups", muscle: "Back", sets: 3, reps: "8-12" },
-    { id: "10", name: "Barbell Rows", muscle: "Back", sets: 3, reps: "8-10" },
+    { id: "3", name: "Decline Bench Press", muscle: "Chest", sets: 3, reps: "8-10" },
+    { id: "4", name: "Dumbbell Flyes", muscle: "Chest", sets: 3, reps: "12-15" },
+    { id: "5", name: "Cable Crossovers", muscle: "Chest", sets: 3, reps: "12-15" },
+    { id: "6", name: "Push-ups", muscle: "Chest", sets: 3, reps: "15-20" },
+    { id: "7", name: "Incline Barbell Press", muscle: "Chest", sets: 3, reps: "8-10" },
+    { id: "8", name: "Chest Dips", muscle: "Chest", sets: 3, reps: "10-15" },
+    
+    // Shoulders
+    { id: "9", name: "Overhead Press", muscle: "Shoulders", sets: 3, reps: "6-8" },
+    { id: "10", name: "Lateral Raises", muscle: "Shoulders", sets: 3, reps: "12-15" },
+    { id: "11", name: "Front Raises", muscle: "Shoulders", sets: 3, reps: "12-15" },
+    { id: "12", name: "Rear Delt Flyes", muscle: "Shoulders", sets: 3, reps: "15-20" },
+    { id: "13", name: "Arnold Press", muscle: "Shoulders", sets: 3, reps: "10-12" },
+    { id: "14", name: "Face Pulls", muscle: "Shoulders", sets: 3, reps: "15-20" },
+    { id: "15", name: "Upright Rows", muscle: "Shoulders", sets: 3, reps: "10-12" },
+    { id: "16", name: "Pike Push-ups", muscle: "Shoulders", sets: 3, reps: "8-12" },
+    
+    // Triceps
+    { id: "17", name: "Tricep Dips", muscle: "Triceps", sets: 3, reps: "10-12" },
+    { id: "18", name: "Close-Grip Bench Press", muscle: "Triceps", sets: 3, reps: "8-10" },
+    { id: "19", name: "Tricep Pushdowns", muscle: "Triceps", sets: 3, reps: "12-15" },
+    { id: "20", name: "Overhead Tricep Extension", muscle: "Triceps", sets: 3, reps: "10-12" },
+    { id: "21", name: "Diamond Push-ups", muscle: "Triceps", sets: 3, reps: "8-12" },
+    { id: "22", name: "Skull Crushers", muscle: "Triceps", sets: 3, reps: "10-12" },
+    
+    // Back
+    { id: "23", name: "Deadlifts", muscle: "Back", sets: 3, reps: "5-6" },
+    { id: "24", name: "Pull-ups", muscle: "Back", sets: 3, reps: "8-12" },
+    { id: "25", name: "Barbell Rows", muscle: "Back", sets: 3, reps: "8-10" },
+    { id: "26", name: "Lat Pulldowns", muscle: "Back", sets: 3, reps: "10-12" },
+    { id: "27", name: "T-Bar Rows", muscle: "Back", sets: 3, reps: "8-10" },
+    { id: "28", name: "Seated Cable Rows", muscle: "Back", sets: 3, reps: "10-12" },
+    { id: "29", name: "Single-Arm Dumbbell Rows", muscle: "Back", sets: 3, reps: "10-12" },
+    { id: "30", name: "Romanian Deadlifts", muscle: "Back", sets: 3, reps: "8-10" },
+    { id: "31", name: "Chin-ups", muscle: "Back", sets: 3, reps: "6-10" },
+    { id: "32", name: "Reverse Flyes", muscle: "Back", sets: 3, reps: "12-15" },
+    
+    // Biceps
+    { id: "33", name: "Barbell Curls", muscle: "Biceps", sets: 3, reps: "10-12" },
+    { id: "34", name: "Dumbbell Curls", muscle: "Biceps", sets: 3, reps: "10-12" },
+    { id: "35", name: "Hammer Curls", muscle: "Biceps", sets: 3, reps: "10-12" },
+    { id: "36", name: "Preacher Curls", muscle: "Biceps", sets: 3, reps: "8-10" },
+    { id: "37", name: "Cable Curls", muscle: "Biceps", sets: 3, reps: "12-15" },
+    { id: "38", name: "21s Curls", muscle: "Biceps", sets: 3, reps: "21" },
+    { id: "39", name: "Concentration Curls", muscle: "Biceps", sets: 3, reps: "10-12" },
+    
+    // Legs - Quads
+    { id: "40", name: "Squats", muscle: "Quads", sets: 3, reps: "8-10" },
+    { id: "41", name: "Front Squats", muscle: "Quads", sets: 3, reps: "8-10" },
+    { id: "42", name: "Leg Press", muscle: "Quads", sets: 3, reps: "12-15" },
+    { id: "43", name: "Leg Extensions", muscle: "Quads", sets: 3, reps: "12-15" },
+    { id: "44", name: "Bulgarian Split Squats", muscle: "Quads", sets: 3, reps: "10-12" },
+    { id: "45", name: "Lunges", muscle: "Quads", sets: 3, reps: "10-12" },
+    { id: "46", name: "Goblet Squats", muscle: "Quads", sets: 3, reps: "12-15" },
+    
+    // Legs - Hamstrings
+    { id: "47", name: "Romanian Deadlifts", muscle: "Hamstrings", sets: 3, reps: "8-10" },
+    { id: "48", name: "Leg Curls", muscle: "Hamstrings", sets: 3, reps: "12-15" },
+    { id: "49", name: "Stiff Leg Deadlifts", muscle: "Hamstrings", sets: 3, reps: "10-12" },
+    { id: "50", name: "Good Mornings", muscle: "Hamstrings", sets: 3, reps: "10-12" },
+    { id: "51", name: "Single Leg RDLs", muscle: "Hamstrings", sets: 3, reps: "8-10" },
+    
+    // Glutes
+    { id: "52", name: "Hip Thrusts", muscle: "Glutes", sets: 3, reps: "12-15" },
+    { id: "53", name: "Glute Bridges", muscle: "Glutes", sets: 3, reps: "15-20" },
+    { id: "54", name: "Sumo Deadlifts", muscle: "Glutes", sets: 3, reps: "8-10" },
+    { id: "55", name: "Clamshells", muscle: "Glutes", sets: 3, reps: "15-20" },
+    { id: "56", name: "Lateral Walks", muscle: "Glutes", sets: 3, reps: "12-15" },
+    
+    // Calves
+    { id: "57", name: "Calf Raises", muscle: "Calves", sets: 4, reps: "15-20" },
+    { id: "58", name: "Seated Calf Raises", muscle: "Calves", sets: 4, reps: "15-20" },
+    { id: "59", name: "Donkey Calf Raises", muscle: "Calves", sets: 3, reps: "12-15" },
+    
+    // Core
+    { id: "60", name: "Planks", muscle: "Core", sets: 3, reps: "30-60s" },
+    { id: "61", name: "Crunches", muscle: "Core", sets: 3, reps: "15-25" },
+    { id: "62", name: "Russian Twists", muscle: "Core", sets: 3, reps: "20-30" },
+    { id: "63", name: "Mountain Climbers", muscle: "Core", sets: 3, reps: "20-30" },
+    { id: "64", name: "Dead Bug", muscle: "Core", sets: 3, reps: "10-15" },
+    { id: "65", name: "Bicycle Crunches", muscle: "Core", sets: 3, reps: "20-30" },
+    { id: "66", name: "Leg Raises", muscle: "Core", sets: 3, reps: "10-15" },
+    { id: "67", name: "Side Planks", muscle: "Core", sets: 3, reps: "20-30s" },
+    
+    // Cardio
+    { id: "68", name: "Burpees", muscle: "Cardio", sets: 3, reps: "10-15" },
+    { id: "69", name: "Jump Squats", muscle: "Cardio", sets: 3, reps: "15-20" },
+    { id: "70", name: "High Knees", muscle: "Cardio", sets: 3, reps: "30s" },
+    { id: "71", name: "Jumping Jacks", muscle: "Cardio", sets: 3, reps: "30s" },
+    { id: "72", name: "Battle Ropes", muscle: "Cardio", sets: 3, reps: "30s" },
   ];
 
   const filteredExercises = exerciseDatabase.filter(exercise =>
@@ -74,7 +157,13 @@ const WorkoutBuilder = () => {
       "Shoulders": "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
       "Triceps": "bg-orange-500/10 text-orange-500 border-orange-500/20",
       "Back": "bg-blue-500/10 text-blue-500 border-blue-500/20",
-      "Legs": "bg-green-500/10 text-green-500 border-green-500/20",
+      "Biceps": "bg-cyan-500/10 text-cyan-500 border-cyan-500/20",
+      "Quads": "bg-green-500/10 text-green-500 border-green-500/20",
+      "Hamstrings": "bg-lime-500/10 text-lime-500 border-lime-500/20",
+      "Glutes": "bg-pink-500/10 text-pink-500 border-pink-500/20",
+      "Calves": "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+      "Core": "bg-purple-500/10 text-purple-500 border-purple-500/20",
+      "Cardio": "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
     };
     return colors[muscle] || "bg-gray-500/10 text-gray-500 border-gray-500/20";
   };
