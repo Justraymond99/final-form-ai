@@ -8,6 +8,7 @@ import Workouts from "./pages/Workouts";
 import WorkoutSession from "./pages/WorkoutSession";
 import WorkoutBuilder from "./pages/WorkoutBuilder";
 import Nutrition from "./pages/Nutrition";
+import FoodLogger from "./pages/FoodLogger";
 import Progress from "./pages/Progress";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/workout-session" element={<WorkoutSession />} />
           <Route path="/workout-builder" element={<WorkoutBuilder />} />
           <Route path="/nutrition" element={<Nutrition />} />
+          <Route path="/food-logger" element={<FoodLogger />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/social" element={<Social />} />
           <Route path="/profile" element={<Profile />} />
