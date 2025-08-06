@@ -4,6 +4,8 @@ import { QuickActions } from "@/components/QuickActions";
 import { TodayStreak } from "@/components/TodayStreak";
 import { NextWorkout } from "@/components/NextWorkout";
 import { Navigation } from "@/components/Navigation";
+import { AIChatbot } from "@/components/AIChatbot";
+import { useProfile } from "@/hooks/useProfile";
 import { 
   Flame, 
   Droplets, 
@@ -17,12 +19,24 @@ import {
 } from "lucide-react";
 
 const Index = () => {
-  // Sample data - in real app this would come from API/state management
+  const { profile } = useProfile();
+  
+  // Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const firstName = profile?.display_name?.split(' ')[0] || 'there';
+  
+  // Reset metrics to start from 0 - user can update manually
   const todayProgress = {
-    calories: { current: 1847, target: 2200 },
-    water: { current: 6, target: 8 },
-    meditation: { current: 15, target: 20 },
-    steps: { current: 8945, target: 10000 }
+    calories: { current: 0, target: 2200 },
+    water: { current: 0, target: 8 },
+    meditation: { current: 0, target: 20 },
+    steps: { current: 0, target: 10000 }
   };
 
   return (
@@ -32,11 +46,13 @@ const Index = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Good morning, Alex! 👋</h1>
+              <h1 className="text-2xl font-bold text-foreground">{getGreeting()}, {firstName}! 👋</h1>
               <p className="text-muted-foreground">Ready to crush your fitness goals?</p>
             </div>
             <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-lg font-bold text-background">A</span>
+              <span className="text-lg font-bold text-background">
+                {firstName ? firstName[0].toUpperCase() : 'U'}
+              </span>
             </div>
           </div>
         </div>
@@ -110,26 +126,26 @@ const Index = () => {
             />
             <StatsCard
               title="Workout Streak"
-              value="12"
+              value="0"
               unit="days"
               icon={Flame}
               gradient="gradient-strength"
-              trend={{ value: 8, isPositive: true }}
+              trend={{ value: 0, isPositive: true }}
             />
             <StatsCard
               title="Weekly Goal"
-              value="85"
+              value="0"
               unit="%"
               icon={Award}
               gradient="gradient-energy"
-              trend={{ value: 15, isPositive: true }}
+              trend={{ value: 0, isPositive: true }}
             />
           </div>
         </div>
 
         {/* Streak Section */}
         <div className="mb-8">
-          <TodayStreak currentStreak={12} isActiveToday={false} />
+          <TodayStreak currentStreak={0} isActiveToday={false} />
         </div>
 
         {/* Next Workout */}
@@ -151,6 +167,7 @@ const Index = () => {
         </div>
       </div>
       <Navigation />
+      <AIChatbot />
     </div>
   );
 };

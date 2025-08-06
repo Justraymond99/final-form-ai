@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Settings, Target, User, Edit3, LogOut } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,18 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Navigation } from "@/components/Navigation";
+import { EditProfileDialog } from "@/components/EditProfileDialog";
+import { AppSettingsDialog } from "@/components/AppSettingsDialog";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { toast } = useToast();
+  const { profile, loading } = useProfile();
+  const { signOut } = useAuth();
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const goals = [
     { id: 1, title: "Lose 10 lbs", target: 10, current: 6, unit: "lbs", type: "weight" },
     { id: 2, title: "Bench 200 lbs", target: 200, current: 185, unit: "lbs", type: "strength" },
@@ -46,12 +55,12 @@ const Profile = () => {
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16">
                 <AvatarFallback className="text-lg font-bold bg-gradient-to-br from-primary to-accent text-primary-foreground">
-                  JD
+                  {profile?.display_name ? profile.display_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-xl font-bold">John Doe</h2>
-                <p className="text-muted-foreground">john.doe@email.com</p>
+                <h2 className="text-xl font-bold">{profile?.display_name || 'User'}</h2>
+                <p className="text-muted-foreground">{profile?.email || 'No email'}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="secondary" className="text-xs">
                     Level 5
@@ -64,7 +73,7 @@ const Profile = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => toast({ title: "Edit Profile", description: "Profile editor opened! ✏️" })}
+                onClick={() => setShowEditDialog(true)}
               >
                 <Edit3 className="h-4 w-4" />
               </Button>
@@ -142,7 +151,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => toast({ title: "Edit Profile", description: "Profile editor opened! ✏️" })}
+              onClick={() => setShowEditDialog(true)}
             >
               <User className="h-4 w-4 mr-2" />
               Edit Profile
@@ -150,7 +159,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => toast({ title: "App Settings", description: "Settings panel opened! ⚙️" })}
+              onClick={() => setShowSettingsDialog(true)}
             >
               <Settings className="h-4 w-4 mr-2" />
               App Settings
@@ -159,7 +168,7 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start text-destructive hover:text-destructive"
-              onClick={() => toast({ title: "Sign Out", description: "Logging out... See you soon! 👋" })}
+              onClick={signOut}
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
@@ -168,6 +177,8 @@ const Profile = () => {
         </Card>
       </div>
       <Navigation />
+      <EditProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
+      <AppSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
     </div>
   );
 };
