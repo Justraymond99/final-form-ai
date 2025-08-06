@@ -1,31 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Play, Plus, Target, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const QuickActions = () => {
+  const navigate = useNavigate();
+  
   const actions = [
     {
       label: "Start Workout",
       icon: Play,
       gradient: "gradient-strength",
-      onClick: () => console.log("Start workout")
+      onClick: () => navigate("/workouts")
     },
     {
       label: "Log Food",
       icon: Plus,
       gradient: "gradient-energy",
-      onClick: () => console.log("Log food")
+      onClick: () => navigate("/nutrition")
     },
     {
       label: "Set Goal",
       icon: Target,
       gradient: "gradient-wellness",
-      onClick: () => console.log("Set goal")
+      onClick: () => navigate("/profile")
     },
     {
       label: "View Progress",
       icon: TrendingUp,
       gradient: "gradient-hydration",
-      onClick: () => console.log("View progress")
+      onClick: () => navigate("/progress")
     }
   ];
 
