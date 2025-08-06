@@ -19,16 +19,24 @@ export type Database = {
           barcode: string | null
           brand: string | null
           calories: number | null
+          calories_per_unit: number | null
           carbs: number | null
+          carbs_g: number | null
           fat: number | null
+          fat_g: number | null
           fiber: number | null
+          fiber_g: number | null
+          food_item_id: string | null
           food_name: string
           id: string
           logged_at: string
           meal_type: string
           protein: number | null
+          protein_g: number | null
           quantity: number
           sodium: number | null
+          sodium_mg: number | null
+          sugar_g: number | null
           unit: string
           user_id: string
         }
@@ -36,16 +44,24 @@ export type Database = {
           barcode?: string | null
           brand?: string | null
           calories?: number | null
+          calories_per_unit?: number | null
           carbs?: number | null
+          carbs_g?: number | null
           fat?: number | null
+          fat_g?: number | null
           fiber?: number | null
+          fiber_g?: number | null
+          food_item_id?: string | null
           food_name: string
           id?: string
           logged_at?: string
           meal_type: string
           protein?: number | null
+          protein_g?: number | null
           quantity: number
           sodium?: number | null
+          sodium_mg?: number | null
+          sugar_g?: number | null
           unit: string
           user_id: string
         }
@@ -53,16 +69,24 @@ export type Database = {
           barcode?: string | null
           brand?: string | null
           calories?: number | null
+          calories_per_unit?: number | null
           carbs?: number | null
+          carbs_g?: number | null
           fat?: number | null
+          fat_g?: number | null
           fiber?: number | null
+          fiber_g?: number | null
+          food_item_id?: string | null
           food_name?: string
           id?: string
           logged_at?: string
           meal_type?: string
           protein?: number | null
+          protein_g?: number | null
           quantity?: number
           sodium?: number | null
+          sodium_mg?: number | null
+          sugar_g?: number | null
           unit?: string
           user_id?: string
         }
@@ -73,17 +97,30 @@ export type Database = {
           activity_level: string | null
           age: number | null
           allergies: string[] | null
+          budget_preference: string | null
           created_at: string
           daily_calorie_goal: number | null
           daily_carb_goal: number | null
           daily_fat_goal: number | null
           daily_protein_goal: number | null
+          date_of_birth: string | null
           dietary_preferences: string[] | null
+          dietary_restrictions: string[] | null
           display_name: string | null
           email: string | null
+          fitness_goals: string[] | null
+          food_preferences: Json | null
+          gender: string | null
           goal: string | null
           height_cm: number | null
           id: string
+          organic_preference: boolean | null
+          preferred_stores: string[] | null
+          target_calories_per_day: number | null
+          target_carbs_g: number | null
+          target_fat_g: number | null
+          target_protein_g: number | null
+          target_weight_kg: number | null
           updated_at: string
           user_id: string
           weight_kg: number | null
@@ -92,17 +129,30 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           allergies?: string[] | null
+          budget_preference?: string | null
           created_at?: string
           daily_calorie_goal?: number | null
           daily_carb_goal?: number | null
           daily_fat_goal?: number | null
           daily_protein_goal?: number | null
+          date_of_birth?: string | null
           dietary_preferences?: string[] | null
+          dietary_restrictions?: string[] | null
           display_name?: string | null
           email?: string | null
+          fitness_goals?: string[] | null
+          food_preferences?: Json | null
+          gender?: string | null
           goal?: string | null
           height_cm?: number | null
           id?: string
+          organic_preference?: boolean | null
+          preferred_stores?: string[] | null
+          target_calories_per_day?: number | null
+          target_carbs_g?: number | null
+          target_fat_g?: number | null
+          target_protein_g?: number | null
+          target_weight_kg?: number | null
           updated_at?: string
           user_id: string
           weight_kg?: number | null
@@ -111,20 +161,116 @@ export type Database = {
           activity_level?: string | null
           age?: number | null
           allergies?: string[] | null
+          budget_preference?: string | null
           created_at?: string
           daily_calorie_goal?: number | null
           daily_carb_goal?: number | null
           daily_fat_goal?: number | null
           daily_protein_goal?: number | null
+          date_of_birth?: string | null
           dietary_preferences?: string[] | null
+          dietary_restrictions?: string[] | null
           display_name?: string | null
           email?: string | null
+          fitness_goals?: string[] | null
+          food_preferences?: Json | null
+          gender?: string | null
           goal?: string | null
           height_cm?: number | null
           id?: string
+          organic_preference?: boolean | null
+          preferred_stores?: string[] | null
+          target_calories_per_day?: number | null
+          target_carbs_g?: number | null
+          target_fat_g?: number | null
+          target_protein_g?: number | null
+          target_weight_kg?: number | null
           updated_at?: string
           user_id?: string
           weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      shopping_list_items: {
+        Row: {
+          brand: string | null
+          created_at: string
+          estimated_price: number | null
+          id: string
+          image_url: string | null
+          is_purchased: boolean | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          shopping_list_id: string
+          store_url: string | null
+          unit: string | null
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          estimated_price?: number | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          shopping_list_id: string
+          store_url?: string | null
+          unit?: string | null
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          estimated_price?: number | null
+          id?: string
+          image_url?: string | null
+          is_purchased?: boolean | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          shopping_list_id?: string
+          store_url?: string | null
+          unit?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_list_items_shopping_list_id_fkey"
+            columns: ["shopping_list_id"]
+            isOneToOne: false
+            referencedRelation: "shopping_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shopping_lists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          store_preference: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          store_preference?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          store_preference?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
