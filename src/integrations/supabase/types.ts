@@ -638,6 +638,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_achievements: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
       create_default_achievements: {
         Args: { user_id_param: string }
         Returns: undefined
