@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Navigation } from "@/components/Navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
+  const { toast } = useToast();
   const goals = [
     { id: 1, title: "Lose 10 lbs", target: 10, current: 6, unit: "lbs", type: "weight" },
     { id: 2, title: "Bench 200 lbs", target: 200, current: 185, unit: "lbs", type: "strength" },
@@ -58,7 +61,11 @@ const Profile = () => {
                   </Badge>
                 </div>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => toast({ title: "Edit Profile", description: "Profile editor opened! ✏️" })}
+              >
                 <Edit3 className="h-4 w-4" />
               </Button>
             </div>
@@ -132,22 +139,35 @@ const Profile = () => {
         {/* Account Actions */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4 space-y-3">
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => toast({ title: "Edit Profile", description: "Profile editor opened! ✏️" })}
+            >
               <User className="h-4 w-4 mr-2" />
               Edit Profile
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => toast({ title: "App Settings", description: "Settings panel opened! ⚙️" })}
+            >
               <Settings className="h-4 w-4 mr-2" />
               App Settings
             </Button>
             <Separator />
-            <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-destructive hover:text-destructive"
+              onClick={() => toast({ title: "Sign Out", description: "Logging out... See you soon! 👋" })}
+            >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
           </CardContent>
         </Card>
       </div>
+      <Navigation />
     </div>
   );
 };

@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Navigation } from "@/components/Navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const Social = () => {
+  const { toast } = useToast();
   const leaderboard = [
     { id: 1, name: "Alex Johnson", workouts: 24, rank: 1, streak: 12 },
     { id: 2, name: "Sarah Chen", workouts: 22, rank: 2, streak: 8 },
@@ -38,7 +41,10 @@ const Social = () => {
         {/* Quick Share */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4">
-            <Button className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+              onClick={() => toast({ title: "Workout Shared!", description: "Your workout has been shared with friends! 🎉" })}
+            >
               <Share2 className="h-4 w-4 mr-2" />
               Share Today's Workout
             </Button>
@@ -125,7 +131,11 @@ const Social = () => {
                   </div>
                   <p className="text-sm text-muted-foreground">{friend.status}</p>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => toast({ title: "Chat", description: `Opening chat with ${friend.name}! 💬` })}
+                >
                   <MessageCircle className="h-4 w-4" />
                 </Button>
               </div>
@@ -173,6 +183,7 @@ const Social = () => {
           </CardContent>
         </Card>
       </div>
+      <Navigation />
     </div>
   );
 };

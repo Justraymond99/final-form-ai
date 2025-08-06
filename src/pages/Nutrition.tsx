@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Navigation } from "@/components/Navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const Nutrition = () => {
+  const { toast } = useToast();
   const macros = [
     { name: "Protein", current: 85, target: 120, color: "text-primary", bgColor: "bg-primary" },
     { name: "Carbs", current: 145, target: 200, color: "text-accent", bgColor: "bg-accent" },
@@ -68,11 +71,18 @@ const Nutrition = () => {
                 </div>
               </div>
               <div className="flex justify-center gap-4">
-                <Button className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
+                <Button 
+                  className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                  onClick={() => toast({ title: "Food Scanner", description: "Camera scanning feature coming soon! 📷" })}
+                >
                   <Camera className="h-4 w-4 mr-2" />
                   Scan Food
                 </Button>
-                <Button variant="outline" className="border-primary/20 hover:bg-primary/5">
+                <Button 
+                  variant="outline" 
+                  className="border-primary/20 hover:bg-primary/5"
+                  onClick={() => toast({ title: "Add Meal", description: "Manual meal entry opened! 🍽️" })}
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Meal
                 </Button>
@@ -136,6 +146,7 @@ const Nutrition = () => {
           </CardContent>
         </Card>
       </div>
+      <Navigation />
     </div>
   );
 };

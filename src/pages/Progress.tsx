@@ -1,6 +1,7 @@
 import { Calendar, Trophy, TrendingUp, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Navigation } from "@/components/Navigation";
 
 const Progress = () => {
   const achievements = [
@@ -135,6 +136,7 @@ const Progress = () => {
           </CardContent>
         </Card>
       </div>
+      <Navigation />
     </div>
   );
 };
