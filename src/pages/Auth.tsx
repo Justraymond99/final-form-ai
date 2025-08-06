@@ -103,7 +103,10 @@ const Auth = () => {
               src="/lovable-uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
               alt="Final Form Logo" 
               className="w-full h-full object-contain"
-              style={{ mixBlendMode: 'screen' }}
+              style={{ 
+                mixBlendMode: 'lighten',
+                filter: 'brightness(1.2) contrast(1.1)'
+              }}
             />
           </div>
           <CardTitle className="text-2xl font-bold" style={{ color: 'hsl(260 84% 60%)' }}>Final Form</CardTitle>
