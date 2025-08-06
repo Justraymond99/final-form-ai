@@ -1,1 +1,7 @@
 project_id = "lnocdbqlxepxuohktjxb"
+
+[functions.search-food]
+verify_jwt = false
+
+[functions.search-products]
+verify_jwt = false
