@@ -8,11 +8,11 @@ interface Workout {
   name: string;
   type: string;
   difficulty: string;
-  duration_minutes: number;
+  estimated_duration: number;
   exercises: any;
-  target_muscles: string[];
-  is_template: boolean;
+  description?: string;
   created_at: string;
+  updated_at: string;
 }
 
 interface WorkoutSession {
@@ -26,43 +26,58 @@ interface WorkoutSession {
   duration_minutes?: number;
   is_paused: boolean;
   exercises_data: any;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useWorkouts = () => {
   const { user } = useAuth();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [currentSession, setCurrentSession] = useState<WorkoutSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setWorkouts([]);
+      setSessions([]);
       setLoading(false);
       return;
     }
 
-    const fetchWorkouts = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await supabase
-          .from('workouts')
+        // Fetch workout templates
+        const { data: workoutData, error: workoutError } = await supabase
+          .from('workout_templates')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setWorkouts((data as Workout[]) || []);
+        if (workoutError) throw workoutError;
+        setWorkouts(workoutData || []);
+
+        // Fetch workout sessions
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('workout_sessions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (sessionError) throw sessionError;
+        setSessions(sessionData || []);
       } catch (error) {
-        console.error('Error fetching workouts:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchWorkouts();
+    fetchData();
   }, [user]);
 
-  const getTemplates = () => workouts.filter(w => w.is_template);
-  const getRecentWorkouts = () => workouts.filter(w => !w.is_template);
+  const getTemplates = () => workouts; // All items from workout_templates are templates
+  const getRecentWorkouts = () => sessions.slice(0, 5); // Recent sessions
 
   const startWorkout = async (workoutId: string) => {
     if (!user) return;
@@ -160,6 +175,7 @@ export const useWorkouts = () => {
 
   return {
     workouts,
+    sessions,
     templates: getTemplates(),
     recentWorkouts: getRecentWorkouts(),
     currentSession,

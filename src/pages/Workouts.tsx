@@ -16,9 +16,9 @@ const Workouts = () => {
   const recentWorkouts = dbRecentWorkouts.map(workout => ({
     id: workout.id,
     name: workout.name,
-    duration: `${workout.duration_minutes} min`,
-    exercises: Array.isArray(workout.exercises) ? workout.exercises.length : 0,
-    lastPerformed: new Date(workout.created_at).toLocaleDateString()
+    duration: `${workout.duration_minutes || 30} min`,
+    exercises: workout.exercises_data ? Object.keys(workout.exercises_data).length : 0,
+    lastPerformed: new Date(workout.started_at).toLocaleDateString()
   }));
 
   // Format templates for display

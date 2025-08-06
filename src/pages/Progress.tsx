@@ -2,28 +2,59 @@ import { Calendar, Trophy, TrendingUp, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useDailyTracking } from "@/hooks/useDailyTracking";
+import { useWorkouts } from "@/hooks/useWorkouts";
+import { useAchievements } from "@/hooks/useAchievements";
+import { useState, useEffect } from "react";
 
 const Progress = () => {
-  const achievements = [
-    { id: 1, title: "Week Warrior", description: "7 days streak", icon: "🔥", earned: true },
-    { id: 2, title: "Strong Lifter", description: "Bench 200lbs", icon: "💪", earned: true },
-    { id: 3, title: "Cardio King", description: "30min cardio", icon: "❤️", earned: false },
-    { id: 4, title: "Nutrition Pro", description: "Track 30 days", icon: "🥗", earned: false },
-  ];
+  const { user } = useAuth();
+  const { data: dailyData } = useDailyTracking();
+  const { sessions } = useWorkouts();
+  const { achievements, getCompletedAchievements, loading: achievementsLoading } = useAchievements();
+  const [workoutDays, setWorkoutDays] = useState<string[]>([]);
 
+  // Get workout days from actual data
+  useEffect(() => {
+    const days = sessions
+      .filter(session => session.completed_at)
+      .map(session => new Date(session.completed_at!).toDateString());
+    setWorkoutDays([...new Set(days)] as string[]);
+  }, [sessions]);
+
+  const completedAchievements = getCompletedAchievements();
+  
   const stats = [
-    { label: "Total Workouts", value: "47", change: "+3 this week" },
-    { label: "Max Bench Press", value: "185 lbs", change: "+10 lbs" },
-    { label: "Avg Workout Time", value: "42 min", change: "-5 min" },
-    { label: "Calories Burned", value: "12,450", change: "+1,200" },
+    { label: "Total Workouts", value: sessions.filter(s => s.completed_at).length.toString(), change: "this month" },
+    { label: "Current Streak", value: (dailyData?.workout_streak || 0).toString(), change: "days" },
+    { label: "Calories Logged", value: (dailyData?.calories_consumed || 0).toString(), change: "today" },
+    { label: "Water Intake", value: Math.round((dailyData?.water_intake_ml || 0) / 250).toString(), change: "glasses" },
   ];
 
-  // Mock calendar data
-  const calendarDays = Array.from({ length: 30 }, (_, i) => ({
-    day: i + 1,
-    hasWorkout: Math.random() > 0.6,
-    isToday: i === 14
-  }));
+  // Generate calendar for current month
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  
+  const calendarDays = Array.from({ length: daysInMonth }, (_, i) => {
+    const day = i + 1;
+    const date = new Date(currentYear, currentMonth, day);
+    const dateString = date.toDateString();
+    const isToday = today.toDateString() === dateString;
+    const hasWorkout = workoutDays.includes(dateString);
+    
+    return {
+      day,
+      hasWorkout,
+      isToday
+    };
+  });
+
+  const currentMonthName = new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(today);
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-20">
@@ -41,7 +72,7 @@ const Progress = () => {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              December 2024
+              {currentMonthName}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -74,7 +105,7 @@ const Progress = () => {
                 <span className="text-muted-foreground">Workout days</span>
               </div>
               <Badge variant="outline" className="border-primary/30 text-primary">
-                18 this month
+                {workoutDays.length} this month
               </Badge>
             </div>
           </CardContent>
@@ -112,27 +143,42 @@ const Progress = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {achievements.map((achievement) => (
-              <div
-                key={achievement.id}
-                className={`
-                  flex items-center gap-3 p-3 rounded-lg border transition-colors
-                  ${achievement.earned 
-                    ? 'border-primary/30 bg-primary/5' 
-                    : 'border-border/30 opacity-60'
-                  }
-                `}
-              >
-                <div className="text-2xl">{achievement.icon}</div>
-                <div className="flex-1">
-                  <h3 className="font-medium">{achievement.title}</h3>
-                  <p className="text-sm text-muted-foreground">{achievement.description}</p>
-                </div>
-                {achievement.earned && (
-                  <Award className="h-5 w-5 text-primary" />
-                )}
+            {achievementsLoading ? (
+              <div className="text-center text-muted-foreground">Loading achievements...</div>
+            ) : completedAchievements.length === 0 ? (
+              <div className="text-center text-muted-foreground">
+                <p>No achievements yet!</p>
+                <p className="text-xs mt-1">Complete activities to earn your first achievements</p>
               </div>
-            ))}
+            ) : (
+              completedAchievements.slice(0, 4).map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5 transition-colors"
+                >
+                  <div className="text-2xl">
+                    {achievement.icon === 'star' ? '⭐' :
+                     achievement.icon === 'dumbbell' ? '💪' :
+                     achievement.icon === 'flame' ? '🔥' :
+                     achievement.icon === 'trophy' ? '🏆' :
+                     achievement.icon === 'target' ? '🎯' :
+                     achievement.icon === 'droplets' ? '💧' :
+                     achievement.icon === 'utensils' ? '🍽️' :
+                     achievement.icon === 'calendar' ? '📅' :
+                     achievement.icon === 'waves' ? '🌊' :
+                     achievement.icon === 'trending-up' ? '📈' :
+                     achievement.icon === 'award' ? '🏅' :
+                     achievement.icon === 'zap' ? '⚡' :
+                     achievement.icon === 'crown' ? '👑' : '🎖️'}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium text-primary">{achievement.title}</h3>
+                    <p className="text-sm text-muted-foreground">{achievement.description}</p>
+                  </div>
+                  <Award className="h-5 w-5 text-primary" />
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>

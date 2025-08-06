@@ -56,7 +56,12 @@ const Index = () => {
   };
 
   // Get next workout from templates
-  const nextWorkout = templates[0] || {
+  const nextWorkout = templates[0] ? {
+    name: templates[0].name,
+    duration_minutes: templates[0].estimated_duration,
+    target_muscles: ["Full Body"], // Default since we don't have this field in templates
+    difficulty: templates[0].difficulty
+  } : {
     name: "Push Day - Chest & Triceps",
     duration_minutes: 42,
     target_muscles: ["Chest", "Triceps", "Shoulders"],

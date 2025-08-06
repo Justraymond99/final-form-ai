@@ -90,8 +90,8 @@ export const AIChatbot = () => {
   }
 
   return (
-    <Card className="fixed bottom-24 right-4 z-50 w-80 h-96 flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="fixed bottom-24 right-4 z-50 w-80 h-[500px] flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
         <CardTitle className="text-lg">AI Fitness Assistant</CardTitle>
         <Button
           variant="ghost"
@@ -103,22 +103,22 @@ export const AIChatbot = () => {
         </Button>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4 pt-0">
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-4">
+      <CardContent className="flex-1 flex flex-col p-4 pt-0 min-h-0">
+        <ScrollArea className="flex-1 pr-2 min-h-0">
+          <div className="space-y-3 pb-4">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm break-words ${
                     message.isUser
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
                   }`}
                 >
-                  {message.text}
+                  <p className="whitespace-pre-wrap">{message.text}</p>
                 </div>
               </div>
             ))}
@@ -136,13 +136,13 @@ export const AIChatbot = () => {
           </div>
         </ScrollArea>
         
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-3 shrink-0">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything about fitness..."
-            className="flex-1"
+            className="flex-1 text-sm"
             disabled={isLoading}
           />
           <Button

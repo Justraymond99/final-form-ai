@@ -5,23 +5,55 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { Navigation } from "@/components/Navigation";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AppSettingsDialog } from "@/components/AppSettingsDialog";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useDailyTracking } from "@/hooks/useDailyTracking";
+import { useWorkouts } from "@/hooks/useWorkouts";
 
 const Profile = () => {
   const { toast } = useToast();
   const { profile, loading } = useProfile();
   const { signOut } = useAuth();
+  const { data: dailyData } = useDailyTracking();
+  const { sessions } = useWorkouts();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  
+  // Real goals with starting values of 0
   const goals = [
-    { id: 1, title: "Lose 10 lbs", target: 10, current: 6, unit: "lbs", type: "weight" },
-    { id: 2, title: "Bench 200 lbs", target: 200, current: 185, unit: "lbs", type: "strength" },
-    { id: 3, title: "Run 5K under 25min", target: 25, current: 27, unit: "min", type: "cardio" },
+    { 
+      id: 1, 
+      title: "Weekly Workouts", 
+      target: 3, 
+      current: sessions.filter(s => s.completed_at && 
+        new Date(s.completed_at).getTime() > Date.now() - 7 * 24 * 60 * 60 * 1000
+      ).length, 
+      unit: "workouts", 
+      type: "frequency" 
+    },
+    { 
+      id: 2, 
+      title: "Daily Water Goal", 
+      target: 8, 
+      current: Math.round((dailyData?.water_intake_ml || 0) / 250), 
+      unit: "glasses", 
+      type: "hydration" 
+    },
+    { 
+      id: 3, 
+      title: "Monthly Workouts", 
+      target: 12, 
+      current: sessions.filter(s => s.completed_at && 
+        new Date(s.completed_at).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000
+      ).length, 
+      unit: "workouts", 
+      type: "monthly" 
+    },
   ];
 
   const preferences = [
@@ -32,10 +64,10 @@ const Profile = () => {
   ];
 
   const stats = [
-    { label: "Member Since", value: "Oct 2024" },
-    { label: "Total Workouts", value: "47" },
-    { label: "Current Streak", value: "7 days" },
-    { label: "Best Streak", value: "12 days" },
+    { label: "Member Since", value: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : "Recently" },
+    { label: "Total Workouts", value: sessions.filter(s => s.completed_at).length.toString() },
+    { label: "Current Streak", value: `${dailyData?.workout_streak || 0} days` },
+    { label: "Calories Today", value: (dailyData?.calories_consumed || 0).toString() },
   ];
 
   return (
@@ -63,10 +95,10 @@ const Profile = () => {
                 <p className="text-muted-foreground">{profile?.email || 'No email'}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="secondary" className="text-xs">
-                    Level 5
+                    Level {Math.floor((sessions.filter(s => s.completed_at).length / 10) + 1)}
                   </Badge>
                   <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-                    🔥 7 day streak
+                    🔥 {dailyData?.workout_streak || 0} day streak
                   </Badge>
                 </div>
               </div>
@@ -113,12 +145,10 @@ const Profile = () => {
                     {goal.current} / {goal.target} {goal.unit}
                   </span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.min((goal.current / goal.target) * 100, 100)}%` }}
-                  />
-                </div>
+                <Progress 
+                  value={Math.min((goal.current / goal.target) * 100, 100)}
+                  className="h-2"
+                />
               </div>
             ))}
           </CardContent>
