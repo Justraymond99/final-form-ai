@@ -98,10 +98,14 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-card border-card-border">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
-            <Utensils className="w-8 h-8 text-background" />
+          <div className="mx-auto w-20 h-20 mb-4">
+            <img 
+              src="/lovable-uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
+              alt="Final Form Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
-          <CardTitle className="text-2xl font-bold text-foreground">Final Form</CardTitle>
+          <CardTitle className="text-2xl font-bold" style={{ color: 'hsl(260 84% 60%)' }}>Final Form</CardTitle>
           <CardDescription className="text-muted-foreground">
             Your ultimate fitness & nutrition companion
           </CardDescription>
