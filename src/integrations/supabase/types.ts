@@ -101,6 +101,48 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_tracking: {
+        Row: {
+          calories_consumed: number | null
+          created_at: string
+          date: string
+          id: string
+          meditation_minutes: number | null
+          steps: number | null
+          updated_at: string
+          user_id: string
+          water_intake_ml: number | null
+          workout_completed: boolean | null
+          workout_streak: number | null
+        }
+        Insert: {
+          calories_consumed?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          meditation_minutes?: number | null
+          steps?: number | null
+          updated_at?: string
+          user_id: string
+          water_intake_ml?: number | null
+          workout_completed?: boolean | null
+          workout_streak?: number | null
+        }
+        Update: {
+          calories_consumed?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          meditation_minutes?: number | null
+          steps?: number | null
+          updated_at?: string
+          user_id?: string
+          water_intake_ml?: number | null
+          workout_completed?: boolean | null
+          workout_streak?: number | null
+        }
+        Relationships: []
+      }
       food_logs: {
         Row: {
           barcode: string | null
@@ -430,6 +472,30 @@ export type Database = {
         }
         Relationships: []
       }
+      water_logs: {
+        Row: {
+          amount_ml: number
+          date: string
+          id: string
+          logged_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_ml: number
+          date?: string
+          id?: string
+          logged_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_ml?: number
+          date?: string
+          id?: string
+          logged_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workout_sessions: {
         Row: {
           completed_at: string | null
@@ -519,6 +585,48 @@ export type Database = {
           exercises?: Json
           id?: string
           name?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          created_at: string
+          difficulty: string
+          duration_minutes: number | null
+          exercises: Json
+          id: string
+          is_template: boolean | null
+          name: string
+          target_muscles: string[] | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty: string
+          duration_minutes?: number | null
+          exercises: Json
+          id?: string
+          is_template?: boolean | null
+          name: string
+          target_muscles?: string[] | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          duration_minutes?: number | null
+          exercises?: Json
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          target_muscles?: string[] | null
           type?: string
           updated_at?: string
           user_id?: string
