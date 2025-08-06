@@ -109,7 +109,6 @@ const Auth = () => {
               }}
             />
           </div>
-          <CardTitle className="text-2xl font-bold" style={{ color: 'hsl(260 84% 60%)' }}>Final Form</CardTitle>
           <CardDescription className="text-muted-foreground">
             Your ultimate fitness & nutrition companion
           </CardDescription>
