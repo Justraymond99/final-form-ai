@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { Plus, Camera, Mic, Target, TrendingUp, Clock, Utensils, Coffee, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Camera, Mic, Target, TrendingUp, Clock, Utensils, Coffee, Sun, Moon, ChevronLeft, ChevronRight, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Navigation } from "@/components/Navigation";
+import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useDailyTracking } from "@/hooks/useDailyTracking";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MacroGoals {
   calories: number;
@@ -31,64 +34,60 @@ interface FoodEntry {
 const Nutrition = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { profile } = useProfile();
+  
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [todaysFoods, setTodaysFoods] = useState<FoodEntry[]>([]);
+  const { data: dailyData, logWater } = useDailyTracking(selectedDate);
   
   const goals: MacroGoals = {
-    calories: 2400,
+    calories: 2400, // Default values for now
     protein: 150,
     carbs: 240,
     fat: 80
   };
 
-  const [todaysFoods] = useState<FoodEntry[]>([
-    {
-      id: "1",
-      name: "Greek Yogurt with Berries",
-      calories: 180,
-      protein: 15,
-      carbs: 20,
-      fat: 6,
-      quantity: 1,
-      unit: "serving",
-      meal: "breakfast",
-      time: "8:30 AM"
-    },
-    {
-      id: "2", 
-      name: "Chicken Breast",
-      calories: 330,
-      protein: 62,
-      carbs: 0,
-      fat: 7,
-      quantity: 200,
-      unit: "g",
-      meal: "lunch",
-      time: "12:45 PM"
-    },
-    {
-      id: "3",
-      name: "Brown Rice",
-      calories: 220,
-      protein: 5,
-      carbs: 45,
-      fat: 2,
-      quantity: 200,
-      unit: "g",
-      meal: "lunch", 
-      time: "12:45 PM"
-    },
-    {
-      id: "4",
-      name: "Almonds",
-      calories: 160,
-      protein: 6,
-      carbs: 6,
-      fat: 14,
-      quantity: 28,
-      unit: "g",
-      meal: "snacks",
-      time: "3:20 PM"
-    }
-  ]);
+  // Fetch food logs for selected date
+  useEffect(() => {
+    const fetchFoodLogs = async () => {
+      if (!dailyData?.user_id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('food_logs')
+          .select('*')
+          .eq('user_id', dailyData.user_id)
+          .gte('logged_at', `${selectedDate}T00:00:00`)
+          .lt('logged_at', `${selectedDate}T23:59:59`)
+          .order('logged_at', { ascending: true });
+
+        if (error) throw error;
+        
+        const formattedFoods = data?.map(food => ({
+          id: food.id,
+          name: food.food_name,
+          calories: food.calories || 0,
+          protein: food.protein_g || 0,
+          carbs: food.carbs_g || 0,
+          fat: food.fat_g || 0,
+          quantity: food.quantity,
+          unit: food.unit,
+          meal: food.meal_type,
+          time: new Date(food.logged_at).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+          })
+        })) || [];
+        
+        setTodaysFoods(formattedFoods);
+      } catch (error) {
+        console.error('Error fetching food logs:', error);
+      }
+    };
+
+    fetchFoodLogs();
+  }, [selectedDate, dailyData?.user_id]);
 
   const totals = todaysFoods.reduce(
     (acc, food) => ({
@@ -106,6 +105,33 @@ const Nutrition = () => {
     carbs: goals.carbs - totals.carbs,
     fat: goals.fat - totals.fat
   };
+
+  const handleDateChange = (direction: 'prev' | 'next') => {
+    const currentDate = new Date(selectedDate);
+    const newDate = new Date(currentDate);
+    
+    if (direction === 'prev') {
+      newDate.setDate(currentDate.getDate() - 1);
+    } else {
+      newDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    setSelectedDate(newDate.toISOString().split('T')[0]);
+  };
+
+  const handleLogWater = async (amount: number) => {
+    const result = await logWater(amount);
+    if (result?.success) {
+      toast({ title: "Water logged!", description: `Added ${amount}ml to your daily intake` });
+    }
+  };
+
+  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  const dateLabel = isToday ? 'Today' : new Date(selectedDate).toLocaleDateString('en-US', { 
+    weekday: 'short', 
+    month: 'short', 
+    day: 'numeric' 
+  });
 
   const getMealIcon = (meal: string) => {
     switch (meal) {
@@ -130,12 +156,29 @@ const Nutrition = () => {
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-20">
       <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
+        {/* Header with Date Navigation */}
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             Nutrition
           </h1>
-          <p className="text-muted-foreground">Fuel your fitness journey</p>
+          <div className="flex items-center justify-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => handleDateChange('prev')}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <p className="text-muted-foreground font-medium">{dateLabel}</p>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => handleDateChange('next')}
+              disabled={selectedDate >= new Date().toISOString().split('T')[0]}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
         {/* Daily Summary */}
@@ -195,7 +238,7 @@ const Nutrition = () => {
         </Card>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           <Button 
             className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
             onClick={() => navigate("/food-logger")}
@@ -207,12 +250,22 @@ const Nutrition = () => {
           </Button>
           <Button 
             variant="outline" 
+            className="h-16 border-hydration/20 hover:bg-hydration/5"
+            onClick={() => handleLogWater(250)}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <Droplets className="h-5 w-5" />
+              <span className="text-sm">Water</span>
+            </div>
+          </Button>
+          <Button 
+            variant="outline" 
             className="h-16 border-primary/20 hover:bg-primary/5"
             onClick={() => toast({ title: "Scan Food", description: "Camera scanning coming soon! 📸" })}
           >
             <div className="flex flex-col items-center gap-1">
               <Camera className="h-5 w-5" />
-              <span className="text-sm">Scan Food</span>
+              <span className="text-sm">Scan</span>
             </div>
           </Button>
           <Button 
@@ -222,7 +275,7 @@ const Nutrition = () => {
           >
             <div className="flex flex-col items-center gap-1">
               <Mic className="h-5 w-5" />
-              <span className="text-sm">Voice Log</span>
+              <span className="text-sm">Voice</span>
             </div>
           </Button>
         </div>
@@ -313,7 +366,7 @@ const Nutrition = () => {
           </CardContent>
         </Card>
       </div>
-      <Navigation />
+      <SwipeableNavigation />
     </div>
   );
 };

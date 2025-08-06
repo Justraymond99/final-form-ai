@@ -3,9 +3,11 @@ import { StatsCard } from "@/components/StatsCard";
 import { QuickActions } from "@/components/QuickActions";
 import { TodayStreak } from "@/components/TodayStreak";
 import { NextWorkout } from "@/components/NextWorkout";
-import { Navigation } from "@/components/Navigation";
+import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { AIChatbot } from "@/components/AIChatbot";
 import { useProfile } from "@/hooks/useProfile";
+import { useDailyTracking } from "@/hooks/useDailyTracking";
+import { useWorkouts } from "@/hooks/useWorkouts";
 import { 
   Flame, 
   Droplets, 
@@ -20,6 +22,8 @@ import {
 
 const Index = () => {
   const { profile } = useProfile();
+  const { data: dailyData } = useDailyTracking();
+  const { templates } = useWorkouts();
   
   // Get time-based greeting
   const getGreeting = () => {
@@ -31,12 +35,32 @@ const Index = () => {
 
   const firstName = profile?.display_name?.split(' ')[0] || 'there';
   
-  // Reset metrics to start from 0 - user can update manually
+  // Use real data from database - starts at 0 and updates with user activity
   const todayProgress = {
-    calories: { current: 0, target: 2200 },
-    water: { current: 0, target: 8 },
-    meditation: { current: 0, target: 20 },
-    steps: { current: 0, target: 10000 }
+    calories: { 
+      current: dailyData?.calories_consumed || 0, 
+      target: 2200 // Default for now
+    },
+    water: { 
+      current: Math.round((dailyData?.water_intake_ml || 0) / 250), // Convert to glasses
+      target: 8 
+    },
+    meditation: { 
+      current: dailyData?.meditation_minutes || 0, 
+      target: 20 
+    },
+    steps: { 
+      current: dailyData?.steps || 0, 
+      target: 10000 
+    }
+  };
+
+  // Get next workout from templates
+  const nextWorkout = templates[0] || {
+    name: "Push Day - Chest & Triceps",
+    duration_minutes: 42,
+    target_muscles: ["Chest", "Triceps", "Shoulders"],
+    difficulty: "Intermediate"
   };
 
   return (
@@ -126,36 +150,39 @@ const Index = () => {
             />
             <StatsCard
               title="Workout Streak"
-              value="0"
+              value={dailyData?.workout_streak?.toString() || "0"}
               unit="days"
               icon={Flame}
               gradient="gradient-strength"
-              trend={{ value: 0, isPositive: true }}
+              trend={{ value: dailyData?.workout_streak || 0, isPositive: true }}
             />
             <StatsCard
               title="Weekly Goal"
-              value="0"
+              value={Math.round(((dailyData?.calories_consumed || 0) / 2200) * 100).toString()}
               unit="%"
               icon={Award}
               gradient="gradient-energy"
-              trend={{ value: 0, isPositive: true }}
+              trend={{ value: 15, isPositive: true }}
             />
           </div>
         </div>
 
         {/* Streak Section */}
         <div className="mb-8">
-          <TodayStreak currentStreak={0} isActiveToday={false} />
+          <TodayStreak 
+            currentStreak={dailyData?.workout_streak || 0} 
+            isActiveToday={dailyData?.workout_completed || false} 
+          />
         </div>
 
         {/* Next Workout */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">Up Next</h2>
           <NextWorkout
-            workoutName="Push Day - Chest & Triceps"
-            estimatedTime={42}
-            targetMuscles={["Chest", "Triceps", "Shoulders"]}
-            difficulty="Intermediate"
+            workoutName={nextWorkout.name}
+            estimatedTime={nextWorkout.duration_minutes}
+            targetMuscles={nextWorkout.target_muscles}
+            difficulty={nextWorkout.difficulty as "Intermediate" | "Beginner" | "Advanced"}
             onStart={() => console.log("Starting workout...")}
           />
         </div>
@@ -166,7 +193,7 @@ const Index = () => {
           <QuickActions />
         </div>
       </div>
-      <Navigation />
+      <SwipeableNavigation />
       <AIChatbot />
     </div>
   );

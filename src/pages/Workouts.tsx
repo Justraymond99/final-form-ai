@@ -2,24 +2,41 @@ import { Plus, Play, Clock, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Navigation } from "@/components/Navigation";
+import { SwipeableNavigation } from "@/components/SwipeableNavigation";
+import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 const Workouts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const recentWorkouts = [
-    { id: 1, name: "Push Workout", duration: "42 min", exercises: 8, lastPerformed: "2 days ago" },
-    { id: 2, name: "Pull Workout", duration: "38 min", exercises: 6, lastPerformed: "4 days ago" },
-    { id: 3, name: "Leg Day", duration: "55 min", exercises: 10, lastPerformed: "6 days ago" },
-  ];
+  const { templates, recentWorkouts: dbRecentWorkouts, startWorkout } = useWorkouts();
 
-  const templates = [
-    { id: 1, name: "5x5 Strength", type: "Strength", exercises: 5 },
-    { id: 2, name: "HIIT Cardio", type: "Cardio", exercises: 8 },
-    { id: 3, name: "Upper Body Pump", type: "Hypertrophy", exercises: 12 },
-  ];
+  // Format recent workouts for display
+  const recentWorkouts = dbRecentWorkouts.map(workout => ({
+    id: workout.id,
+    name: workout.name,
+    duration: `${workout.duration_minutes} min`,
+    exercises: Array.isArray(workout.exercises) ? workout.exercises.length : 0,
+    lastPerformed: new Date(workout.created_at).toLocaleDateString()
+  }));
+
+  // Format templates for display
+  const workoutTemplates = templates.map(template => ({
+    id: template.id,
+    name: template.name,
+    type: template.type,
+    exercises: Array.isArray(template.exercises) ? template.exercises.length : 0,
+    difficulty: template.difficulty
+  }));
+
+  const handleStartWorkout = async (workoutId: string) => {
+    const result = await startWorkout(workoutId);
+    if (result?.success) {
+      toast({ title: "Workout Started!", description: "Let's get moving!" });
+      navigate("/workout-session");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-20">
@@ -96,14 +113,15 @@ const Workouts = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {templates.map((template) => (
+            {workoutTemplates.map((template) => (
               <div
                 key={template.id}
                 className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                onClick={() => handleStartWorkout(template.id)}
               >
                 <div className="space-y-1">
                   <h3 className="font-medium">{template.name}</h3>
-                  <p className="text-sm text-muted-foreground">{template.exercises} exercises</p>
+                  <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
                 </div>
                 <Badge variant="outline" className="border-accent/30 text-accent">
                   {template.type}
@@ -113,7 +131,7 @@ const Workouts = () => {
           </CardContent>
         </Card>
       </div>
-      <Navigation />
+      <SwipeableNavigation />
     </div>
   );
 };
