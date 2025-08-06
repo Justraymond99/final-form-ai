@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Workouts = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const recentWorkouts = [
     { id: 1, name: "Push Workout", duration: "42 min", exercises: 8, lastPerformed: "2 days ago" },
     { id: 2, name: "Pull Workout", duration: "38 min", exercises: 6, lastPerformed: "4 days ago" },
@@ -34,7 +36,7 @@ const Workouts = () => {
         <div className="grid grid-cols-2 gap-4">
           <Button 
             className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-            onClick={() => toast({ title: "Quick Workout Started!", description: "Let's get moving! 💪" })}
+            onClick={() => navigate("/workout-session")}
           >
             <div className="flex flex-col items-center gap-1">
               <Play className="h-5 w-5" />
@@ -44,7 +46,7 @@ const Workouts = () => {
           <Button 
             variant="outline" 
             className="h-16 border-primary/20 hover:bg-primary/5"
-            onClick={() => toast({ title: "Template Creator", description: "Creating new workout template..." })}
+            onClick={() => navigate("/workout-builder")}
           >
             <div className="flex flex-col items-center gap-1">
               <Plus className="h-5 w-5" />
