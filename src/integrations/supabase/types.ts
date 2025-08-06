@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          achievement_type: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          description: string
+          icon: string
+          id: string
+          target_value: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description: string
+          icon: string
+          id?: string
+          target_value?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string
+          icon?: string
+          id?: string
+          target_value?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_stats: {
+        Row: {
+          calories_consumed: number | null
+          created_at: string
+          date: string
+          id: string
+          meditation_minutes: number | null
+          steps: number | null
+          streak_count: number | null
+          updated_at: string
+          user_id: string
+          water_glasses: number | null
+          workout_completed: boolean | null
+        }
+        Insert: {
+          calories_consumed?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          meditation_minutes?: number | null
+          steps?: number | null
+          streak_count?: number | null
+          updated_at?: string
+          user_id: string
+          water_glasses?: number | null
+          workout_completed?: boolean | null
+        }
+        Update: {
+          calories_consumed?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          meditation_minutes?: number | null
+          steps?: number | null
+          streak_count?: number | null
+          updated_at?: string
+          user_id?: string
+          water_glasses?: number | null
+          workout_completed?: boolean | null
+        }
+        Relationships: []
+      }
       food_logs: {
         Row: {
           barcode: string | null
@@ -88,6 +175,51 @@ export type Database = {
           sodium_mg?: number | null
           sugar_g?: number | null
           unit?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          goal_type: string
+          id: string
+          target_date: string | null
+          target_value: number
+          title: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          goal_type: string
+          id?: string
+          target_date?: string | null
+          target_value: number
+          title: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          goal_type?: string
+          id?: string
+          target_date?: string | null
+          target_value?: number
+          title?: string
+          unit?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -274,12 +406,142 @@ export type Database = {
         }
         Relationships: []
       }
+      water_intake: {
+        Row: {
+          date: string
+          glasses: number
+          id: string
+          logged_at: string
+          user_id: string
+        }
+        Insert: {
+          date?: string
+          glasses?: number
+          id?: string
+          logged_at?: string
+          user_id: string
+        }
+        Update: {
+          date?: string
+          glasses?: number
+          id?: string
+          logged_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          duration_minutes: number | null
+          exercises_data: Json
+          id: string
+          is_paused: boolean | null
+          name: string
+          notes: string | null
+          paused_at: string | null
+          started_at: string
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          exercises_data?: Json
+          id?: string
+          is_paused?: boolean | null
+          name: string
+          notes?: string | null
+          paused_at?: string | null
+          started_at?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          exercises_data?: Json
+          id?: string
+          is_paused?: boolean | null
+          name?: string
+          notes?: string | null
+          paused_at?: string | null
+          started_at?: string
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sessions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          estimated_duration: number | null
+          exercises: Json
+          id: string
+          name: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          estimated_duration?: number | null
+          exercises?: Json
+          id?: string
+          name: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          estimated_duration?: number | null
+          exercises?: Json
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_default_achievements: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
+      create_default_goals: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
+      create_default_workout_templates: {
+        Args: { user_id_param: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
