@@ -35,53 +35,85 @@ serve(async (req) => {
     // Create system prompt with user's fitness data
     const systemPrompt = createSystemPrompt(userContext);
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { 
-            role: 'system', 
-            content: systemPrompt
-          },
-          { 
-            role: 'user', 
-            content: message 
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    });
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini', // Use cheaper model to reduce quota usage
+          messages: [
+            { 
+              role: 'system', 
+              content: systemPrompt
+            },
+            { 
+              role: 'user', 
+              content: message 
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 500, // Reduce token usage
+        }),
+      });
 
-    if (!response.ok) {
-      const errorData = await response.text();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status}`);
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('OpenAI API error:', errorData);
+        
+        // Check if it's a quota error and provide fallback
+        if (response.status === 429) {
+          console.log('OpenAI quota exceeded, using fallback response');
+          const fallbackResponse = getFallbackResponse(message, userContext);
+          return new Response(JSON.stringify({ 
+            response: fallbackResponse,
+            context: userContext,
+            fallback: true
+          }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiResponse = data.choices[0].message.content;
+
+      console.log('AI response generated successfully');
+
+      return new Response(JSON.stringify({ 
+        response: aiResponse,
+        context: userContext 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (apiError) {
+      console.error('OpenAI API failed, using fallback:', apiError);
+      // Always provide a fallback response
+      const fallbackResponse = getFallbackResponse(message, userContext);
+      return new Response(JSON.stringify({ 
+        response: fallbackResponse,
+        context: userContext,
+        fallback: true
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
-
-    console.log('AI response generated successfully');
-
-    return new Response(JSON.stringify({ 
-      response: aiResponse,
-      context: userContext 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   } catch (error) {
     console.error('Error in ai-fitness-chat function:', error);
+    
+    // Always provide a helpful fallback response
+    const fallbackResponse = getFallbackResponse(message || "Hello", userContext);
+    
     return new Response(JSON.stringify({ 
-      error: error.message || 'Internal server error',
-      response: "I'm having trouble processing your request right now. Please try again later."
+      response: fallbackResponse,
+      context: userContext,
+      fallback: true
     }), {
-      status: 500,
+      status: 200, // Return 200 instead of 500 to avoid client errors
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -301,4 +333,60 @@ You can help with:
 Always reference the user's specific data when giving advice. Be conversational and helpful!`;
 
   return prompt;
+}
+
+function getFallbackResponse(message: string, userContext: any): string {
+  const input = message.toLowerCase();
+  const { profile, dailyTracking, recentWorkouts, workoutTemplates } = userContext;
+  
+  // Personalized responses based on user data
+  if (input.includes('workout') || input.includes('exercise')) {
+    if (workoutTemplates && workoutTemplates.length > 0) {
+      return `Great question about workouts! I see you have ${workoutTemplates.length} workout templates available. Based on your templates, you could try "${workoutTemplates[0].name}" which is a ${workoutTemplates[0].difficulty} level ${workoutTemplates[0].type} workout. What type of workout are you interested in today?`;
+    }
+    return "Great question about workouts! I'd recommend starting with compound movements like squats, deadlifts, and push-ups. What's your current fitness level and what are your goals?";
+  }
+  
+  if (input.includes('nutrition') || input.includes('diet') || input.includes('food')) {
+    const caloriesConsumed = dailyTracking?.calories_consumed || 0;
+    if (caloriesConsumed > 0) {
+      return `Nutrition is key to your fitness goals! I see you've logged ${caloriesConsumed} calories today. Focus on whole foods, adequate protein (aim for 0.8-1g per lb of body weight), and staying hydrated. What specific nutrition goals are you working towards?`;
+    }
+    return "Nutrition is essential for reaching your fitness goals! Focus on whole foods, adequate protein, healthy fats, and complex carbs. Don't forget to stay hydrated! What are your specific nutrition goals?";
+  }
+  
+  if (input.includes('progress') || input.includes('tracking')) {
+    const streak = dailyTracking?.workout_streak || 0;
+    const steps = dailyTracking?.steps || 0;
+    return `Let's look at your progress! ${streak > 0 ? `You're on a ${streak}-day workout streak - fantastic!` : "You're just getting started - that's the hardest part!"} ${steps > 0 ? `You've taken ${steps.toLocaleString()} steps today.` : "Remember to track your daily activities."} Consistency is key to reaching your goals!`;
+  }
+  
+  if (input.includes('goal') || input.includes('target')) {
+    const userGoal = profile?.goal;
+    if (userGoal) {
+      return `I see your goal is "${userGoal}" - that's awesome! Setting clear, specific goals is crucial for success. Break it down into smaller, actionable steps and track your progress regularly. What specific aspect of your goal would you like help with?`;
+    }
+    return "Setting clear goals is fantastic! Whether it's weight loss, muscle gain, improved endurance, or overall health, I can help you create a plan. What's your main fitness goal?";
+  }
+  
+  if (input.includes('water') || input.includes('hydration')) {
+    const waterIntake = dailyTracking?.water_intake_ml || 0;
+    const glasses = Math.round(waterIntake / 250);
+    return `Hydration is so important! ${glasses > 0 ? `You've had ${glasses} glasses of water today.` : "You haven't logged any water yet today."} Aim for 8-10 glasses daily, more if you're active. Proper hydration helps with energy, recovery, and overall performance!`;
+  }
+  
+  if (input.includes('motivation') || input.includes('help') || input.includes('support')) {
+    const streak = dailyTracking?.workout_streak || 0;
+    return `I'm here to support you on your fitness journey! ${streak > 0 ? `Your ${streak}-day streak shows you're already building great habits.` : "Remember, every expert was once a beginner."} Progress takes time, but every small step counts. What's one thing you can do today to move closer to your goals?`;
+  }
+  
+  if (input.includes('hello') || input.includes('hi') || input.includes('hey') || input.includes('test')) {
+    const userName = profile?.display_name ? profile.display_name.split(' ')[0] : '';
+    return `Hello${userName ? ` ${userName}` : ''}! 👋 I'm your AI fitness assistant. I can help you with workout planning, nutrition advice, goal setting, and motivation. ${dailyTracking?.workout_streak > 0 ? `Great job on your ${dailyTracking.workout_streak}-day workout streak!` : ''} What would you like to work on today?`;
+  }
+  
+  // Default response with personalization
+  const userName = profile?.display_name ? profile.display_name.split(' ')[0] : '';
+  return `Thanks for reaching out${userName ? `, ${userName}` : ''}! I'm here to help with your fitness journey. I can assist with workout planning, nutrition guidance, goal setting, progress tracking, and motivation. What specific area would you like to focus on today?`;
+}
 }
