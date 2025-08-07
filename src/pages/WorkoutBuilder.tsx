@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ExerciseTemplate {
   id: string;
@@ -18,9 +20,11 @@ interface ExerciseTemplate {
 const WorkoutBuilder = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [workoutName, setWorkoutName] = useState("");
   const [selectedExercises, setSelectedExercises] = useState<ExerciseTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const exerciseDatabase: ExerciseTemplate[] = [
     // Chest
@@ -133,7 +137,7 @@ const WorkoutBuilder = () => {
     setSelectedExercises(selectedExercises.filter(e => e.id !== exerciseId));
   };
 
-  const saveWorkout = () => {
+  const saveWorkout = async () => {
     if (!workoutName.trim()) {
       toast({ title: "Error", description: "Please enter a workout name" });
       return;
@@ -142,13 +146,49 @@ const WorkoutBuilder = () => {
       toast({ title: "Error", description: "Please add at least one exercise" });
       return;
     }
+    if (!user) {
+      toast({ title: "Error", description: "You must be logged in to save workouts" });
+      return;
+    }
 
-    // Here you would save to database/storage
-    toast({ 
-      title: "Workout Saved!", 
-      description: `"${workoutName}" saved with ${selectedExercises.length} exercises` 
-    });
-    navigate("/workouts");
+    setIsLoading(true);
+    try {
+      // Convert selected exercises to the format expected by the database
+      const exercises = selectedExercises.map(exercise => ({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps,
+        rest: 120 // default rest time
+      }));
+
+      const { error } = await supabase
+        .from('workout_templates')
+        .insert({
+          user_id: user.id,
+          name: workoutName.trim(),
+          type: 'custom',
+          description: `Custom workout with ${selectedExercises.length} exercises`,
+          estimated_duration: selectedExercises.length * 5, // rough estimate
+          difficulty: 'intermediate',
+          exercises: exercises
+        });
+
+      if (error) throw error;
+
+      toast({ 
+        title: "Workout Saved!", 
+        description: `"${workoutName}" saved with ${selectedExercises.length} exercises` 
+      });
+      navigate("/workouts");
+    } catch (error) {
+      console.error('Error saving workout:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to save workout. Please try again." 
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getMuscleColor = (muscle: string) => {
@@ -177,8 +217,8 @@ const WorkoutBuilder = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-bold">Create Workout</h1>
-          <Button onClick={saveWorkout} size="sm">
-            Save
+          <Button onClick={saveWorkout} size="sm" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Save"}
           </Button>
         </div>
 

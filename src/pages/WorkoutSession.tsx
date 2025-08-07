@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Timer, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useWorkouts } from "@/hooks/useWorkouts";
 
 interface Set {
   id: string;
@@ -24,6 +27,8 @@ interface Exercise {
 const WorkoutSession = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { completeWorkout } = useWorkouts();
   const [exercises, setExercises] = useState<Exercise[]>([
     {
       id: "1",
@@ -40,6 +45,7 @@ const WorkoutSession = () => {
   const [currentTimer, setCurrentTimer] = useState<number | null>(null);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [workoutStartTime] = useState(Date.now());
+  const [isFinishing, setIsFinishing] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -128,6 +134,45 @@ const WorkoutSession = () => {
     return formatTime(duration);
   };
 
+  const finishWorkout = async () => {
+    if (!user) {
+      toast({ title: "Error", description: "You must be logged in to save workouts" });
+      return;
+    }
+
+    setIsFinishing(true);
+    try {
+      // Create a workout session in the database
+      const durationMinutes = Math.floor((Date.now() - workoutStartTime) / 60000);
+      const { error } = await supabase
+        .from('workout_sessions')
+        .insert({
+          user_id: user.id,
+          name: "Push Workout",
+          started_at: new Date(workoutStartTime).toISOString(),
+          completed_at: new Date().toISOString(),
+          duration_minutes: durationMinutes,
+          exercises_data: JSON.parse(JSON.stringify(exercises))
+        });
+
+      if (error) throw error;
+
+      toast({ 
+        title: "Workout Complete!", 
+        description: `Great job! You worked out for ${formatTime(durationMinutes * 60)}` 
+      });
+      navigate("/workouts");
+    } catch (error) {
+      console.error('Error saving workout session:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to save workout. Please try again." 
+      });
+    } finally {
+      setIsFinishing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground p-4">
       <div className="max-w-md mx-auto space-y-4">
@@ -140,8 +185,8 @@ const WorkoutSession = () => {
             <h1 className="text-xl font-bold">Push Workout</h1>
             <p className="text-sm text-muted-foreground">{getWorkoutDuration()}</p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => navigate("/workouts")}>
-            Finish
+          <Button size="sm" variant="outline" onClick={finishWorkout} disabled={isFinishing}>
+            {isFinishing ? "Finishing..." : "Finish"}
           </Button>
         </div>
 
