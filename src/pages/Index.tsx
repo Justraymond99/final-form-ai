@@ -8,6 +8,8 @@ import { AIChatbot } from "@/components/AIChatbot";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { ManualStepsDialog } from "@/components/ManualStepsDialog";
+import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
 import { 
   Flame, 
   Droplets, 
@@ -22,7 +24,7 @@ import {
 
 const Index = () => {
   const { profile } = useProfile();
-  const { data: dailyData } = useDailyTracking();
+  const { data: dailyData, updateSteps, updateMeditation } = useDailyTracking();
   const { templates } = useWorkouts();
   
   // Get time-based greeting
@@ -55,18 +57,45 @@ const Index = () => {
     }
   };
 
-  // Get next workout from templates
-  const nextWorkout = templates[0] ? {
-    name: templates[0].name,
-    duration_minutes: templates[0].estimated_duration,
-    target_muscles: ["Full Body"], // Default since we don't have this field in templates
-    difficulty: templates[0].difficulty
-  } : {
-    name: "Push Day - Chest & Triceps",
-    duration_minutes: 42,
-    target_muscles: ["Chest", "Triceps", "Shoulders"],
-    difficulty: "Intermediate"
+  // Get next workout based on day rotation
+  const getDayOfWeek = () => {
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    return days[new Date().getDay()];
   };
+
+  const getNextWorkout = () => {
+    const today = getDayOfWeek();
+    
+    // Find workout scheduled for today
+    const todaysWorkout = templates.find(template => {
+      const scheduledDays = Array.isArray((template as any).scheduled_days) ? (template as any).scheduled_days : [];
+      return scheduledDays.includes(today);
+    });
+
+    if (todaysWorkout) {
+      return {
+        name: todaysWorkout.name,
+        duration_minutes: todaysWorkout.estimated_duration,
+        target_muscles: ["Full Body"], // Default since we don't have this field
+        difficulty: todaysWorkout.difficulty
+      };
+    }
+
+    // Fallback to first template or default
+    return templates[0] ? {
+      name: templates[0].name,
+      duration_minutes: templates[0].estimated_duration,
+      target_muscles: ["Full Body"],
+      difficulty: templates[0].difficulty
+    } : {
+      name: "Push Day - Chest & Triceps",
+      duration_minutes: 42,
+      target_muscles: ["Chest", "Triceps", "Shoulders"],
+      difficulty: "Intermediate"
+    };
+  };
+
+  const nextWorkout = getNextWorkout();
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,21 +167,33 @@ const Index = () => {
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">Quick Stats</h2>
           <div className="grid grid-cols-2 gap-4">
-            <StatsCard
-              title="Steps Today"
-              value={todayProgress.steps.current.toLocaleString()}
-              icon={Target}
-              gradient="gradient-wellness"
-              trend={{ value: 12, isPositive: true }}
-            />
-            <StatsCard
-              title="Meditation"
-              value={todayProgress.meditation.current}
-              unit="min"
-              icon={Brain}
-              gradient="gradient-hydration"
-              trend={{ value: 5, isPositive: true }}
-            />
+            <div className="space-y-2">
+              <StatsCard
+                title="Steps Today"
+                value={todayProgress.steps.current.toLocaleString()}
+                icon={Target}
+                gradient="gradient-wellness"
+                trend={{ value: 12, isPositive: true }}
+              />
+              <ManualStepsDialog 
+                currentSteps={todayProgress.steps.current} 
+                onUpdateSteps={(steps) => updateSteps(steps)} 
+              />
+            </div>
+            <div className="space-y-2">
+              <StatsCard
+                title="Meditation"
+                value={todayProgress.meditation.current}
+                unit="min"
+                icon={Brain}
+                gradient="gradient-hydration"
+                trend={{ value: 5, isPositive: true }}
+              />
+              <ManualMeditationDialog
+                currentMinutes={todayProgress.meditation.current}
+                onUpdateMeditation={(minutes) => updateMeditation(minutes)}
+              />
+            </div>
             <StatsCard
               title="Workout Streak"
               value={dailyData?.workout_streak?.toString() || "0"}

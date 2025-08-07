@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Play, Clock, Target } from "lucide-react";
+import { useWorkouts } from "@/hooks/useWorkouts";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface NextWorkoutProps {
   workoutName: string;
@@ -16,6 +19,23 @@ export const NextWorkout = ({
   difficulty,
   onStart 
 }: NextWorkoutProps) => {
+  const { startWorkout, templates } = useWorkouts();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleStartWorkout = async () => {
+    // Find the workout template by name
+    const template = templates.find(t => t.name === workoutName);
+    if (template) {
+      const result = await startWorkout(template.id);
+      if (result?.success) {
+        toast({ title: "Workout Started!", description: "Let's get moving!" });
+        navigate("/workout-session");
+      }
+    } else {
+      onStart(); // Fallback to provided onStart
+    }
+  };
   const getDifficultyColor = (diff: string) => {
     switch (diff) {
       case "Beginner": return "text-accent";
@@ -45,7 +65,7 @@ export const NextWorkout = ({
         </div>
         
         <Button 
-          onClick={onStart}
+          onClick={handleStartWorkout}
           className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary"
         >
           <Play className="w-4 h-4 mr-2" />

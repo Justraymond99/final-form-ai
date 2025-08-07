@@ -91,6 +91,14 @@ export const useDailyTracking = (selectedDate?: string) => {
     }
   };
 
+  const updateSteps = async (steps: number) => {
+    return await updateTracking({ steps });
+  };
+
+  const updateMeditation = async (minutes: number) => {
+    return await updateTracking({ meditation_minutes: minutes });
+  };
+
   const logWater = async (amountMl: number) => {
     if (!user) return;
 
@@ -111,5 +119,5 @@ export const useDailyTracking = (selectedDate?: string) => {
     }
   };
 
-  return { data, loading, updateTracking, logWater };
+  return { data, loading, updateTracking, logWater, updateSteps, updateMeditation };
 };
