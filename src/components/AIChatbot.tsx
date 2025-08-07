@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -14,11 +16,12 @@ interface Message {
 }
 
 export const AIChatbot = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm your AI fitness assistant. How can I help you today?",
+      text: "Hi! I'm your AI fitness assistant powered by ChatGPT. I have access to your complete fitness profile and can provide personalized advice, workout suggestions, nutrition guidance, and motivation. How can I help you today?",
       isUser: false,
       timestamp: new Date(),
     }
@@ -28,7 +31,7 @@ export const AIChatbot = () => {
   const { toast } = useToast();
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !user) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -38,35 +41,48 @@ export const AIChatbot = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue("");
     setIsLoading(true);
 
-    // Simulate AI response (in real app, this would call an AI API)
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-fitness-chat', {
+        body: {
+          message: currentInput,
+          userId: user.id
+        }
+      });
+
+      if (error) {
+        console.error('AI chat error:', error);
+        throw error;
+      }
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: getAIResponse(inputValue),
+        text: data.response || "I'm sorry, I couldn't process that request. Please try again.",
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, aiResponse]);
-      setIsLoading(false);
-    }, 1000);
-  };
 
-  const getAIResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('workout') || input.includes('exercise')) {
-      return "Great question about workouts! I'd recommend starting with compound movements like squats, deadlifts, and push-ups. What's your current fitness level?";
-    } else if (input.includes('nutrition') || input.includes('diet')) {
-      return "Nutrition is key to your fitness goals! Focus on whole foods, adequate protein, and staying hydrated. What are your specific nutrition goals?";
-    } else if (input.includes('goal') || input.includes('target')) {
-      return "Setting clear goals is fantastic! Whether it's weight loss, muscle gain, or endurance, I can help you create a plan. What's your main goal?";
-    } else if (input.includes('calories')) {
-      return "Calorie tracking can be very helpful! Your daily needs depend on factors like age, weight, activity level, and goals. Would you like help calculating your needs?";
-    } else {
-      return "That's a great question! I'm here to help with fitness, nutrition, and wellness advice. Feel free to ask about workouts, meal planning, or health tips!";
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Error calling AI assistant:', error);
+      toast({
+        title: "AI Assistant Error",
+        description: "I'm having trouble responding right now. Please try again.",
+        variant: "destructive"
+      });
+
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,6 +92,9 @@ export const AIChatbot = () => {
       handleSendMessage();
     }
   };
+
+  // Don't show chatbot if user is not authenticated
+  if (!user) return null;
 
   if (!isOpen) {
     return (
@@ -92,7 +111,7 @@ export const AIChatbot = () => {
   return (
     <Card className="fixed bottom-24 right-4 z-50 w-80 h-[500px] flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
-        <CardTitle className="text-lg">AI Fitness Assistant</CardTitle>
+        <CardTitle className="text-lg">AI Fitness Assistant 🤖</CardTitle>
         <Button
           variant="ghost"
           size="icon"
@@ -141,7 +160,7 @@ export const AIChatbot = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask me anything about fitness..."
+            placeholder="Ask me anything about your fitness journey..."
             className="flex-1 text-sm"
             disabled={isLoading}
           />
