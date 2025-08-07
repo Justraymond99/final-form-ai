@@ -43,19 +43,19 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Use cheaper model to reduce quota usage
+          model: 'gpt-4o-mini',
           messages: [
             { 
               role: 'system', 
-              content: systemPrompt
+              content: "You are a helpful fitness assistant. Keep responses short and practical."
             },
             { 
               role: 'user', 
               content: message 
             }
           ],
-          temperature: 0.7,
-          max_tokens: 500, // Reduce token usage
+          temperature: 0.3,
+          max_tokens: 150, // Super minimal tokens
         }),
       });
 
