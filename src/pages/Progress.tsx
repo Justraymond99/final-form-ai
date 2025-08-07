@@ -1,19 +1,24 @@
-import { Calendar, Trophy, TrendingUp, Award } from "lucide-react";
+import { Calendar, Trophy, TrendingUp, Award, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress as ProgressBar } from "@/components/ui/progress";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useAchievements } from "@/hooks/useAchievements";
+import { useCustomGoals } from "@/hooks/useCustomGoals";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Progress = () => {
   const { user } = useAuth();
   const { data: dailyData } = useDailyTracking();
   const { sessions } = useWorkouts();
   const { achievements, getCompletedAchievements, loading: achievementsLoading } = useAchievements();
+  const { goals: customGoals } = useCustomGoals();
   const [workoutDays, setWorkoutDays] = useState<string[]>([]);
+  const [presetGoals, setPresetGoals] = useState<any[]>([]);
 
   // Get workout days from actual data
   useEffect(() => {
@@ -22,6 +27,27 @@ const Progress = () => {
       .map(session => new Date(session.completed_at!).toDateString());
     setWorkoutDays([...new Set(days)] as string[]);
   }, [sessions]);
+
+  // Fetch preset goals
+  useEffect(() => {
+    const fetchPresetGoals = async () => {
+      if (!user) return;
+      try {
+        const { data, error } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setPresetGoals(data || []);
+      } catch (error) {
+        console.error('Error fetching preset goals:', error);
+      }
+    };
+
+    fetchPresetGoals();
+  }, [user]);
 
   const completedAchievements = getCompletedAchievements();
   
@@ -131,6 +157,69 @@ const Progress = () => {
                 </Badge>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* Goals Section */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Goals
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Preset Goals */}
+            {presetGoals.map((goal) => (
+              <div key={goal.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">{goal.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {goal.current_value} / {goal.target_value} {goal.unit}
+                    </p>
+                  </div>
+                  <Badge variant={goal.completed ? "default" : "outline"} className="text-xs">
+                    {goal.completed ? "Complete" : "In Progress"}
+                  </Badge>
+                </div>
+                <ProgressBar 
+                  value={Math.min((goal.current_value / goal.target_value) * 100, 100)}
+                  className="h-2"
+                />
+              </div>
+            ))}
+            
+            {/* Custom Goals */}
+            {customGoals.map((goal) => (
+              <div key={goal.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">{goal.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {goal.current_value} / {goal.target_value} {goal.unit}
+                    </p>
+                  </div>
+                  <Badge variant={goal.completed ? "default" : "secondary"} className="text-xs">
+                    {goal.completed ? "Complete" : "Custom"}
+                  </Badge>
+                </div>
+                <ProgressBar 
+                  value={Math.min((goal.current_value / goal.target_value) * 100, 100)}
+                  className="h-2"
+                />
+                {goal.description && (
+                  <p className="text-xs text-muted-foreground">{goal.description}</p>
+                )}
+              </div>
+            ))}
+            
+            {presetGoals.length === 0 && customGoals.length === 0 && (
+              <div className="text-center text-muted-foreground py-4">
+                <p>No goals yet!</p>
+                <p className="text-xs mt-1">Create custom goals to track your progress</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
