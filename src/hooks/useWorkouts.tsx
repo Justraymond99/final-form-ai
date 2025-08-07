@@ -47,11 +47,11 @@ export const useWorkouts = () => {
 
     const fetchData = async () => {
       try {
-        // Fetch workout templates
+        // Fetch workout templates (both user-specific and default public templates)
         const { data: workoutData, error: workoutError } = await supabase
           .from('workout_templates')
           .select('*')
-          .eq('user_id', user.id)
+          .or(`user_id.eq.${user.id},user_id.is.null`)
           .order('created_at', { ascending: false });
 
         if (workoutError) throw workoutError;
