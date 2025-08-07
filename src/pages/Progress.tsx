@@ -84,7 +84,7 @@ const Progress = () => {
               ))}
               {calendarDays.map((date) => (
                 <div
-                  key={date.day}
+                  key={`calendar-${date.day}`}
                   className={`
                     relative w-8 h-8 flex items-center justify-center text-xs rounded-lg transition-colors
                     ${date.isToday ? 'bg-primary text-primary-foreground' : ''}
@@ -121,7 +121,7 @@ const Progress = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {stats.map((stat, index) => (
-              <div key={index} className="flex items-center justify-between">
+              <div key={`stat-${stat.label}-${index}`} className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{stat.label}</p>
                   <p className="text-2xl font-bold text-primary">{stat.value}</p>

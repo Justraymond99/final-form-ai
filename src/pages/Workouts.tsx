@@ -80,10 +80,16 @@ const Workouts = () => {
               Recent Workouts
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {recentWorkouts.map((workout) => (
-              <div
-                key={workout.id}
+           <CardContent className="space-y-3">
+            {recentWorkouts.length === 0 ? (
+              <div className="text-center text-muted-foreground py-4">
+                <p>No recent workouts yet!</p>
+                <p className="text-xs mt-1">Complete your first workout to see it here</p>
+              </div>
+            ) : (
+              recentWorkouts.map((workout) => (
+                <div
+                  key={workout.id}
                 className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
               >
                 <div className="space-y-1">
@@ -99,8 +105,9 @@ const Workouts = () => {
                     {workout.lastPerformed}
                   </Badge>
                 </div>
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -113,9 +120,15 @@ const Workouts = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {workoutTemplates.map((template) => (
-              <div
-                key={template.id}
+            {workoutTemplates.length === 0 ? (
+              <div className="text-center text-muted-foreground py-4">
+                <p>No workout templates yet!</p>
+                <p className="text-xs mt-1">Create your first template to get started</p>
+              </div>
+            ) : (
+              workoutTemplates.map((template) => (
+                <div
+                  key={template.id}
                 className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
                 onClick={() => handleStartWorkout(template.id)}
               >
@@ -126,8 +139,9 @@ const Workouts = () => {
                 <Badge variant="outline" className="border-accent/30 text-accent">
                   {template.type}
                 </Badge>
-              </div>
-            ))}
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
