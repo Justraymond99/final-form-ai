@@ -21,7 +21,7 @@ export const AIChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm your AI fitness assistant powered by ChatGPT. I have access to your complete fitness profile and can provide personalized advice, workout suggestions, nutrition guidance, and motivation. How can I help you today?",
+      text: "Hi! I'm Athena, your personal fitness assistant. I have access to your complete fitness profile and can provide personalized advice, workout suggestions, nutrition guidance, and motivation. How can I help you today?",
       isUser: false,
       timestamp: new Date(),
     }
@@ -54,7 +54,7 @@ export const AIChatbot = () => {
       });
 
       if (error) {
-        console.error('AI chat error:', error);
+        console.error('Athena chat error:', error);
         throw error;
       }
 
@@ -67,9 +67,9 @@ export const AIChatbot = () => {
 
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
-      console.error('Error calling AI assistant:', error);
+      console.error('Error calling Athena assistant:', error);
       toast({
-        title: "AI Assistant Error",
+        title: "Athena Assistant Error",
         description: "I'm having trouble responding right now. Please try again.",
         variant: "destructive"
       });
@@ -111,7 +111,7 @@ export const AIChatbot = () => {
   return (
     <Card className="fixed bottom-24 right-4 z-50 w-80 h-[500px] flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
-        <CardTitle className="text-lg">AI Fitness Assistant 🤖</CardTitle>
+        <CardTitle className="text-lg">Athena Fitness Assistant 🏛️</CardTitle>
         <Button
           variant="ghost"
           size="icon"

@@ -115,7 +115,7 @@ const Workouts = () => {
         {/* AI Generation Section */}
         <div className="space-y-4">
           <AIGenerationCard
-            title="AI Workout Generator"
+            title="Athena Workout Generator"
             icon={Dumbbell}
             gradient="bg-gradient-to-r from-primary to-accent"
             placeholder="Describe your ideal workout... (e.g., 'Upper body strength training for 45 minutes' or 'HIIT cardio for fat loss')"
@@ -129,7 +129,7 @@ const Workouts = () => {
           />
           
           <AIGenerationCard
-            title="AI Meal Plan Generator"
+            title="Athena Meal Plan Generator"
             icon={UtensilsCrossed}
             gradient="bg-gradient-to-r from-accent to-secondary"
             placeholder="Describe your meal plan needs... (e.g., 'High protein vegetarian meals for weight loss' or 'Muscle building meals for 2500 calories')"
