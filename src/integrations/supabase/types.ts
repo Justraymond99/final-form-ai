@@ -59,6 +59,54 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_goals: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          current_value: number | null
+          description: string | null
+          goal_type: string
+          id: string
+          target_date: string | null
+          target_value: number
+          title: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          goal_type: string
+          id?: string
+          target_date?: string | null
+          target_value: number
+          title: string
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number | null
+          description?: string | null
+          goal_type?: string
+          id?: string
+          target_date?: string | null
+          target_value?: number
+          title?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_stats: {
         Row: {
           calories_consumed: number | null
@@ -561,6 +609,7 @@ export type Database = {
           exercises: Json
           id: string
           name: string
+          scheduled_days: Json | null
           type: string
           updated_at: string
           user_id: string
@@ -573,6 +622,7 @@ export type Database = {
           exercises?: Json
           id?: string
           name: string
+          scheduled_days?: Json | null
           type: string
           updated_at?: string
           user_id: string
@@ -585,6 +635,7 @@ export type Database = {
           exercises?: Json
           id?: string
           name?: string
+          scheduled_days?: Json | null
           type?: string
           updated_at?: string
           user_id?: string
