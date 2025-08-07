@@ -1,8 +1,9 @@
-import { Plus, Play, Clock, TrendingUp } from "lucide-react";
+import { Plus, Play, Clock, TrendingUp, Dumbbell, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
+import { AIGenerationCard } from "@/components/AIGenerationCard";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -110,6 +111,37 @@ const Workouts = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* AI Generation Section */}
+        <div className="space-y-4">
+          <AIGenerationCard
+            title="AI Workout Generator"
+            icon={Dumbbell}
+            gradient="bg-gradient-to-r from-primary to-accent"
+            placeholder="Describe your ideal workout... (e.g., 'Upper body strength training for 45 minutes' or 'HIIT cardio for fat loss')"
+            type="workout"
+            onGenerated={(result) => {
+              toast({
+                title: "Workout Generated!",
+                description: "Your custom workout is ready to use",
+              });
+            }}
+          />
+          
+          <AIGenerationCard
+            title="AI Meal Plan Generator"
+            icon={UtensilsCrossed}
+            gradient="bg-gradient-to-r from-accent to-secondary"
+            placeholder="Describe your meal plan needs... (e.g., 'High protein vegetarian meals for weight loss' or 'Muscle building meals for 2500 calories')"
+            type="meal"
+            onGenerated={(result) => {
+              toast({
+                title: "Meal Plan Generated!",
+                description: "Your personalized nutrition plan is ready",
+              });
+            }}
+          />
+        </div>
 
         {/* Templates */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
