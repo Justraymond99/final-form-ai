@@ -8,8 +8,11 @@ import { AIChatbot } from "@/components/AIChatbot";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { useAuth } from "@/hooks/useAuth";
 import { ManualStepsDialog } from "@/components/ManualStepsDialog";
 import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Flame, 
   Droplets, 
@@ -26,6 +29,39 @@ const Index = () => {
   const { profile } = useProfile();
   const { data: dailyData, updateSteps, updateMeditation } = useDailyTracking();
   const { templates } = useWorkouts();
+  const [actualCalories, setActualCalories] = useState(0);
+  const { user } = useAuth();
+  
+  // Fetch actual calories from food_logs
+  useEffect(() => {
+    const fetchCalories = async () => {
+      if (!user) return;
+      
+      const today = new Date().toISOString().split('T')[0];
+      try {
+        const { data, error } = await supabase
+          .from('food_logs')
+          .select('calories')
+          .eq('user_id', user.id)
+          .gte('logged_at', `${today}T00:00:00`)
+          .lt('logged_at', `${today}T23:59:59`);
+
+        if (error) throw error;
+        
+        const totalCalories = data?.reduce((total, food) => total + (food.calories || 0), 0) || 0;
+        setActualCalories(totalCalories);
+      } catch (error) {
+        console.error('Error fetching calories:', error);
+      }
+    };
+
+    fetchCalories();
+    
+    // Refresh calories when page comes into focus
+    const handleFocus = () => fetchCalories();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [user]);
   
   // Get time-based greeting
   const getGreeting = () => {
@@ -40,7 +76,7 @@ const Index = () => {
   // Use real data from database - starts at 0 and updates with user activity
   const todayProgress = {
     calories: { 
-      current: dailyData?.calories_consumed || 0, 
+      current: actualCalories, // Use actual calories from food_logs
       target: 2200 // Default for now
     },
     water: { 
@@ -204,7 +240,7 @@ const Index = () => {
             />
             <StatsCard
               title="Weekly Goal"
-              value={Math.round(((dailyData?.calories_consumed || 0) / 2200) * 100).toString()}
+              value={Math.round((actualCalories / 2200) * 100).toString()}
               unit="%"
               icon={Award}
               gradient="gradient-energy"

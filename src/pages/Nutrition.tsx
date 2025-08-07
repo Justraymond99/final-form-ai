@@ -89,6 +89,54 @@ const Nutrition = () => {
     fetchFoodLogs();
   }, [selectedDate, dailyData?.user_id]);
 
+  // Refresh data when navigating back to this page
+  useEffect(() => {
+    const handleFocus = () => {
+      // Refetch food logs when page comes back into focus
+      if (dailyData?.user_id) {
+        const fetchFoodLogs = async () => {
+          try {
+            const { data, error } = await supabase
+              .from('food_logs')
+              .select('*')
+              .eq('user_id', dailyData.user_id)
+              .gte('logged_at', `${selectedDate}T00:00:00`)
+              .lt('logged_at', `${selectedDate}T23:59:59`)
+              .order('logged_at', { ascending: true });
+
+            if (error) throw error;
+            
+            const formattedFoods = data?.map(food => ({
+              id: food.id,
+              name: food.food_name,
+              calories: food.calories || 0,
+              protein: food.protein_g || 0,
+              carbs: food.carbs_g || 0,
+              fat: food.fat_g || 0,
+              quantity: food.quantity,
+              unit: food.unit,
+              meal: food.meal_type,
+              time: new Date(food.logged_at).toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+              })
+            })) || [];
+            
+            setTodaysFoods(formattedFoods);
+          } catch (error) {
+            console.error('Error fetching food logs:', error);
+          }
+        };
+
+        fetchFoodLogs();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [selectedDate, dailyData?.user_id]);
+
   const totals = todaysFoods.reduce(
     (acc, food) => ({
       calories: acc.calories + food.calories,

@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Search, Plus, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FoodItem {
   id: string;
@@ -32,10 +34,12 @@ interface LoggedFood extends FoodItem {
 const FoodLogger = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [selectedMeal, setSelectedMeal] = useState("breakfast");
+  const [isLogging, setIsLogging] = useState(false);
 
   const foodDatabase: FoodItem[] = [
     {
@@ -197,26 +201,53 @@ const FoodLogger = () => {
     };
   };
 
-  const logFood = () => {
-    if (!selectedFood) return;
+  const logFood = async () => {
+    if (!selectedFood || !user) return;
     
-    const nutrition = calculateNutrition(selectedFood, quantity);
-    const loggedFood: LoggedFood = {
-      ...selectedFood,
-      quantity,
-      meal: selectedMeal,
-      timestamp: new Date()
-    };
+    setIsLogging(true);
+    try {
+      const nutrition = calculateNutrition(selectedFood, quantity);
+      
+      // Save to food_logs table
+      const { error } = await supabase
+        .from('food_logs')
+        .insert({
+          user_id: user.id,
+          food_name: selectedFood.name,
+          brand: selectedFood.brand,
+          quantity: quantity,
+          unit: selectedFood.servingUnit,
+          calories: nutrition.calories,
+          protein_g: nutrition.protein,
+          carbs_g: nutrition.carbs,
+          fat_g: nutrition.fat,
+          fiber_g: nutrition.fiber,
+          sugar_g: nutrition.sugar,
+          sodium_mg: nutrition.sodium,
+          meal_type: selectedMeal,
+          logged_at: new Date().toISOString()
+        });
 
-    // Here you would save to database/storage
-    toast({
-      title: "Food Logged!",
-      description: `${quantity}x ${selectedFood.servingSize}${selectedFood.servingUnit} ${selectedFood.name} added to ${selectedMeal}`
-    });
+      if (error) throw error;
 
-    setSelectedFood(null);
-    setQuantity(1);
-    navigate("/nutrition");
+      toast({
+        title: "Food Logged!",
+        description: `${quantity}x ${selectedFood.servingSize}${selectedFood.servingUnit} ${selectedFood.name} added to ${selectedMeal}`
+      });
+
+      setSelectedFood(null);
+      setQuantity(1);
+      navigate("/nutrition");
+    } catch (error) {
+      console.error('Error logging food:', error);
+      toast({
+        title: "Error",
+        description: "Failed to log food. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLogging(false);
+    }
   };
 
   return (
@@ -322,8 +353,8 @@ const FoodLogger = () => {
                 </div>
               </div>
 
-              <Button onClick={logFood} className="w-full">
-                Add to {selectedMeal}
+              <Button onClick={logFood} className="w-full" disabled={isLogging}>
+                {isLogging ? "Logging..." : `Add to ${selectedMeal}`}
               </Button>
             </CardContent>
           </Card>
