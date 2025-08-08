@@ -21,7 +21,7 @@ export const AIChatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm Athena, your personal fitness assistant. I have access to your complete fitness profile and can provide personalized advice, workout suggestions, nutrition guidance, and motivation. How can I help you today?",
+      text: "Hi! I'm Athena, your personal assistant. I have access to your complete fitness profile and can provide personalized advice, workout suggestions, nutrition guidance, and motivation. How can I help you today?",
       isUser: false,
       timestamp: new Date(),
     }
@@ -111,7 +111,7 @@ export const AIChatbot = () => {
   return (
     <Card className="fixed bottom-24 right-4 z-50 w-80 h-[500px] flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
-        <CardTitle className="text-lg">Athena Fitness Assistant 🏛️</CardTitle>
+        <CardTitle className="text-lg">Athena</CardTitle>
         <Button
           variant="ghost"
           size="icon"

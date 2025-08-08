@@ -61,7 +61,7 @@ export const AIGenerationCard: React.FC<AIGenerationCardProps> = ({
       
       toast({
         title: `${type === 'workout' ? 'Workout' : 'Meal Plan'} Generated!`,
-        description: "Your Athena-generated plan is ready",
+        description: "Your plan is ready",
       });
       
     } catch (error) {
@@ -94,7 +94,7 @@ export const AIGenerationCard: React.FC<AIGenerationCardProps> = ({
           {title}
           <Badge variant="secondary" className="ml-auto">
             <Sparkles className="h-3 w-3 mr-1" />
-            Athena Powered
+            Powered
           </Badge>
         </CardTitle>
       </CardHeader>
