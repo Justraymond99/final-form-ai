@@ -1,13 +1,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.97e01a4005924d06bc0df350295addf5',
+  appId: 'com.finalform.app',
   appName: 'final-form-ai',
-  webDir: 'dist',
-  server: {
-    url: 'https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com?forceHideBadge=true',
-    cleartext: true
-  }
+  webDir: 'dist'
 };
 
 export default config;
