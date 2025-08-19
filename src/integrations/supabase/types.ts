@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -413,6 +413,45 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action: string | null
+          blocked: boolean | null
+          created_at: string
+          endpoint: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          request_count: number | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          blocked?: boolean | null
+          created_at?: string
+          endpoint?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          request_count?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          blocked?: boolean | null
+          created_at?: string
+          endpoint?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          request_count?: number | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       shopping_list_items: {
         Row: {
           brand: string | null
@@ -691,6 +730,10 @@ export type Database = {
     Functions: {
       check_achievements: {
         Args: { user_id_param: string }
+        Returns: undefined
+      }
+      cleanup_expired_audit_logs: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       create_default_achievements: {
