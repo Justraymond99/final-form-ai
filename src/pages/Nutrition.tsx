@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Camera, Mic, Target, TrendingUp, Clock, Utensils, Coffee, Sun, Moon, ChevronLeft, ChevronRight, Droplets } from "lucide-react";
+import { Plus, Mic, Target, TrendingUp, Clock, Utensils, Coffee, Sun, Moon, ChevronLeft, ChevronRight, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -301,7 +301,7 @@ const Nutrition = () => {
             </Card>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <Button 
                 className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
                 onClick={() => navigate("/food-logger")}
@@ -321,21 +321,6 @@ const Nutrition = () => {
                   <span className="text-sm">Water</span>
                 </div>
               </Button>
-              <PremiumGate 
-                feature="Food Scanning"
-                description="Use your camera to instantly scan and log food items with AI-powered recognition"
-              >
-                <Button 
-                  variant="outline" 
-                  className="h-16 border-primary/20 hover:bg-primary/5"
-                  onClick={() => toast({ title: "Scan Food", description: "Camera scanning coming soon! 📸" })}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <Camera className="h-5 w-5" />
-                    <span className="text-sm">Scan</span>
-                  </div>
-                </Button>
-              </PremiumGate>
               <VoiceFoodLogger onFoodLogged={() => window.location.reload()} />
             </div>
 
