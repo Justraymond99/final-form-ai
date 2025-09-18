@@ -22,6 +22,7 @@ import SubscriptionSuccess from "./pages/SubscriptionSuccess";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
 import Awards from "./pages/Awards";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -43,6 +44,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
+                <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/" element={<ProtectedRoute><div className="pb-16"><Index /><Navigation /></div></ProtectedRoute>} />
                 <Route path="/workouts" element={<ProtectedRoute><div className="pb-16"><Workouts /><Navigation /></div></ProtectedRoute>} />
