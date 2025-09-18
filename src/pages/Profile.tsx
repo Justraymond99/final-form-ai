@@ -10,7 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AppSettingsDialog } from "@/components/AppSettingsDialog";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -18,7 +18,7 @@ import { useWorkouts } from "@/hooks/useWorkouts";
 const Profile = () => {
   const { toast } = useToast();
   const { profile, loading } = useProfile();
-  const { signOut } = useAuth();
+  const { signOut } = useSecureAuth();
   const { data: dailyData } = useDailyTracking();
   const { sessions } = useWorkouts();
   const [showEditDialog, setShowEditDialog] = useState(false);

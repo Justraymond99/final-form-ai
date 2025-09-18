@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface ExerciseTemplate {
   id: string;
@@ -20,7 +20,7 @@ interface ExerciseTemplate {
 const WorkoutBuilder = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [workoutName, setWorkoutName] = useState("");
   const [selectedExercises, setSelectedExercises] = useState<ExerciseTemplate[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

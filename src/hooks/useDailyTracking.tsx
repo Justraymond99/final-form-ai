@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface DailyTrackingData {
   id?: string;
@@ -15,7 +15,7 @@ interface DailyTrackingData {
 }
 
 export const useDailyTracking = (selectedDate?: string) => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [data, setData] = useState<DailyTrackingData | null>(null);
   const [loading, setLoading] = useState(true);
 

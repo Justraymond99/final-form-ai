@@ -7,7 +7,7 @@ import { ArrowLeft, Search, Plus, Minus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface FoodItem {
   id: string;
@@ -34,7 +34,7 @@ interface LoggedFood extends FoodItem {
 const FoodLogger = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [quantity, setQuantity] = useState(1);

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -16,7 +16,7 @@ interface Message {
 }
 
 export const AIChatbot = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {

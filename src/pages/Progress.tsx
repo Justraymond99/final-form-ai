@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { Navigation } from "@/components/Navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useAchievements } from "@/hooks/useAchievements";
@@ -12,7 +12,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Progress = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const { data: dailyData } = useDailyTracking();
   const { sessions } = useWorkouts();
   const { achievements, getCompletedAchievements, loading: achievementsLoading } = useAchievements();

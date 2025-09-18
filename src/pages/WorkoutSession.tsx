@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Timer, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useWorkouts } from "@/hooks/useWorkouts";
 
 interface Set {
@@ -27,7 +27,7 @@ interface Exercise {
 const WorkoutSession = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const { completeWorkout } = useWorkouts();
   const [exercises, setExercises] = useState<Exercise[]>([
     {

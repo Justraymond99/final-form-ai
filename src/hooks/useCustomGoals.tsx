@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface CustomGoal {
   id: string;
@@ -19,7 +19,7 @@ interface CustomGoal {
 }
 
 export const useCustomGoals = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [goals, setGoals] = useState<CustomGoal[]>([]);
   const [loading, setLoading] = useState(true);
 

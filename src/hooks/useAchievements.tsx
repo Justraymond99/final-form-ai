@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface Achievement {
   id: string;
@@ -18,7 +18,7 @@ interface Achievement {
 }
 
 export const useAchievements = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
 

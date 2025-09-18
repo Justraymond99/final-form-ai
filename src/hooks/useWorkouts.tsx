@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 interface Workout {
   id: string;
@@ -31,7 +31,7 @@ interface WorkoutSession {
 }
 
 export const useWorkouts = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [currentSession, setCurrentSession] = useState<WorkoutSession | null>(null);
