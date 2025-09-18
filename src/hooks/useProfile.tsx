@@ -12,6 +12,25 @@ interface Profile {
   weight_kg: number | null;
   goal: string | null;
   activity_level: string | null;
+  dietary_restrictions: string[] | null;
+  fitness_goals: string[] | null;
+  dietary_preferences: string[] | null;
+  allergies: string[] | null;
+  gender: string | null;
+  target_weight_kg: number | null;
+  target_calories_per_day: number | null;
+  target_protein_g: number | null;
+  target_carbs_g: number | null;
+  target_fat_g: number | null;
+  daily_calorie_goal: number | null;
+  daily_protein_goal: number | null;
+  daily_carb_goal: number | null;
+  daily_fat_goal: number | null;
+  date_of_birth: string | null;
+  food_preferences: any;
+  organic_preference: boolean | null;
+  preferred_stores: string[] | null;
+  budget_preference: string | null;
   created_at: string;
   updated_at: string;
 }
