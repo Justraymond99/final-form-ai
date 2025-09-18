@@ -32,7 +32,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 90,
     category: "Elite Training",
     features: ["Olympic Movements", "Plyometrics", "Sport-Specific", "Recovery Protocols"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Clean & Jerk", sets: 5, reps: "3", rest: 300, weight: "85% 1RM" },
       { name: "Snatch", sets: 5, reps: "2", rest: 300, weight: "87% 1RM" },
@@ -50,7 +50,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 45,
     category: "Fat Loss",
     features: ["HIIT Circuits", "Metabolic Boost", "Time-Based", "Equipment Minimal"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Burpee Box Jump Over", sets: 5, reps: "45 sec", rest: 15 },
       { name: "Kettlebell Swings", sets: 5, reps: "45 sec", rest: 15 },
@@ -68,7 +68,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 120,
     category: "Strength",
     features: ["Periodization", "1RM Testing", "Accessory Work", "Competition Prep"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Competition Squat", sets: 6, reps: "1-3", rest: 300, notes: "Work up to opener" },
       { name: "Bench Press", sets: 6, reps: "1-3", rest: 300, notes: "Competition commands" },
@@ -86,7 +86,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 60,
     category: "Bodyweight",
     features: ["Progressive Skills", "Core Intensive", "Flexibility", "Movement Quality"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Handstand Progression", sets: 5, reps: "30 sec hold", rest: 90 },
       { name: "Ring Dips", sets: 4, reps: "8-12", rest: 120 },
@@ -104,7 +104,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 40,
     category: "Recovery",
     features: ["Injury Prevention", "Mobility", "Corrective Exercise", "Pain Relief"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Cat-Cow Stretch", sets: 3, reps: "15", rest: 30 },
       { name: "Hip 90/90 Stretch", sets: 3, reps: "30 sec each", rest: 30 },
@@ -122,7 +122,7 @@ const premiumTemplates: PremiumTemplate[] = [
     estimated_duration: 75,
     category: "Sports Performance",
     features: ["Plyometrics", "Speed Training", "Agility", "Power Development"],
-    is_premium: true,
+    is_premium: false,
     exercises: [
       { name: "Depth Jumps", sets: 4, reps: "5", rest: 180, height: "24\"" },
       { name: "Lateral Bounds", sets: 4, reps: "8 each", rest: 120 },

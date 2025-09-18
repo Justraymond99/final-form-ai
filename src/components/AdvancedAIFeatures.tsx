@@ -47,7 +47,7 @@ export const AdvancedAIFeatures = () => {
       description: 'AI analyzes your progress photos to track muscle growth, fat loss, and posture improvements.',
       icon: <Camera className="w-6 h-6" />,
       category: 'analysis',
-      isPremium: true
+      isPremium: false
     },
     {
       id: 'workout-optimization',
@@ -55,7 +55,7 @@ export const AdvancedAIFeatures = () => {
       description: 'Dynamically adjusts your workouts based on performance data and recovery metrics.',
       icon: <TrendingUp className="w-6 h-6" />,
       category: 'planning',
-      isPremium: true
+      isPremium: false
     },
     {
       id: 'injury-prevention',
@@ -63,7 +63,7 @@ export const AdvancedAIFeatures = () => {
       description: 'Analyzes movement patterns and suggests modifications to prevent injuries.',
       icon: <Heart className="w-6 h-6" />,
       category: 'health',
-      isPremium: true
+      isPremium: false
     },
     {
       id: 'ai-coach',
@@ -71,7 +71,7 @@ export const AdvancedAIFeatures = () => {
       description: 'Real-time coaching with personalized motivation and form corrections.',
       icon: <Brain className="w-6 h-6" />,
       category: 'coaching',
-      isPremium: true
+      isPremium: false
     },
     {
       id: 'recovery-optimization',
@@ -79,7 +79,7 @@ export const AdvancedAIFeatures = () => {
       description: 'AI-powered recovery plans based on sleep, stress, and workout intensity.',
       icon: <Zap className="w-6 h-6" />,
       category: 'health',
-      isPremium: true
+      isPremium: false
     },
     {
       id: 'goal-prediction',
@@ -87,7 +87,7 @@ export const AdvancedAIFeatures = () => {
       description: 'Predicts when you\'ll reach your goals and adjusts plans accordingly.',
       icon: <Target className="w-6 h-6" />,
       category: 'analysis',
-      isPremium: true
+      isPremium: false
     }
   ];
 
@@ -217,11 +217,9 @@ export const AdvancedAIFeatures = () => {
                       {feature.icon}
                       <div>
                         <CardTitle className="text-lg">{feature.title}</CardTitle>
-                        {feature.isPremium && (
-                          <Badge variant="secondary" className="text-xs mt-1">
-                            Premium
-                          </Badge>
-                        )}
+                        <Badge variant="secondary" className="text-xs mt-1">
+                          Free
+                        </Badge>
                       </div>
                     </div>
                   </div>

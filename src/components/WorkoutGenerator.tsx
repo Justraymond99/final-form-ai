@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { useSubscription } from "@/hooks/useSubscription";
 import { PremiumGate } from "@/components/PremiumGate";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +22,8 @@ interface WorkoutGeneratorProps {
 
 export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) => {
   const { user } = useSecureAuth();
-  const { hasPremiumAccess } = useSubscription();
+  // Always allow access - paywall removed for testing
+  const hasPremiumAccess = true;
   const { startWorkout: createWorkoutSession } = useWorkouts();
   const navigate = useNavigate();
   
