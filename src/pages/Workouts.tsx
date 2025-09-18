@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
-import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
+import { WorkoutGenerator } from "@/components/WorkoutGenerator";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +59,7 @@ const Workouts = () => {
             </TabsTrigger>
             <TabsTrigger value="ai-generator" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
-              AI Generator
+              Generator
             </TabsTrigger>
           </TabsList>
 
@@ -162,10 +162,10 @@ const Workouts = () => {
           </TabsContent>
 
           <TabsContent value="ai-generator">
-            <AIWorkoutGenerator 
+            <WorkoutGenerator 
               onWorkoutGenerated={(workout) => {
                 toast({
-                  title: "AI Workout Generated!",
+                  title: "Workout Generated!",
                   description: "Your personalized workout is ready to start",
                 });
               }}

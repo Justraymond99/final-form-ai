@@ -13,11 +13,11 @@ import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { toast } from "sonner";
 import { Sparkles, Clock, Target, Dumbbell, AlertCircle, CheckCircle2 } from "lucide-react";
 
-interface AIWorkoutGeneratorProps {
+interface WorkoutGeneratorProps {
   onWorkoutGenerated?: (workout: any) => void;
 }
 
-export const AIWorkoutGenerator = ({ onWorkoutGenerated }: AIWorkoutGeneratorProps) => {
+export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) => {
   const { user } = useSecureAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedWorkout, setGeneratedWorkout] = useState<any>(null);
@@ -142,7 +142,7 @@ export const AIWorkoutGenerator = ({ onWorkoutGenerated }: AIWorkoutGeneratorPro
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            AI Workout Generator
+            Workout Generator
           </CardTitle>
           <CardDescription>
             Get a personalized workout designed specifically for your goals, fitness level, and available equipment.
