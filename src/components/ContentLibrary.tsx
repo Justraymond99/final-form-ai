@@ -1,459 +1,427 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/components/ui/use-toast';
 import { 
-  Search, 
-  Play, 
+  BookOpen, 
+  Utensils, 
   Clock, 
   Users, 
-  ChefHat, 
-  Dumbbell, 
-  BookOpen, 
-  Video,
-  Filter,
-  Star,
-  Download
+  Search,
+  Sparkles,
+  RefreshCw,
+  ChefHat
 } from 'lucide-react';
-
-interface ExerciseVideo {
-  id: string;
-  title: string;
-  description: string;
-  duration: string;
-  difficulty: string;
-  category: string;
-  muscleGroups: string[];
-  thumbnailUrl: string;
-  videoUrl: string;
-  instructor: string;
-  views: number;
-  rating: number;
-}
+import { supabase } from '@/integrations/supabase/client';
 
 interface Recipe {
   id: string;
   title: string;
-  description: string;
-  prepTime: number;
-  cookTime: number;
-  servings: number;
-  difficulty: string;
-  cuisine: string;
-  dietaryTags: string[];
-  calories: number;
-  protein: number;
-  imageUrl: string;
-  ingredients: string[];
-  instructions: string[];
-  rating: number;
+  category: string;
+  area: string;
+  instructions: string;
+  image: string;
+  ingredients: Array<{
+    name: string;
+    measure: string;
+  }>;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
 }
 
 interface Article {
   id: string;
   title: string;
-  excerpt: string;
   category: string;
-  readTime: number;
-  author: string;
-  publishDate: string;
-  tags: string[];
-  imageUrl: string;
   content: string;
-  rating: number;
+  excerpt: string;
+  readTime: number;
+  tags: string[];
+  author: string;
+  publishedAt: string;
 }
 
 export const ContentLibrary = () => {
-  const [activeTab, setActiveTab] = useState('exercises');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  
-  // Sample data (in real app, this would come from API/database)
-  const [exercises] = useState<ExerciseVideo[]>([
-    {
-      id: '1',
-      title: 'Perfect Push-Up Form',
-      description: 'Master the fundamental push-up with proper form and variations.',
-      duration: '5:30',
-      difficulty: 'Beginner',
-      category: 'Strength',
-      muscleGroups: ['Chest', 'Triceps', 'Shoulders'],
-      thumbnailUrl: '',
-      videoUrl: '',
-      instructor: 'Sarah Johnson',
-      views: 15420,
-      rating: 4.8
-    },
-    {
-      id: '2',
-      title: 'HIIT Cardio Blast',
-      description: '20-minute high-intensity workout to boost your metabolism.',
-      duration: '20:15',
-      difficulty: 'Intermediate',
-      category: 'Cardio',
-      muscleGroups: ['Full Body'],
-      thumbnailUrl: '',
-      videoUrl: '',
-      instructor: 'Mike Chen',
-      views: 23840,
-      rating: 4.9
-    },
-    {
-      id: '3',
-      title: 'Yoga Flow for Flexibility',
-      description: 'Gentle yoga sequence to improve flexibility and mobility.',
-      duration: '15:00',
-      difficulty: 'Beginner',
-      category: 'Flexibility',
-      muscleGroups: ['Full Body'],
-      thumbnailUrl: '',
-      videoUrl: '',
-      instructor: 'Emma Wilson',
-      views: 18960,
-      rating: 4.7
-    }
-  ]);
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('recipes');
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedContent, setSelectedContent] = useState<Recipe | Article | null>(null);
 
-  const [recipes] = useState<Recipe[]>([
-    {
-      id: '1',
-      title: 'High-Protein Chicken Bowl',
-      description: 'Delicious and nutritious bowl packed with lean protein and vegetables.',
-      prepTime: 15,
-      cookTime: 25,
-      servings: 2,
-      difficulty: 'Easy',
-      cuisine: 'Mediterranean',
-      dietaryTags: ['High Protein', 'Gluten Free', 'Low Carb'],
-      calories: 485,
-      protein: 42,
-      imageUrl: '',
-      ingredients: [
-        '300g chicken breast',
-        '1 cup quinoa',
-        '200g mixed vegetables',
-        '2 tbsp olive oil',
-        'Herbs and spices'
-      ],
-      instructions: [
-        'Season and cook chicken breast',
-        'Prepare quinoa according to package instructions',
-        'Sauté vegetables with olive oil',
-        'Assemble bowl and serve'
-      ],
-      rating: 4.6
-    },
-    {
-      id: '2',
-      title: 'Post-Workout Smoothie',
-      description: 'Perfect blend of protein and carbs for muscle recovery.',
-      prepTime: 5,
-      cookTime: 0,
-      servings: 1,
-      difficulty: 'Easy',
-      cuisine: 'International',
-      dietaryTags: ['High Protein', 'Vegan Option', 'Quick'],
-      calories: 320,
-      protein: 28,
-      imageUrl: '',
-      ingredients: [
-        '1 banana',
-        '1 cup plant milk',
-        '1 scoop protein powder',
-        '1 tbsp peanut butter',
-        'Ice cubes'
-      ],
-      instructions: [
-        'Add all ingredients to blender',
-        'Blend until smooth',
-        'Serve immediately'
-      ],
-      rating: 4.8
-    }
-  ]);
+  useEffect(() => {
+    loadInitialContent();
+  }, []);
 
-  const [articles] = useState<Article[]>([
-    {
-      id: '1',
-      title: 'The Science of Muscle Building',
-      excerpt: 'Understanding the biological processes behind muscle growth and how to optimize your training.',
-      category: 'Fitness Science',
-      readTime: 8,
-      author: 'Dr. Alex Martinez',
-      publishDate: '2024-01-15',
-      tags: ['Muscle Building', 'Science', 'Training'],
-      imageUrl: '',
-      content: 'Full article content would go here...',
-      rating: 4.7
-    },
-    {
-      id: '2',
-      title: 'Meal Timing for Athletes',
-      excerpt: 'When and what to eat before, during, and after workouts for optimal performance.',
-      category: 'Nutrition',
-      readTime: 6,
-      author: 'Jennifer Liu',
-      publishDate: '2024-01-12',
-      tags: ['Nutrition', 'Performance', 'Timing'],
-      imageUrl: '',
-      content: 'Full article content would go here...',
-      rating: 4.5
+  const loadInitialContent = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        loadRecipes(),
+        loadArticles()
+      ]);
+    } catch (error) {
+      console.error('Error loading initial content:', error);
+    } finally {
+      setLoading(false);
     }
-  ]);
-
-  const filteredContent = (content: any[], type: string) => {
-    return content.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           item.excerpt?.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      let matchesCategory = true;
-      if (selectedCategory !== 'all') {
-        matchesCategory = item.category?.toLowerCase() === selectedCategory.toLowerCase() ||
-                         item.cuisine?.toLowerCase() === selectedCategory.toLowerCase();
-      }
-      
-      return matchesSearch && matchesCategory;
-    });
   };
 
-  const renderExerciseCard = (exercise: ExerciseVideo) => (
-    <Card key={exercise.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="aspect-video bg-muted flex items-center justify-center">
-        <Play className="w-12 h-12 text-muted-foreground" />
-      </div>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-sm line-clamp-1">{exercise.title}</h3>
-          <div className="flex items-center gap-1 text-xs text-yellow-600">
-            <Star className="w-3 h-3 fill-yellow-600" />
-            {exercise.rating}
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-          {exercise.description}
-        </p>
-        <div className="flex items-center gap-2 mb-3">
-          <Badge variant="secondary" className="text-xs">{exercise.difficulty}</Badge>
-          <Badge variant="outline" className="text-xs">{exercise.category}</Badge>
-        </div>
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {exercise.duration}
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="w-3 h-3" />
-            {exercise.views.toLocaleString()}
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Button size="sm" className="w-full">
-            <Play className="w-3 h-3 mr-1" />
-            Watch Now
-          </Button>
-          <Button variant="outline" size="sm" className="w-full">
-            <Download className="w-3 h-3 mr-1" />
-            Save for Later
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const loadRecipes = async (category?: string, searchTerm?: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-recipes', {
+        body: { 
+          category: category || 'Chicken',
+          searchTerm,
+          count: 12 
+        }
+      });
 
-  const renderRecipeCard = (recipe: Recipe) => (
-    <Card key={recipe.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="aspect-video bg-muted flex items-center justify-center">
-        <ChefHat className="w-12 h-12 text-muted-foreground" />
-      </div>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-semibold text-sm line-clamp-1">{recipe.title}</h3>
-          <div className="flex items-center gap-1 text-xs text-yellow-600">
-            <Star className="w-3 h-3 fill-yellow-600" />
-            {recipe.rating}
-          </div>
-        </div>
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-          {recipe.description}
-        </p>
-        <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <div className="font-semibold">{recipe.calories}</div>
-            <div className="text-muted-foreground">Calories</div>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <div className="font-semibold">{recipe.protein}g</div>
-            <div className="text-muted-foreground">Protein</div>
-          </div>
-          <div className="text-center p-2 bg-muted/50 rounded">
-            <div className="font-semibold">{recipe.prepTime + recipe.cookTime}m</div>
-            <div className="text-muted-foreground">Total</div>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1 mb-3">
-          {recipe.dietaryTags.slice(0, 2).map(tag => (
-            <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-          ))}
-        </div>
-        <div className="space-y-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" className="w-full">View Recipe</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh]">
-              <DialogHeader>
-                <DialogTitle>{recipe.title}</DialogTitle>
-                <DialogDescription>{recipe.description}</DialogDescription>
-              </DialogHeader>
-              <ScrollArea className="h-[60vh]">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-4 gap-4 text-sm">
-                    <div className="text-center">
-                      <div className="font-semibold">{recipe.prepTime}min</div>
-                      <div className="text-muted-foreground">Prep</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold">{recipe.cookTime}min</div>
-                      <div className="text-muted-foreground">Cook</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold">{recipe.servings}</div>
-                      <div className="text-muted-foreground">Servings</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-semibold">{recipe.difficulty}</div>
-                      <div className="text-muted-foreground">Level</div>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2">Ingredients</h4>
-                    <ul className="space-y-1 text-sm">
-                      {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full" />
-                          {ingredient}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2">Instructions</h4>
-                    <ol className="space-y-2 text-sm">
-                      {recipe.instructions.map((step, index) => (
-                        <li key={index} className="flex gap-3">
-                          <span className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
-                            {index + 1}
-                          </span>
-                          {step}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-              </ScrollArea>
-            </DialogContent>
-          </Dialog>
-          <Button variant="outline" size="sm" className="w-full">
-            Add to Meal Plan
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+      if (error) throw error;
+      setRecipes(data.recipes || []);
+      if (!searchTerm && !category) {
+        toast({
+          title: "Recipes Loaded! 🍳",
+          description: `Found ${data.recipes?.length || 0} delicious recipes.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading recipes:', error);
+      toast({
+        title: "Failed to Load Recipes",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
 
-  const renderArticleCard = (article: Article) => (
-    <Card key={article.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="aspect-video bg-muted flex items-center justify-center">
-        <BookOpen className="w-12 h-12 text-muted-foreground" />
-      </div>
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <Badge variant="secondary" className="text-xs">{article.category}</Badge>
-          <div className="flex items-center gap-1 text-xs text-yellow-600">
-            <Star className="w-3 h-3 fill-yellow-600" />
-            {article.rating}
-          </div>
-        </div>
-        <h3 className="font-semibold text-sm mb-2 line-clamp-2">{article.title}</h3>
-        <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
-          {article.excerpt}
-        </p>
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-3">
-          <span>By {article.author}</span>
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {article.readTime} min read
-          </div>
-        </div>
-        <Button size="sm" className="w-full">Read Article</Button>
-      </CardContent>
-    </Card>
-  );
+  const loadArticles = async (topic?: string, category?: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-fitness-articles', {
+        body: { 
+          topic,
+          category,
+          count: 8 
+        }
+      });
+
+      if (error) throw error;
+      setArticles(data.articles || []);
+      if (!topic && !category) {
+        toast({
+          title: "Articles Generated! 📚",
+          description: `Generated ${data.articles?.length || 0} fresh fitness articles.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading articles:', error);
+      toast({
+        title: "Failed to Generate Articles",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSearch = () => {
+    if (activeTab === 'recipes') {
+      loadRecipes(undefined, searchTerm);
+    } else {
+      loadArticles(searchTerm);
+    }
+  };
+
+  const refreshContent = () => {
+    if (activeTab === 'recipes') {
+      loadRecipes();
+    } else {
+      loadArticles();
+    }
+  };
+
+  const recipeCategories = ['Chicken', 'Beef', 'Vegetarian', 'Seafood', 'Dessert', 'Breakfast'];
+  const articleCategories = ['Nutrition Tips', 'Workout Guides', 'Recovery & Rest', 'Mental Health'];
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Content Library</h1>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+          Content Library
+        </h1>
+        <p className="text-muted-foreground mt-2">
+          Discover recipes and fitness articles powered by TheMealDB & AI
+        </p>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex-1 flex gap-2">
           <Input
-            placeholder="Search exercises, recipes, articles..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            placeholder={activeTab === 'recipes' ? 'Search recipes...' : 'Search topics...'}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
+          <Button onClick={handleSearch} disabled={loading}>
+            <Search className="w-4 h-4" />
+          </Button>
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Filter className="w-4 h-4" />
-          Filters
+        <Button onClick={refreshContent} disabled={loading} variant="outline">
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="exercises" className="flex items-center gap-2">
-            <Dumbbell className="w-4 h-4" />
-            Exercise Videos
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="recipes">
+            <Utensils className="w-4 h-4 mr-2" />
+            Recipes
           </TabsTrigger>
-          <TabsTrigger value="recipes" className="flex items-center gap-2">
-            <ChefHat className="w-4 h-4" />
-            Healthy Recipes
-          </TabsTrigger>
-          <TabsTrigger value="articles" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
+          <TabsTrigger value="articles">
+            <BookOpen className="w-4 h-4 mr-2" />
             Articles
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="exercises" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredContent(exercises, 'exercise').map(renderExerciseCard)}
-          </div>
-        </TabsContent>
-
         <TabsContent value="recipes" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredContent(recipes, 'recipe').map(renderRecipeCard)}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {recipeCategories.map((category) => (
+              <Button
+                key={category}
+                variant="outline"
+                size="sm"
+                onClick={() => loadRecipes(category)}
+                disabled={loading}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
+              <Card key={recipe.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => setSelectedContent(recipe)}>
+                <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                  <img 
+                    src={recipe.image} 
+                    alt={recipe.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <Badge className="absolute top-2 right-2 bg-background/80">
+                    {recipe.category}
+                  </Badge>
+                </div>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg line-clamp-2">{recipe.title}</CardTitle>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <ChefHat className="w-3 h-3" />
+                      {recipe.area}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      {recipe.ingredients.length} ingredients
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {recipe.calories && (
+                    <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                      <div>
+                        <div className="font-bold text-primary">{recipe.calories}</div>
+                        <div className="text-muted-foreground">Cal</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-green-600">{recipe.protein}g</div>
+                        <div className="text-muted-foreground">Protein</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-blue-600">{recipe.carbs}g</div>
+                        <div className="text-muted-foreground">Carbs</div>
+                      </div>
+                      <div>
+                        <div className="font-bold text-orange-600">{recipe.fat}g</div>
+                        <div className="text-muted-foreground">Fat</div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
 
         <TabsContent value="articles" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredContent(articles, 'article').map(renderArticleCard)}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {articleCategories.map((category) => (
+              <Button
+                key={category}
+                variant="outline"
+                size="sm"
+                onClick={() => loadArticles(undefined, category)}
+                disabled={loading}
+              >
+                {category}
+              </Button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {articles.map((article) => (
+              <Card key={article.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => setSelectedContent(article)}>
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <Badge variant="secondary">{article.category}</Badge>
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {article.readTime} min
+                    </div>
+                  </div>
+                  <CardTitle className="line-clamp-2">{article.title}</CardTitle>
+                  <CardDescription className="line-clamp-3">
+                    {article.excerpt}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-1">
+                      {article.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      by {article.author}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!selectedContent} onOpenChange={() => setSelectedContent(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          {selectedContent && 'ingredients' in selectedContent ? (
+            <div>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Utensils className="w-5 h-5" />
+                  {selectedContent.title}
+                </DialogTitle>
+                <DialogDescription>
+                  {selectedContent.category} • {selectedContent.area}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="grid md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <img 
+                    src={selectedContent.image} 
+                    alt={selectedContent.title}
+                    className="w-full rounded-lg"
+                  />
+                  
+                  {selectedContent.calories && (
+                    <div className="grid grid-cols-4 gap-4 mt-4 p-4 bg-muted/50 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-primary">{selectedContent.calories}</div>
+                        <div className="text-sm text-muted-foreground">Calories</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">{selectedContent.protein}g</div>
+                        <div className="text-sm text-muted-foreground">Protein</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">{selectedContent.carbs}g</div>
+                        <div className="text-sm text-muted-foreground">Carbs</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">{selectedContent.fat}g</div>
+                        <div className="text-sm text-muted-foreground">Fat</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
+                  <ScrollArea className="h-40 mb-4">
+                    <ul className="space-y-1">
+                      {selectedContent.ingredients.map((ingredient, index) => (
+                        <li key={index} className="text-sm">
+                          {ingredient.measure} {ingredient.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                  
+                  <h3 className="text-lg font-semibold mb-3">Instructions</h3>
+                  <ScrollArea className="h-60">
+                    <p className="text-sm whitespace-pre-line">{selectedContent.instructions}</p>
+                  </ScrollArea>
+                </div>
+              </div>
+            </div>
+          ) : selectedContent ? (
+            <div>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  {selectedContent.title}
+                </DialogTitle>
+                <DialogDescription className="flex items-center gap-4">
+                  <Badge>{selectedContent.category}</Badge>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {selectedContent.readTime} min read
+                  </span>
+                  <span>by {selectedContent.author}</span>
+                </DialogDescription>
+              </DialogHeader>
+              
+              <ScrollArea className="mt-6 max-h-96">
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div className="whitespace-pre-line">{selectedContent.content}</div>
+                </div>
+              </ScrollArea>
+              
+              <div className="flex flex-wrap gap-2 mt-4">
+                {selectedContent.tags.map((tag) => (
+                  <Badge key={tag} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin">
+              <Sparkles className="w-6 h-6 text-primary" />
+            </div>
+            <span className="text-lg">
+              {activeTab === 'recipes' ? 'Fetching delicious recipes...' : 'Generating fresh articles...'}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
