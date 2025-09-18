@@ -117,14 +117,14 @@ export const ContentLibrary = () => {
       setArticles(data.articles || []);
       if (!topic && !category) {
         toast({
-          title: "Articles Generated! 📚",
-          description: `Generated ${data.articles?.length || 0} fresh fitness articles.`,
+          title: "Articles Loaded! 📚",
+          description: `Found ${data.articles?.length || 0} expert fitness articles.`,
         });
       }
     } catch (error) {
       console.error('Error loading articles:', error);
       toast({
-        title: "Failed to Generate Articles",
+        title: "Failed to Load Articles",
         description: "Please try again later.",
         variant: "destructive"
       });
@@ -157,7 +157,7 @@ export const ContentLibrary = () => {
           Content Library
         </h1>
         <p className="text-muted-foreground mt-2">
-          Discover recipes and fitness articles powered by TheMealDB & AI
+          Discover healthy recipes and expert fitness articles
         </p>
       </div>
 
@@ -384,27 +384,33 @@ export const ContentLibrary = () => {
                 </DialogTitle>
                 <DialogDescription className="flex items-center gap-4">
                   <Badge>{selectedContent.category}</Badge>
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {selectedContent.readTime} min read
-                  </span>
-                  <span>by {selectedContent.author}</span>
+                  {'readTime' in selectedContent && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {selectedContent.readTime} min read
+                    </span>
+                  )}
+                  {'author' in selectedContent && <span>by {selectedContent.author}</span>}
                 </DialogDescription>
               </DialogHeader>
               
-              <ScrollArea className="mt-6 max-h-96">
-                <div className="prose prose-sm max-w-none dark:prose-invert">
-                  <div className="whitespace-pre-line">{selectedContent.content}</div>
-                </div>
-              </ScrollArea>
+              {'content' in selectedContent && (
+                <ScrollArea className="mt-6 max-h-96">
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <div className="whitespace-pre-line">{selectedContent.content}</div>
+                  </div>
+                </ScrollArea>
+              )}
               
-              <div className="flex flex-wrap gap-2 mt-4">
-                {selectedContent.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
+              {'tags' in selectedContent && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {selectedContent.tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           ) : null}
         </DialogContent>
@@ -417,7 +423,7 @@ export const ContentLibrary = () => {
               <Sparkles className="w-6 h-6 text-primary" />
             </div>
             <span className="text-lg">
-              {activeTab === 'recipes' ? 'Fetching delicious recipes...' : 'Generating fresh articles...'}
+              {activeTab === 'recipes' ? 'Fetching delicious recipes...' : 'Loading fresh articles...'}
             </span>
           </div>
         </div>
