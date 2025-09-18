@@ -9,8 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useMealPlans } from "@/hooks/useMealPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ChefHat, 
@@ -21,7 +23,9 @@ import {
   Utensils,
   Apple,
   Loader2,
-  Lightbulb
+  Lightbulb,
+  Save,
+  Play
 } from "lucide-react";
 
 interface NutritionPlan {
@@ -63,8 +67,13 @@ interface NutritionPlan {
 export const NutritionGenerator = () => {
   const { user } = useSecureAuth();
   const { toast } = useToast();
+  const { saveMealPlan, addMealToFoodLog } = useMealPlans();
   const [isGenerating, setIsGenerating] = useState(false);
   const [nutritionPlan, setNutritionPlan] = useState<NutritionPlan | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [planName, setPlanName] = useState("");
+  const [planDescription, setPlanDescription] = useState("");
   
   // Form state
   const [goal, setGoal] = useState("");
@@ -107,6 +116,78 @@ export const NutritionGenerator = () => {
       setDietaryPreferences([...dietaryPreferences, dietary]);
     } else {
       setDietaryPreferences(dietaryPreferences.filter(d => d !== dietary));
+    }
+  };
+
+  const handleSavePlan = async () => {
+    if (!nutritionPlan || !planName.trim()) {
+      toast({
+        title: "Save failed",
+        description: "Please enter a name for your meal plan",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+    const result = await saveMealPlan(nutritionPlan, planName, planDescription);
+    
+    if (result.success) {
+      toast({
+        title: "Meal plan saved!",
+        description: "Your personalized meal plan has been saved.",
+      });
+      setShowSaveDialog(false);
+      setPlanName("");
+      setPlanDescription("");
+    } else {
+      toast({
+        title: "Save failed",
+        description: result.error || "Failed to save meal plan",
+        variant: "destructive",
+      });
+    }
+    setIsSaving(false);
+  };
+
+  const handleAddMealToLog = async (meal: any) => {
+    if (!user) return;
+
+    try {
+      // Add each food item from the meal to the food log
+      const foodLogEntries = meal.foods.map((food: any) => ({
+        user_id: user.id,
+        food_name: food.name,
+        quantity: parseFloat(food.quantity.split(' ')[0]) || 1,
+        unit: food.quantity.split(' ').slice(1).join(' ') || 'serving',
+        meal_type: meal.name.toLowerCase().replace(/\s+/g, '_'),
+        calories: food.calories,
+        protein_g: food.protein,
+        carbs_g: food.carbs,
+        fat_g: food.fat,
+        fiber_g: null,
+        sugar_g: null,
+        sodium_mg: null,
+        logged_at: new Date().toISOString()
+      }));
+
+      const { error } = await supabase
+        .from('food_logs')
+        .insert(foodLogEntries);
+
+      if (error) throw error;
+
+      toast({
+        title: "Meal added!",
+        description: `${meal.name} has been added to your food log.`,
+      });
+    } catch (error) {
+      console.error('Error adding meal to log:', error);
+      toast({
+        title: "Failed to add meal",
+        description: "There was an error adding the meal to your log.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -316,6 +397,76 @@ export const NutritionGenerator = () => {
       {/* Generated Nutrition Plan */}
       {nutritionPlan && (
         <div className="space-y-6">
+          {/* Save Actions */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex gap-3">
+                <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="flex-1">
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Meal Plan
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Save Meal Plan</DialogTitle>
+                      <DialogDescription>
+                        Give your meal plan a name and description to save it for future use.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="plan-name">Plan Name</Label>
+                        <Input
+                          id="plan-name"
+                          placeholder="e.g., High Protein Weight Loss"
+                          value={planName}
+                          onChange={(e) => setPlanName(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="plan-description">Description (Optional)</Label>
+                        <Textarea
+                          id="plan-description"
+                          placeholder="Describe your meal plan..."
+                          value={planDescription}
+                          onChange={(e) => setPlanDescription(e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowSaveDialog(false)}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={handleSavePlan}
+                          disabled={isSaving || !planName.trim()}
+                          className="flex-1"
+                        >
+                          {isSaving ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4 mr-2" />
+                              Save Plan
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </Card>
           {/* Daily Plan Overview */}
           <Card>
             <CardHeader>
@@ -367,11 +518,22 @@ export const NutritionGenerator = () => {
                             {meal.time}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <div className="font-semibold">{meal.calories} cal</div>
-                          <div className="text-xs text-muted-foreground">
-                            P:{meal.protein}g C:{meal.carbs}g F:{meal.fat}g
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <div className="font-semibold">{meal.calories} cal</div>
+                            <div className="text-xs text-muted-foreground">
+                              P:{meal.protein}g C:{meal.carbs}g F:{meal.fat}g
+                            </div>
                           </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleAddMealToLog(meal)}
+                            className="ml-2"
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            Add to Log
+                          </Button>
                         </div>
                       </div>
                       

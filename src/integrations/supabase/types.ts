@@ -314,6 +314,122 @@ export type Database = {
         }
         Relationships: []
       }
+      meal_plan_items: {
+        Row: {
+          calories: number | null
+          carbs_g: number | null
+          created_at: string
+          fat_g: number | null
+          fiber_g: number | null
+          food_name: string
+          id: string
+          instructions: string | null
+          meal_plan_id: string
+          meal_type: string
+          protein_g: number | null
+          quantity: number
+          sodium_mg: number | null
+          sugar_g: number | null
+          unit: string
+          user_id: string
+        }
+        Insert: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_name: string
+          id?: string
+          instructions?: string | null
+          meal_plan_id: string
+          meal_type: string
+          protein_g?: number | null
+          quantity: number
+          sodium_mg?: number | null
+          sugar_g?: number | null
+          unit: string
+          user_id: string
+        }
+        Update: {
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_name?: string
+          id?: string
+          instructions?: string | null
+          meal_plan_id?: string
+          meal_type?: string
+          protein_g?: number | null
+          quantity?: number
+          sodium_mg?: number | null
+          sugar_g?: number | null
+          unit?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_plan_items_meal_plan_id_fkey"
+            columns: ["meal_plan_id"]
+            isOneToOne: false
+            referencedRelation: "meal_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          dietary_preferences: Json | null
+          goal: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          plan_data: Json
+          target_calories: number | null
+          target_carbs: number | null
+          target_fat: number | null
+          target_protein: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          dietary_preferences?: Json | null
+          goal?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          plan_data?: Json
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          dietary_preferences?: Json | null
+          goal?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          plan_data?: Json
+          target_calories?: number | null
+          target_carbs?: number | null
+          target_fat?: number | null
+          target_protein?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activity_level: string | null
