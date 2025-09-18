@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 
 interface AnalyticsEvent {
   event: string;
@@ -9,7 +9,7 @@ interface AnalyticsEvent {
 }
 
 export const useAnalytics = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
 
   useEffect(() => {
     // Initialize analytics when user logs in
