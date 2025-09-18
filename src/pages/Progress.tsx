@@ -103,14 +103,14 @@ const Progress = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-1 text-center">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day) => (
-                <div key={day} className="text-xs text-muted-foreground p-2 font-medium">
+              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                <div key={`day-header-${index}`} className="text-xs text-muted-foreground p-2 font-medium">
                   {day}
                 </div>
               ))}
               {calendarDays.map((date) => (
                 <div
-                  key={`calendar-${date.day}`}
+                  key={`calendar-day-${date.day}`}
                   className={`
                     relative w-8 h-8 flex items-center justify-center text-xs rounded-lg transition-colors
                     ${date.isToday ? 'bg-primary text-primary-foreground' : ''}
@@ -147,7 +147,7 @@ const Progress = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {stats.map((stat, index) => (
-              <div key={`stat-${stat.label}-${index}`} className="flex items-center justify-between">
+              <div key={`stat-${stat.label.replace(/\s+/g, '-').toLowerCase()}-${index}`} className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{stat.label}</p>
                   <p className="text-2xl font-bold text-primary">{stat.value}</p>
@@ -171,7 +171,7 @@ const Progress = () => {
           <CardContent className="space-y-4">
             {/* Preset Goals */}
             {presetGoals.map((goal) => (
-              <div key={`preset-${goal.id}`} className="space-y-2">
+              <div key={`preset-goal-${goal.id}`} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{goal.title}</h3>
@@ -192,7 +192,7 @@ const Progress = () => {
             
             {/* Custom Goals */}
             {customGoals.map((goal) => (
-              <div key={`custom-${goal.id}`} className="space-y-2">
+              <div key={`custom-goal-${goal.id}`} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{goal.title}</h3>
@@ -242,7 +242,7 @@ const Progress = () => {
             ) : (
               completedAchievements.slice(0, 4).map((achievement) => (
                 <div
-                  key={achievement.id}
+                  key={`achievement-${achievement.id}`}
                   className="flex items-center gap-3 p-3 rounded-lg border border-primary/30 bg-primary/5 transition-colors"
                 >
                   <div className="text-2xl">
