@@ -1,9 +1,12 @@
-import { Users, Crown, Share2, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { Users, Trophy, MessageCircle, Heart, Share2, TrendingUp, Crown, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navigation } from "@/components/Navigation";
+import { SocialFeatures } from "@/components/SocialFeatures";
 import { useToast } from "@/hooks/use-toast";
 
 const Social = () => {
@@ -35,8 +38,11 @@ const Social = () => {
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             Social
           </h1>
-          <p className="text-muted-foreground">Connect and compete</p>
+          <p className="text-muted-foreground">Connect with your fitness community</p>
         </div>
+
+        {/* New Social Features */}
+        <SocialFeatures />
 
         {/* Quick Share */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">

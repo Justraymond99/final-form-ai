@@ -14,6 +14,8 @@ import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { PerformanceMonitoring } from "@/components/PerformanceMonitoring";
+import { InternationalizationSetup } from "@/components/InternationalizationSetup";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -23,6 +25,8 @@ const Profile = () => {
   const { sessions } = useWorkouts();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showPerformance, setShowPerformance] = useState(false);
+  const [showLanguage, setShowLanguage] = useState(false);
   
   // Real goals with starting values of 0
   const goals = [
@@ -194,6 +198,22 @@ const Profile = () => {
               <Settings className="h-4 w-4 mr-2" />
               App Settings
             </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setShowPerformance(true)}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Performance Stats
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setShowLanguage(true)}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Language Settings
+            </Button>
             <Separator />
             <Button 
               variant="outline" 
@@ -209,6 +229,30 @@ const Profile = () => {
       <Navigation />
       <EditProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <AppSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
+      
+      {/* Performance Monitoring Modal */}
+      {showPerformance && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <PerformanceMonitoring />
+            <div className="p-4">
+              <Button onClick={() => setShowPerformance(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Language Settings Modal */}
+      {showLanguage && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <InternationalizationSetup />
+            <div className="p-4">
+              <Button onClick={() => setShowLanguage(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

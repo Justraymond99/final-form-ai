@@ -6,16 +6,23 @@ import { NextWorkout } from "@/components/NextWorkout";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { AIChatbot } from "@/components/AIChatbot";
 import { AIRecoveryPlanner } from "@/components/AIRecoveryPlanner";
+import { OnboardingFlow } from "@/components/OnboardingFlow";
+import { AdvancedAIFeatures } from "@/components/AdvancedAIFeatures";
+import { ContentLibrary } from "@/components/ContentLibrary";
+import { UserFeedback } from "@/components/UserFeedback";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { ManualStepsDialog } from "@/components/ManualStepsDialog";
 import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
 import { ManualCalorieDialog } from "@/components/ManualCalorieDialog";
 import { ManualWaterDialog } from "@/components/ManualWaterDialog";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -38,6 +45,23 @@ const Index = () => {
   const { templates } = useWorkouts();
   const [actualCalories, setActualCalories] = useState(0);
   const { user } = useSecureAuth();
+  const { initializeNotifications } = useNotifications();
+  const { track } = useAnalytics();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showAdvancedAI, setShowAdvancedAI] = useState(false);
+  const [showContentLibrary, setShowContentLibrary] = useState(false);
+  
+  // Check if user needs onboarding
+  useEffect(() => {
+    if (profile && !localStorage.getItem('onboarding_completed')) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
+  
+  // Initialize notifications on mount
+  useEffect(() => {
+    initializeNotifications();
+  }, [initializeNotifications]);
   
   // Fetch actual calories from food_logs
   useEffect(() => {
@@ -330,9 +354,68 @@ const Index = () => {
           <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
           <QuickActions />
         </div>
+
+        {/* New Features */}
+        <div className="mb-8 space-y-4">
+          <h2 className="text-lg font-semibold text-foreground mb-4">New Features</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => setShowAdvancedAI(true)}
+            >
+              <Zap className="h-6 w-6 text-primary" />
+              <span className="text-sm">AI Coach</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center space-y-2"
+              onClick={() => setShowContentLibrary(true)}
+            >
+              <Heart className="h-6 w-6 text-accent" />
+              <span className="text-sm">Library</span>
+            </Button>
+          </div>
+        </div>
       </div>
+      
       <SwipeableNavigation />
       <AIChatbot />
+      <UserFeedback />
+      
+      {/* Onboarding Flow */}
+      {showOnboarding && (
+        <OnboardingFlow 
+          onComplete={() => {
+            setShowOnboarding(false);
+            track('onboarding_completed', {});
+          }} 
+        />
+      )}
+      
+      {/* Advanced AI Features Modal */}
+      {showAdvancedAI && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <AdvancedAIFeatures />
+            <div className="p-4">
+              <Button onClick={() => setShowAdvancedAI(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Content Library Modal */}
+      {showContentLibrary && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            <ContentLibrary />
+            <div className="p-4">
+              <Button onClick={() => setShowContentLibrary(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
