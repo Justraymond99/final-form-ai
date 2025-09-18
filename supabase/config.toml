@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.search-products]
 verify_jwt = false
+
+[functions.fetch-recipes]
+verify_jwt = false
+
+[functions.generate-fitness-articles]
+verify_jwt = false

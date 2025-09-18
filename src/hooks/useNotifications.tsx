@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LocalNotifications, ScheduleOptions } from '@capacitor/local-notifications';
 import { PushNotifications, ActionPerformed, PushNotificationSchema } from '@capacitor/push-notifications';
+import { Capacitor } from '@capacitor/core';
 import { useToast } from '@/components/ui/use-toast';
 
 interface NotificationSettings {
@@ -26,32 +27,45 @@ export const useNotifications = () => {
 
   const initializeNotifications = async () => {
     try {
-      // Request permissions
-      const permStatus = await LocalNotifications.requestPermissions();
-      const pushPermStatus = await PushNotifications.requestPermissions();
+      // Check if we're on web or mobile
+      const isWeb = !Capacitor.isNativePlatform();
       
-      if (permStatus.display === 'granted' && pushPermStatus.receive === 'granted') {
+      // Request local notifications permissions (works on web and mobile)
+      const permStatus = await LocalNotifications.requestPermissions();
+      
+      if (permStatus.display === 'granted') {
         setPermissionsGranted(true);
         
-        // Register for push notifications
-        await PushNotifications.register();
-        
-        // Add listeners
-        PushNotifications.addListener('registration', (token) => {
-          console.log('Push registration success, token: ' + token.value);
-        });
+        // Only try push notifications on mobile platforms
+        if (!isWeb) {
+          try {
+            const pushPermStatus = await PushNotifications.requestPermissions();
+            
+            if (pushPermStatus.receive === 'granted') {
+              // Register for push notifications
+              await PushNotifications.register();
+              
+              // Add listeners
+              PushNotifications.addListener('registration', (token) => {
+                console.log('Push registration success, token: ' + token.value);
+              });
 
-        PushNotifications.addListener('registrationError', (error) => {
-          console.error('Error on registration: ', error);
-        });
+              PushNotifications.addListener('registrationError', (error) => {
+                console.error('Error on registration: ', error);
+              });
 
-        PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-          console.log('Push received: ', notification);
-        });
+              PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
+                console.log('Push received: ', notification);
+              });
 
-        PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
-          console.log('Push action performed: ', notification);
-        });
+              PushNotifications.addListener('pushNotificationActionPerformed', (notification: ActionPerformed) => {
+                console.log('Push action performed: ', notification);
+              });
+            }
+          } catch (pushError) {
+            console.log('Push notifications not available on this platform');
+          }
+        }
 
         // Load settings from storage
         const savedSettings = localStorage.getItem('notification_settings');
@@ -61,6 +75,10 @@ export const useNotifications = () => {
       }
     } catch (error) {
       console.error('Error initializing notifications:', error);
+      // On web, we can still function without notifications
+      if (Capacitor.isNativePlatform()) {
+        throw error;
+      }
     }
   };
 
