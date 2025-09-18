@@ -68,26 +68,69 @@ const Goals = () => {
 
   const handleUpdateProgress = async (goal: any, newValue: number) => {
     const isCompleted = newValue >= goal.target_value;
-    const result = await updateGoal(goal.id, {
-      current_value: newValue,
-      completed: isCompleted,
-      completed_at: isCompleted ? new Date().toISOString() : null
-    });
+    
+    if (goal.isPreset) {
+      // Update preset goal in goals table
+      try {
+        const { error } = await supabase
+          .from('goals')
+          .update({
+            current_value: newValue,
+            completed: isCompleted,
+            completed_at: isCompleted ? new Date().toISOString() : null
+          })
+          .eq('id', goal.id)
+          .eq('user_id', user.id);
 
-    if (result.success) {
-      toast({
-        title: "Progress Updated",
-        description: isCompleted ? "Congratulations! Goal completed! 🎉" : "Goal progress updated successfully"
-      });
-      setUpdateDialogOpen(false);
-      setProgressInput("");
+        if (error) throw error;
+
+        // Refresh preset goals
+        const { data, error: fetchError } = await supabase
+          .from('goals')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (!fetchError) {
+          setPresetGoals(data || []);
+        }
+
+        toast({
+          title: "Progress Updated",
+          description: isCompleted ? "Congratulations! Goal completed! 🎉" : "Goal progress updated successfully"
+        });
+      } catch (error) {
+        console.error('Error updating preset goal:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update progress",
+          variant: "destructive"
+        });
+      }
     } else {
-      toast({
-        title: "Error",
-        description: "Failed to update progress",
-        variant: "destructive"
+      // Update custom goal
+      const result = await updateGoal(goal.id, {
+        current_value: newValue,
+        completed: isCompleted,
+        completed_at: isCompleted ? new Date().toISOString() : null
       });
+
+      if (result.success) {
+        toast({
+          title: "Progress Updated",
+          description: isCompleted ? "Congratulations! Goal completed! 🎉" : "Goal progress updated successfully"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update progress",
+          variant: "destructive"
+        });
+      }
     }
+
+    setUpdateDialogOpen(false);
+    setProgressInput("");
   };
 
   const handleDeleteGoal = async (goalId: string) => {

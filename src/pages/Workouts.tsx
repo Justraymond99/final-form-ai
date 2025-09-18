@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { WorkoutGenerator } from "@/components/WorkoutGenerator";
+import { WorkoutScheduler } from "@/components/WorkoutScheduler";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +15,7 @@ const Workouts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { templates, recentWorkouts: dbRecentWorkouts, startWorkout } = useWorkouts();
+  const [showScheduler, setShowScheduler] = useState<string | null>(null);
 
   // Format recent workouts for display
   const recentWorkouts = dbRecentWorkouts.map(workout => ({
@@ -29,7 +32,8 @@ const Workouts = () => {
     name: template.name,
     type: template.type,
     exercises: Array.isArray(template.exercises) ? template.exercises.length : 0,
-    difficulty: template.difficulty
+    difficulty: template.difficulty,
+    scheduled_days: (template as any).scheduled_days || []
   }));
 
   const handleStartWorkout = async (workoutId: string) => {
@@ -142,18 +146,43 @@ const Workouts = () => {
                   </div>
                 ) : (
                   workoutTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
-                      onClick={() => handleStartWorkout(template.id)}
-                    >
-                      <div className="space-y-1">
-                        <h3 className="font-medium">{template.name}</h3>
-                        <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
+                    <div key={template.id} className="space-y-3">
+                      <div
+                        className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                        onClick={() => handleStartWorkout(template.id)}
+                      >
+                        <div className="space-y-1">
+                          <h3 className="font-medium">{template.name}</h3>
+                          <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setShowScheduler(showScheduler === template.id ? null : template.id);
+                            }}
+                          >
+                            Schedule
+                          </Button>
+                          <Badge variant="outline" className="border-accent/30 text-accent">
+                            {template.type}
+                          </Badge>
+                        </div>
                       </div>
-                      <Badge variant="outline" className="border-accent/30 text-accent">
-                        {template.type}
-                      </Badge>
+                      
+                      {showScheduler === template.id && (
+                        <WorkoutScheduler
+                          workoutId={template.id}
+                          workoutName={template.name}
+                          currentSchedule={template.scheduled_days || []}
+                          onScheduleUpdated={() => {
+                            setShowScheduler(null);
+                            window.location.reload(); // Refresh to get updated data
+                          }}
+                        />
+                      )}
                     </div>
                   ))
                 )}

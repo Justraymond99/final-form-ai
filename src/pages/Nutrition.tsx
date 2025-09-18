@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useProfile } from "@/hooks/useProfile";
+import { PremiumGate } from "@/components/PremiumGate";
+import { VoiceFoodLogger } from "@/components/VoiceFoodLogger";
 import { supabase } from "@/integrations/supabase/client";
 
 interface MacroGoals {
@@ -319,26 +321,22 @@ const Nutrition = () => {
                   <span className="text-sm">Water</span>
                 </div>
               </Button>
-              <Button 
-                variant="outline" 
-                className="h-16 border-primary/20 hover:bg-primary/5"
-                onClick={() => toast({ title: "Scan Food", description: "Camera scanning coming soon! 📸" })}
+              <PremiumGate 
+                feature="Food Scanning"
+                description="Use your camera to instantly scan and log food items with AI-powered recognition"
               >
-                <div className="flex flex-col items-center gap-1">
-                  <Camera className="h-5 w-5" />
-                  <span className="text-sm">Scan</span>
-                </div>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-16 border-primary/20 hover:bg-primary/5"
-                onClick={() => toast({ title: "Voice Log", description: "Voice logging coming soon! 🎤" })}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <Mic className="h-5 w-5" />
-                  <span className="text-sm">Voice</span>
-                </div>
-              </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-16 border-primary/20 hover:bg-primary/5"
+                  onClick={() => toast({ title: "Scan Food", description: "Camera scanning coming soon! 📸" })}
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <Camera className="h-5 w-5" />
+                    <span className="text-sm">Scan</span>
+                  </div>
+                </Button>
+              </PremiumGate>
+              <VoiceFoodLogger onFoodLogged={() => window.location.reload()} />
             </div>
 
             {/* Meals */}

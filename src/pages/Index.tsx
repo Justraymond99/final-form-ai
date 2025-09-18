@@ -12,6 +12,8 @@ import { useWorkouts } from "@/hooks/useWorkouts";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { ManualStepsDialog } from "@/components/ManualStepsDialog";
 import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
+import { ManualCalorieDialog } from "@/components/ManualCalorieDialog";
+import { ManualWaterDialog } from "@/components/ManualWaterDialog";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -178,6 +180,33 @@ const Index = () => {
                   {todayProgress.calories.current} / {todayProgress.calories.target}
                 </div>
                 <div className="text-xs text-muted-foreground">kcal</div>
+                <ManualCalorieDialog 
+                  currentCalories={todayProgress.calories.current} 
+                  onUpdateCalories={() => {
+                    // Refresh calories when page comes into focus
+                    const fetchCalories = async () => {
+                      if (!user) return;
+                      
+                      const today = new Date().toISOString().split('T')[0];
+                      try {
+                        const { data, error } = await supabase
+                          .from('food_logs')
+                          .select('calories')
+                          .eq('user_id', user.id)
+                          .gte('logged_at', `${today}T00:00:00`)
+                          .lt('logged_at', `${today}T23:59:59`);
+
+                        if (error) throw error;
+                        
+                        const totalCalories = data?.reduce((total, food) => total + (food.calories || 0), 0) || 0;
+                        setActualCalories(totalCalories);
+                      } catch (error) {
+                        console.error('Error fetching calories:', error);
+                      }
+                    };
+                    fetchCalories();
+                  }} 
+                />
               </div>
             </div>
 
@@ -199,6 +228,28 @@ const Index = () => {
                   {todayProgress.water.current} / {todayProgress.water.target}
                 </div>
                 <div className="text-xs text-muted-foreground">glasses</div>
+                <ManualWaterDialog 
+                  currentWaterMl={dailyData?.water_intake_ml || 0}
+                  onLogWater={async (amount) => {
+                    if (user) {
+                      try {
+                        const { error } = await supabase
+                          .from('water_logs')
+                          .insert({
+                            user_id: user.id,
+                            amount_ml: amount,
+                            date: new Date().toISOString().split('T')[0]
+                          });
+
+                        if (!error) {
+                          window.location.reload(); // Refresh to update data
+                        }
+                      } catch (error) {
+                        console.error('Error logging water:', error);
+                      }
+                    }
+                  }} 
+                />
               </div>
             </div>
           </div>
