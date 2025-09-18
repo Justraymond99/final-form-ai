@@ -5,13 +5,16 @@ import { TodayStreak } from "@/components/TodayStreak";
 import { NextWorkout } from "@/components/NextWorkout";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { AIChatbot } from "@/components/AIChatbot";
+import { AIRecoveryPlanner } from "@/components/AIRecoveryPlanner";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { ManualStepsDialog } from "@/components/ManualStepsDialog";
 import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
 import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Flame, 
@@ -22,7 +25,9 @@ import {
   TrendingUp,
   Award,
   Clock,
-  Dumbbell
+  Dumbbell,
+  Heart,
+  Home
 } from "lucide-react";
 
 const Index = () => {
@@ -30,7 +35,7 @@ const Index = () => {
   const { data: dailyData, updateSteps, updateMeditation } = useDailyTracking();
   const { templates } = useWorkouts();
   const [actualCalories, setActualCalories] = useState(0);
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   
   // Fetch actual calories from food_logs
   useEffect(() => {

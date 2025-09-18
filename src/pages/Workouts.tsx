@@ -1,9 +1,10 @@
-import { Plus, Play, Clock, TrendingUp, Dumbbell, UtensilsCrossed } from "lucide-react";
+import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
-import { AIGenerationCard } from "@/components/AIGenerationCard";
+import { AIWorkoutGenerator } from "@/components/AIWorkoutGenerator";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -50,132 +51,127 @@ const Workouts = () => {
           <p className="text-muted-foreground">Build strength, track progress</p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-4">
-          <Button 
-            className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-            onClick={() => navigate("/workout-session")}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <Play className="h-5 w-5" />
-              <span className="text-sm">Start Quick Workout</span>
-            </div>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-16 border-primary/20 hover:bg-primary/5"
-            onClick={() => navigate("/workout-builder")}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <Plus className="h-5 w-5" />
-              <span className="text-sm">Create Template</span>
-            </div>
-          </Button>
-        </div>
+        <Tabs defaultValue="workouts" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="workouts" className="flex items-center gap-2">
+              <Dumbbell className="w-4 h-4" />
+              My Workouts
+            </TabsTrigger>
+            <TabsTrigger value="ai-generator" className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              AI Generator
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Recent Workouts */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              Recent Workouts
-            </CardTitle>
-          </CardHeader>
-           <CardContent className="space-y-3">
-            {recentWorkouts.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">
-                <p>No recent workouts yet!</p>
-                <p className="text-xs mt-1">Complete your first workout to see it here</p>
-              </div>
-            ) : (
-              recentWorkouts.map((workout) => (
-                <div
-                  key={workout.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+          <TabsContent value="workouts" className="space-y-6">
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 gap-4">
+              <Button 
+                className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+                onClick={() => navigate("/workout-session")}
               >
-                <div className="space-y-1">
-                  <h3 className="font-medium">{workout.name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>{workout.duration}</span>
-                    <span>•</span>
-                    <span>{workout.exercises} exercises</span>
+                <div className="flex flex-col items-center gap-1">
+                  <Play className="h-5 w-5" />
+                  <span className="text-sm">Start Quick Workout</span>
+                </div>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="h-16 border-primary/20 hover:bg-primary/5"
+                onClick={() => navigate("/workout-builder")}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <Plus className="h-5 w-5" />
+                  <span className="text-sm">Create Template</span>
+                </div>
+              </Button>
+            </div>
+
+            {/* Recent Workouts */}
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  Recent Workouts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {recentWorkouts.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-4">
+                    <p>No recent workouts yet!</p>
+                    <p className="text-xs mt-1">Complete your first workout to see it here</p>
                   </div>
-                </div>
-                <div className="text-right">
-                  <Badge variant="secondary" className="text-xs">
-                    {workout.lastPerformed}
-                  </Badge>
-                </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ) : (
+                  recentWorkouts.map((workout) => (
+                    <div
+                      key={workout.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                    >
+                      <div className="space-y-1">
+                        <h3 className="font-medium">{workout.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{workout.duration}</span>
+                          <span>•</span>
+                          <span>{workout.exercises} exercises</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge variant="secondary" className="text-xs">
+                          {workout.lastPerformed}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
 
-        {/* AI Generation Section */}
-        <div className="space-y-4">
-          <AIGenerationCard
-            title="Workout Generator"
-            icon={Dumbbell}
-            gradient="bg-gradient-to-r from-primary to-accent"
-            placeholder="Describe your ideal workout... (e.g., 'Upper body strength training for 45 minutes' or 'HIIT cardio for fat loss')"
-            type="workout"
-            onGenerated={(result) => {
-              toast({
-                title: "Workout Generated!",
-                description: "Your custom workout is ready to use",
-              });
-            }}
-          />
-          
-          <AIGenerationCard
-            title="Meal Plan Generator"
-            icon={UtensilsCrossed}
-            gradient="bg-gradient-to-r from-accent to-secondary"
-            placeholder="Describe your meal plan needs... (e.g., 'High protein vegetarian meals for weight loss' or 'Muscle building meals for 2500 calories')"
-            type="meal"
-            onGenerated={(result) => {
-              toast({
-                title: "Meal Plan Generated!",
-                description: "Your personalized nutrition plan is ready",
-              });
-            }}
-          />
-        </div>
+            {/* Templates */}
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-accent" />
+                  Workout Templates
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {workoutTemplates.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-4">
+                    <p>No workout templates yet!</p>
+                    <p className="text-xs mt-1">Create your first template to get started</p>
+                  </div>
+                ) : (
+                  workoutTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                      onClick={() => handleStartWorkout(template.id)}
+                    >
+                      <div className="space-y-1">
+                        <h3 className="font-medium">{template.name}</h3>
+                        <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
+                      </div>
+                      <Badge variant="outline" className="border-accent/30 text-accent">
+                        {template.type}
+                      </Badge>
+                    </div>
+                  ))
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* Templates */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-accent" />
-              Workout Templates
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {workoutTemplates.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">
-                <p>No workout templates yet!</p>
-                <p className="text-xs mt-1">Create your first template to get started</p>
-              </div>
-            ) : (
-              workoutTemplates.map((template) => (
-                <div
-                  key={template.id}
-                className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
-                onClick={() => handleStartWorkout(template.id)}
-              >
-                <div className="space-y-1">
-                  <h3 className="font-medium">{template.name}</h3>
-                  <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
-                </div>
-                <Badge variant="outline" className="border-accent/30 text-accent">
-                  {template.type}
-                </Badge>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+          <TabsContent value="ai-generator">
+            <AIWorkoutGenerator 
+              onWorkoutGenerated={(workout) => {
+                toast({
+                  title: "AI Workout Generated!",
+                  description: "Your personalized workout is ready to start",
+                });
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
       <SwipeableNavigation />
     </div>
