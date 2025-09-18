@@ -20,7 +20,7 @@ import {
   Award,
   Flame
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 
 interface SocialPost {
   id: string;
@@ -55,7 +55,7 @@ interface LeaderboardUser {
 
 export const SocialFeatures = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [activeTab, setActiveTab] = useState('feed');
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);

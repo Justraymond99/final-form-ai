@@ -22,7 +22,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 
 interface AIFeature {
   id: string;
@@ -35,7 +35,7 @@ interface AIFeature {
 
 export const AdvancedAIFeatures = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [activeTab, setActiveTab] = useState('analysis');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<AIFeature | null>(null);

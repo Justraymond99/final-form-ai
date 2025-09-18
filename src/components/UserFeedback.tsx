@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Star, MessageCircle, Bug, Lightbulb, Heart } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useSecureAuth } from '@/hooks/useSecureAuth';
 import { supabase } from '@/integrations/supabase/client';
 
 interface FeedbackData {
@@ -19,7 +19,7 @@ interface FeedbackData {
 
 export const UserFeedback = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackData>({
     type: '',
