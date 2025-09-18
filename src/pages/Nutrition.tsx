@@ -62,8 +62,8 @@ const Nutrition = () => {
           .from('food_logs')
           .select('*')
           .eq('user_id', dailyData.user_id)
-          .gte('logged_at', `${selectedDate}T00:00:00`)
-          .lt('logged_at', `${selectedDate}T23:59:59`)
+          .gte('logged_at', `${selectedDate}T00:00:00.000Z`)
+          .lte('logged_at', `${selectedDate}T23:59:59.999Z`)
           .order('logged_at', { ascending: true });
 
         if (error) throw error;
@@ -92,6 +92,16 @@ const Nutrition = () => {
     };
 
     fetchFoodLogs();
+
+    // Add focus listener to refresh data when returning to the page
+    const handleFocus = () => {
+      if (document.hasFocus()) {
+        fetchFoodLogs();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [selectedDate, dailyData?.user_id]);
 
   // Refresh data when navigating back to this page

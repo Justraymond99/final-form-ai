@@ -148,7 +148,7 @@ const WorkoutSession = () => {
         .from('workout_sessions')
         .insert({
           user_id: user.id,
-          name: "Push Workout",
+          name: "Quick Workout",
           started_at: new Date(workoutStartTime).toISOString(),
           completed_at: new Date().toISOString(),
           duration_minutes: durationMinutes,
@@ -161,7 +161,11 @@ const WorkoutSession = () => {
         title: "Workout Complete!", 
         description: `Great job! You worked out for ${formatTime(durationMinutes * 60)}` 
       });
-      navigate("/workouts");
+      
+      // Use a timeout to ensure the navigation happens after state updates
+      setTimeout(() => {
+        navigate("/workouts");
+      }, 100);
     } catch (error) {
       console.error('Error saving workout session:', error);
       toast({ 

@@ -74,6 +74,16 @@ export const useWorkouts = () => {
     };
 
     fetchData();
+
+    // Add focus listener to refresh data when returning to the page
+    const handleFocus = () => {
+      if (document.hasFocus()) {
+        fetchData();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [user]);
 
   const getTemplates = () => workouts; // All items from workout_templates are templates
@@ -87,8 +97,8 @@ export const useWorkouts = () => {
         .from('workout_sessions')
         .insert({
           user_id: user.id,
-          template_id: workoutId,
-          name: "Current Workout",
+          template_id: workoutId || null,
+          name: workoutId ? "Template Workout" : "Quick Workout",
           started_at: new Date().toISOString(),
           is_paused: false,
           exercises_data: {}
@@ -165,6 +175,15 @@ export const useWorkouts = () => {
         .eq('id', currentSession.id);
 
       if (error) throw error;
+      
+      // Refresh the sessions data
+      const { data: sessionData } = await supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      if (sessionData) setSessions(sessionData);
       setCurrentSession(null);
       return { success: true };
     } catch (error) {

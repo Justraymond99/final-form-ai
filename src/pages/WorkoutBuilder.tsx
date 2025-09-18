@@ -179,7 +179,11 @@ const WorkoutBuilder = () => {
         title: "Workout Saved!", 
         description: `"${workoutName}" saved with ${selectedExercises.length} exercises` 
       });
-      navigate("/workouts");
+      
+      // Use a timeout to ensure the navigation happens after state updates
+      setTimeout(() => {
+        navigate("/workouts");
+      }, 100);
     } catch (error) {
       console.error('Error saving workout:', error);
       toast({ 

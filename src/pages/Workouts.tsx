@@ -72,7 +72,14 @@ const Workouts = () => {
             <div className="grid grid-cols-2 gap-4">
               <Button 
                 className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
-                onClick={() => navigate("/workout-session")}
+                onClick={async () => {
+                  // Create a quick workout session without a template
+                  const result = await startWorkout("");
+                  if (result?.success) {
+                    toast({ title: "Quick Workout Started!", description: "Let's get moving!" });
+                    navigate("/workout-session");
+                  }
+                }}
               >
                 <div className="flex flex-col items-center gap-1">
                   <Play className="h-5 w-5" />
