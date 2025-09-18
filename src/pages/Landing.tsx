@@ -94,9 +94,7 @@ const Landing = () => {
       <header className="border-b border-purple-800/20 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/80 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg flex items-center justify-center">
-              <Dumbbell className="h-5 w-5 text-white" />
-            </div>
+            <img src="/final-form-logo.png" alt="Final Form Logo" className="h-8 w-8" />
             <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
               Final Form
             </span>
@@ -293,9 +291,7 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="h-8 w-8 bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg flex items-center justify-center">
-                <Dumbbell className="h-5 w-5 text-white" />
-              </div>
+              <img src="/final-form-logo.png" alt="Final Form Logo" className="h-8 w-8" />
               <span className="text-xl font-bold bg-gradient-to-r from-purple-600 via-purple-300 to-white bg-clip-text text-transparent">
                 Final Form
               </span>
