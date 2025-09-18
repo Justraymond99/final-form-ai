@@ -166,16 +166,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-md mx-auto p-6 pb-20">
+      <div className="max-w-md mx-auto px-4 py-4 pb-20 sm:px-6 sm:py-6">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{getGreeting()}, {firstName}! 👋</h1>
-              <p className="text-muted-foreground">Ready to crush your fitness goals?</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">{getGreeting()}, {firstName}! 👋</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">Ready to crush your fitness goals?</p>
             </div>
-            <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-lg font-bold text-background">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+              <span className="text-base sm:text-lg font-bold text-background">
                 {firstName ? firstName[0].toUpperCase() : 'U'}
               </span>
             </div>
@@ -183,24 +183,24 @@ const Index = () => {
         </div>
 
         {/* Progress Rings Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Today's Progress</h2>
-          <div className="grid grid-cols-2 gap-6">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Today's Progress</h2>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
             <div className="flex flex-col items-center">
               <ProgressRing
                 progress={(todayProgress.calories.current / todayProgress.calories.target) * 100}
-                size={100}
+                size={80}
                 color="hsl(var(--energy))"
               >
                 <div className="text-center">
-                  <div className="text-lg font-bold text-foreground">
+                  <div className="text-base sm:text-lg font-bold text-foreground">
                     {Math.round((todayProgress.calories.current / todayProgress.calories.target) * 100)}%
                   </div>
                   <div className="text-xs text-muted-foreground">Calories</div>
                 </div>
               </ProgressRing>
               <div className="mt-2 text-center">
-                <div className="text-sm font-medium text-foreground">
+                <div className="text-xs sm:text-sm font-medium text-foreground">
                   {todayProgress.calories.current} / {todayProgress.calories.target}
                 </div>
                 <div className="text-xs text-muted-foreground">kcal</div>
@@ -237,18 +237,18 @@ const Index = () => {
             <div className="flex flex-col items-center">
               <ProgressRing
                 progress={(todayProgress.water.current / todayProgress.water.target) * 100}
-                size={100}
+                size={80}
                 color="hsl(var(--hydration))"
               >
                 <div className="text-center">
-                  <div className="text-lg font-bold text-foreground">
+                  <div className="text-base sm:text-lg font-bold text-foreground">
                     {Math.round((todayProgress.water.current / todayProgress.water.target) * 100)}%
                   </div>
                   <div className="text-xs text-muted-foreground">Water</div>
                 </div>
               </ProgressRing>
               <div className="mt-2 text-center">
-                <div className="text-sm font-medium text-foreground">
+                <div className="text-xs sm:text-sm font-medium text-foreground">
                   {todayProgress.water.current} / {todayProgress.water.target}
                 </div>
                 <div className="text-xs text-muted-foreground">glasses</div>
@@ -280,9 +280,9 @@ const Index = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Quick Stats</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Quick Stats</h2>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
               <StatsCard
                 title="Steps Today"
@@ -330,7 +330,7 @@ const Index = () => {
         </div>
 
         {/* Streak Section */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <TodayStreak 
             currentStreak={dailyData?.workout_streak || 0} 
             isActiveToday={dailyData?.workout_completed || false} 
@@ -338,8 +338,8 @@ const Index = () => {
         </div>
 
         {/* Next Workout */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Up Next</h2>
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Up Next</h2>
           <NextWorkout
             workoutName={nextWorkout.name}
             estimatedTime={nextWorkout.duration_minutes}
@@ -350,30 +350,30 @@ const Index = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Quick Actions</h2>
           <QuickActions />
         </div>
 
         {/* New Features */}
-        <div className="mb-8 space-y-4">
-          <h2 className="text-lg font-semibold text-foreground mb-4">New Features</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="mb-6 sm:mb-8 space-y-4">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">New Features</h2>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <Button 
               variant="outline" 
-              className="h-20 flex flex-col items-center justify-center space-y-2"
+              className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2"
               onClick={() => setShowAdvancedAI(true)}
             >
-              <Zap className="h-6 w-6 text-primary" />
-              <span className="text-sm">AI Coach</span>
+              <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              <span className="text-xs sm:text-sm">AI Coach</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-20 flex flex-col items-center justify-center space-y-2"
+              className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2"
               onClick={() => setShowContentLibrary(true)}
             >
-              <Heart className="h-6 w-6 text-accent" />
-              <span className="text-sm">Library</span>
+              <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-accent" />
+              <span className="text-xs sm:text-sm">Library</span>
             </Button>
           </div>
         </div>
@@ -395,11 +395,11 @@ const Index = () => {
       
       {/* Advanced AI Features Modal */}
       {showAdvancedAI && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
             <AdvancedAIFeatures />
-            <div className="p-4">
-              <Button onClick={() => setShowAdvancedAI(false)}>Close</Button>
+            <div className="p-3 sm:p-4">
+              <Button onClick={() => setShowAdvancedAI(false)} className="w-full">Close</Button>
             </div>
           </div>
         </div>
@@ -407,11 +407,11 @@ const Index = () => {
       
       {/* Content Library Modal */}
       {showContentLibrary && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
             <ContentLibrary />
-            <div className="p-4">
-              <Button onClick={() => setShowContentLibrary(false)}>Close</Button>
+            <div className="p-3 sm:p-4">
+              <Button onClick={() => setShowContentLibrary(false)} className="w-full">Close</Button>
             </div>
           </div>
         </div>
