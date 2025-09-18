@@ -66,7 +66,7 @@ export const useMultiWeekPlans = () => {
 
       // Fetch multi-week workout plans
       const { data: workoutData, error: workoutError } = await supabase
-        .from('multi_week_workout_plans')
+        .from('multi_week_workout_plans' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -75,15 +75,15 @@ export const useMultiWeekPlans = () => {
 
       // Fetch multi-week nutrition plans  
       const { data: nutritionData, error: nutritionError } = await supabase
-        .from('multi_week_nutrition_plans')
+        .from('multi_week_nutrition_plans' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (nutritionError) throw nutritionError;
 
-      setWorkoutPlans(workoutData || []);
-      setNutritionPlans(nutritionData || []);
+      setWorkoutPlans((workoutData || []) as unknown as MultiWeekWorkoutPlan[]);
+      setNutritionPlans((nutritionData || []) as unknown as MultiWeekNutritionPlan[]);
     } catch (error) {
       console.error('Error fetching multi-week plans:', error);
     } finally {
@@ -96,7 +96,7 @@ export const useMultiWeekPlans = () => {
 
     try {
       const { data, error } = await supabase
-        .from('multi_week_workout_plans')
+        .from('multi_week_workout_plans' as any)
         .insert({
           user_id: user.id,
           ...plan
@@ -106,9 +106,9 @@ export const useMultiWeekPlans = () => {
 
       if (error) throw error;
 
-      setWorkoutPlans(prev => [data, ...prev]);
+      setWorkoutPlans(prev => [data as unknown as MultiWeekWorkoutPlan, ...prev]);
       return { success: true, data };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving multi-week workout plan:', error);
       return { success: false, error: error.message };
     }
@@ -119,7 +119,7 @@ export const useMultiWeekPlans = () => {
 
     try {
       const { data, error } = await supabase
-        .from('multi_week_nutrition_plans')
+        .from('multi_week_nutrition_plans' as any)
         .insert({
           user_id: user.id,
           ...plan
@@ -129,9 +129,9 @@ export const useMultiWeekPlans = () => {
 
       if (error) throw error;
 
-      setNutritionPlans(prev => [data, ...prev]);
+      setNutritionPlans(prev => [data as unknown as MultiWeekNutritionPlan, ...prev]);
       return { success: true, data };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving multi-week nutrition plan:', error);
       return { success: false, error: error.message };
     }
@@ -144,7 +144,7 @@ export const useMultiWeekPlans = () => {
       const table = type === 'workout' ? 'multi_week_workout_plans' : 'multi_week_nutrition_plans';
       
       const { error } = await supabase
-        .from(table)
+        .from(table as any)
         .delete()
         .eq('id', planId)
         .eq('user_id', user.id);
@@ -158,7 +158,7 @@ export const useMultiWeekPlans = () => {
       }
 
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting multi-week plan:', error);
       return { success: false, error: error.message };
     }
