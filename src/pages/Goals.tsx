@@ -424,6 +424,7 @@ const Goals = () => {
           </DialogContent>
         </Dialog>
       </div>
+      
       <Navigation />
     </div>
   );

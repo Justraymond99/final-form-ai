@@ -209,6 +209,7 @@ const Workouts = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
       <SwipeableNavigation />
     </div>
   );

@@ -430,6 +430,7 @@ const Nutrition = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
       <SwipeableNavigation />
     </div>
   );

@@ -127,6 +127,7 @@ const SubscriptionSuccess = () => {
           </p>
         </div>
       </div>
+      
       <Navigation />
     </div>
   );

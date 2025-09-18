@@ -271,6 +271,7 @@ const Progress = () => {
           </CardContent>
         </Card>
       </div>
+      
       <Navigation />
     </div>
   );

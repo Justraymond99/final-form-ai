@@ -46,19 +46,19 @@ const App = () => (
               <Routes>
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/" element={<ProtectedRoute><div className="pb-16"><Index /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/workouts" element={<ProtectedRoute><div className="pb-16"><Workouts /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/workout-session" element={<ProtectedRoute><div className="pb-16"><WorkoutSession /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/workout-builder" element={<ProtectedRoute><div className="pb-16"><WorkoutBuilder /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/nutrition" element={<ProtectedRoute><div className="pb-16"><Nutrition /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/food-logger" element={<ProtectedRoute><div className="pb-16"><FoodLogger /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/progress" element={<ProtectedRoute><div className="pb-16"><Progress /><Navigation /></div></ProtectedRoute>} />
-              <Route path="/goals" element={<ProtectedRoute><div className="pb-16"><Goals /><Navigation /></div></ProtectedRoute>} />
-              <Route path="/pricing" element={<ProtectedRoute><div className="pb-16"><Pricing /><Navigation /></div></ProtectedRoute>} />
-              <Route path="/subscription-success" element={<ProtectedRoute><div className="pb-16"><SubscriptionSuccess /><Navigation /></div></ProtectedRoute>} />
-              <Route path="/social" element={<ProtectedRoute><div className="pb-16"><Social /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><div className="pb-16"><Profile /><Navigation /></div></ProtectedRoute>} />
-                <Route path="/awards" element={<ProtectedRoute><div className="pb-16"><Awards /><Navigation /></div></ProtectedRoute>} />
+                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
+                <Route path="/workout-session" element={<ProtectedRoute><WorkoutSession /></ProtectedRoute>} />
+                <Route path="/workout-builder" element={<ProtectedRoute><WorkoutBuilder /></ProtectedRoute>} />
+                <Route path="/nutrition" element={<ProtectedRoute><Nutrition /></ProtectedRoute>} />
+                <Route path="/food-logger" element={<ProtectedRoute><FoodLogger /></ProtectedRoute>} />
+                <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
+                <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
+                <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+                <Route path="/subscription-success" element={<ProtectedRoute><SubscriptionSuccess /></ProtectedRoute>} />
+                <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/awards" element={<ProtectedRoute><Awards /></ProtectedRoute>} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>

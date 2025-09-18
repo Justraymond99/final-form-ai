@@ -189,6 +189,7 @@ const Social = () => {
           </CardContent>
         </Card>
       </div>
+      
       <Navigation />
     </div>
   );

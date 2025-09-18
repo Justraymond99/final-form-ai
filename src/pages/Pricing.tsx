@@ -258,6 +258,7 @@ const Pricing = () => {
           </div>
         )}
       </div>
+      
       <Navigation />
     </div>
   );

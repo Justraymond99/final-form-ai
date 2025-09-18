@@ -247,6 +247,7 @@ const Awards = () => {
           </CardContent>
         </Card>
       </div>
+      
       <Navigation />
     </div>
   );

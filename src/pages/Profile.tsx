@@ -226,6 +226,7 @@ const Profile = () => {
           </CardContent>
         </Card>
       </div>
+      
       <Navigation />
       <EditProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <AppSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
