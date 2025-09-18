@@ -171,7 +171,7 @@ const Progress = () => {
           <CardContent className="space-y-4">
             {/* Preset Goals */}
             {presetGoals.map((goal) => (
-              <div key={goal.id} className="space-y-2">
+              <div key={`preset-${goal.id}`} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{goal.title}</h3>
@@ -192,7 +192,7 @@ const Progress = () => {
             
             {/* Custom Goals */}
             {customGoals.map((goal) => (
-              <div key={goal.id} className="space-y-2">
+              <div key={`custom-${goal.id}`} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{goal.title}</h3>

@@ -15,6 +15,7 @@ import WorkoutBuilder from "./pages/WorkoutBuilder";
 import Nutrition from "./pages/Nutrition";
 import FoodLogger from "./pages/FoodLogger";
 import Progress from "./pages/Progress";
+import Goals from "./pages/Goals";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
 import Awards from "./pages/Awards";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/nutrition" element={<ProtectedRoute><div className="pb-16"><Nutrition /><Navigation /></div></ProtectedRoute>} />
               <Route path="/food-logger" element={<ProtectedRoute><div className="pb-16"><FoodLogger /><Navigation /></div></ProtectedRoute>} />
               <Route path="/progress" element={<ProtectedRoute><div className="pb-16"><Progress /><Navigation /></div></ProtectedRoute>} />
+              <Route path="/goals" element={<ProtectedRoute><div className="pb-16"><Goals /><Navigation /></div></ProtectedRoute>} />
               <Route path="/social" element={<ProtectedRoute><div className="pb-16"><Social /><Navigation /></div></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><div className="pb-16"><Profile /><Navigation /></div></ProtectedRoute>} />
               <Route path="/awards" element={<ProtectedRoute><div className="pb-16"><Awards /><Navigation /></div></ProtectedRoute>} />

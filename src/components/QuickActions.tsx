@@ -23,7 +23,7 @@ export const QuickActions = () => {
       label: "Set Goal",
       icon: Target,
       gradient: "gradient-wellness",
-      onClick: () => navigate("/profile")
+      onClick: () => navigate("/goals")
     },
     {
       label: "View Progress",
