@@ -149,17 +149,17 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   return (
     <PremiumGate 
       feature="AI Workout Generator" 
-      description="Get personalized multi-week workout programs designed specifically for your goals, fitness level, and available equipment using advanced AI."
+      description="Get personalized workout programs designed specifically for your goals, fitness level, and available equipment using advanced AI."
     >
       <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              Multi-Week Workout Generator
+              Workout Generator
             </CardTitle>
             <CardDescription>
-              Generate personalized multi-week workout programs with progressive overload and variety.
+              Generate personalized workout programs with progressive overload and variety.
             </CardDescription>
           </CardHeader>
           

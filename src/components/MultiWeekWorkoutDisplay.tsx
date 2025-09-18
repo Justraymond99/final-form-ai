@@ -63,7 +63,7 @@ export const MultiWeekWorkoutDisplay = ({
       if (result.success) {
         toast({
           title: "Program saved!",
-          description: "Your multi-week workout program has been saved.",
+          description: "Your workout program has been saved.",
         });
         setShowSaveDialog(false);
         setPlanName("");

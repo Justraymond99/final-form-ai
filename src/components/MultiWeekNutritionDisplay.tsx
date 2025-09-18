@@ -66,7 +66,7 @@ export const MultiWeekNutritionDisplay = ({
       if (result.success) {
         toast({
           title: "Program saved!",
-          description: "Your multi-week nutrition program has been saved.",
+          description: "Your nutrition program has been saved.",
         });
         setShowSaveDialog(false);
         setPlanName("");

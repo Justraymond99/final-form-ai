@@ -138,17 +138,17 @@ export const NutritionGenerator = () => {
   return (
     <PremiumGate 
       feature="AI Nutrition Generator" 
-      description="Get personalized multi-week meal plans tailored to your goals, dietary preferences, and budget using advanced AI."
+      description="Get personalized meal plans tailored to your goals, dietary preferences, and budget using advanced AI."
     >
       <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ChefHat className="h-5 w-5" />
-              Multi-Week Nutrition Generator
+              Nutrition Generator
             </CardTitle>
             <CardDescription>
-              Generate personalized multi-week meal plans with progressive nutrition optimization
+              Generate personalized meal plans with progressive nutrition optimization
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
