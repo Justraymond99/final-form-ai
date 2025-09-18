@@ -26,28 +26,42 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
+    // Get user from auth
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      throw new Error('Invalid or expired token');
+    }
+
     const { 
-      userId, 
       goal, 
       dietaryPreferences, 
       allergies, 
       targetCalories, 
-      mealsPerDay,
       cookingTime,
-      budget 
+      budgetRange,
+      additionalNotes,
+      programLength
     } = await req.json();
 
-    console.log('Request data:', { userId, goal, dietaryPreferences, targetCalories });
+    console.log('Request data:', { userId: user.id, goal, dietaryPreferences, targetCalories });
 
-    if (!userId) {
-      throw new Error('User ID is required');
+    if (!goal || !targetCalories) {
+      throw new Error('Goal and target calories are required');
     }
 
     // Get user profile for personalization
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .single();
 
     if (profileError) {
@@ -55,7 +69,7 @@ serve(async (req) => {
     }
 
     // Build prompt for nutrition plan generation
-    const prompt = `Generate a personalized nutrition plan based on the following requirements:
+    const prompt = `Generate a personalized ${programLength}-week nutrition plan based on the following requirements:
 
 User Profile:
 - Age: ${profile?.age || 'Not specified'}
@@ -66,65 +80,79 @@ User Profile:
 
 Nutrition Requirements:
 - Target Calories: ${targetCalories || 2000} per day
-- Meals per Day: ${mealsPerDay || 3}
-- Maximum Cooking Time: ${cookingTime || 30} minutes
-- Budget Level: ${budget || 'moderate'}
+- Meals per Day: 3 main meals + 2 snacks
+- Maximum Cooking Time: ${cookingTime || 30} minutes per meal
+- Budget Level: ${budgetRange || 'moderate'}
 - Dietary Preferences: ${dietaryPreferences?.join(', ') || 'None specified'}
 - Allergies/Restrictions: ${allergies?.join(', ') || 'None'}
+- Additional Notes: ${additionalNotes || 'None'}
+- Program Duration: ${programLength} week(s)
 
-Please generate a comprehensive nutrition plan with:
-1. Daily meal schedule with specific meal suggestions
-2. Macro breakdown (protein, carbs, fats) for each meal
-3. Shopping list with estimated quantities
-4. Meal prep instructions
-5. Nutritional tips specific to their goal
+Please generate a comprehensive ${programLength}-week nutrition plan with:
+1. Weekly meal schedules for each week with progressive improvements
+2. Daily meal plans with 5 meals per day (breakfast, lunch, dinner, 2 snacks)
+3. Macro breakdown (protein, carbs, fats) for each meal
+4. Shopping lists for each week
+5. Meal prep instructions
+6. Progressive nutrition tips for each week
 
 Format the response as a structured JSON with the following structure:
 {
-  "dailyPlan": {
-    "targetCalories": number,
-    "targetProtein": number,
-    "targetCarbs": number,
-    "targetFat": number,
-    "meals": [
-      {
-        "name": "Breakfast/Lunch/Dinner/Snack",
-        "time": "HH:MM",
-        "calories": number,
-        "protein": number,
-        "carbs": number,
-        "fat": number,
-        "foods": [
-          {
-            "name": "Food item",
-            "quantity": "amount with unit",
-            "calories": number,
-            "protein": number,
-            "carbs": number,
-            "fat": number
-          }
-        ],
-        "instructions": "Brief cooking/prep instructions"
-      }
-    ]
-  },
-  "shoppingList": [
+  "weeks": [
     {
-      "category": "Proteins/Vegetables/Grains/etc",
-      "items": [
+      "weekNumber": number,
+      "theme": "Week theme/focus",
+      "targetCalories": number,
+      "targetProtein": number,
+      "targetCarbs": number,
+      "targetFat": number,
+      "days": [
         {
-          "name": "Item name",
-          "quantity": "amount needed",
-          "estimatedCost": "$X.XX"
+          "dayNumber": number,
+          "meals": [
+            {
+              "meal_type": "breakfast/lunch/dinner/snack_am/snack_pm",
+              "name": "Meal name",
+              "time": "HH:MM",
+              "calories": number,
+              "protein_g": number,
+              "carbs_g": number,
+              "fat_g": number,
+              "items": [
+                {
+                  "name": "Food item",
+                  "quantity": "amount with unit",
+                  "unit": "unit type",
+                  "calories": number,
+                  "protein_g": number,
+                  "carbs_g": number,
+                  "fat_g": number
+                }
+              ],
+              "instructions": "Brief cooking/prep instructions"
+            }
+          ]
         }
+      ],
+      "shoppingList": [
+        {
+          "category": "Proteins/Vegetables/Grains/Dairy/Snacks/etc",
+          "items": [
+            {
+              "name": "Item name",
+              "quantity": "amount needed for the week",
+              "estimatedCost": "$X.XX"
+            }
+          ]
+        }
+      ],
+      "weeklyTips": [
+        "Week-specific nutrition and prep advice"
       ]
     }
   ],
-  "mealPrepTips": [
-    "Practical meal prep advice"
-  ],
-  "nutritionTips": [
-    "Goal-specific nutrition advice"
+  "overallTips": [
+    "General program guidance and tips"
   ]
 }
 

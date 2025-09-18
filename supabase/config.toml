@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.generate-fitness-articles]
 verify_jwt = false
+
+[functions.ai-nutrition-generator]
+verify_jwt = true
