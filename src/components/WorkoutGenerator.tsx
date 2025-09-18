@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PremiumGate } from "@/components/PremiumGate";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -22,6 +24,7 @@ interface WorkoutGeneratorProps {
 
 export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) => {
   const { user } = useSecureAuth();
+  const { hasPremiumAccess } = useSubscription();
   const { startWorkout: createWorkoutSession } = useWorkouts();
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -184,7 +187,11 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   };
 
   return (
-    <div className="space-y-6">
+    <PremiumGate 
+      feature="AI Workout Generator" 
+      description="Get personalized workouts designed specifically for your goals, fitness level, and available equipment using advanced AI."
+    >
+      <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -547,5 +554,6 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
         </div>
       )}
     </div>
+    </PremiumGate>
   );
 };

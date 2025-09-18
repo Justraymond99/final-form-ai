@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PremiumGate } from "@/components/PremiumGate";
 import { useMealPlans } from "@/hooks/useMealPlans";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -66,6 +68,7 @@ interface NutritionPlan {
 
 export const NutritionGenerator = () => {
   const { user } = useSecureAuth();
+  const { hasPremiumAccess } = useSubscription();
   const { toast } = useToast();
   const { saveMealPlan, addMealToFoodLog } = useMealPlans();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -250,7 +253,11 @@ export const NutritionGenerator = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <PremiumGate 
+      feature="AI Nutrition Generator" 
+      description="Get personalized meal plans tailored to your goals, dietary preferences, and budget using advanced AI."
+    >
+      <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -633,5 +640,6 @@ export const NutritionGenerator = () => {
         </div>
       )}
     </div>
+    </PremiumGate>
   );
 };
