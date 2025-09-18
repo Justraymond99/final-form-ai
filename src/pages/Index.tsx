@@ -355,9 +355,8 @@ const Index = () => {
           <QuickActions />
         </div>
 
-        {/* New Features */}
+        {/* AI Features */}
         <div className="mb-6 sm:mb-8 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">New Features</h2>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <Button 
               variant="outline" 
