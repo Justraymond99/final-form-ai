@@ -40,6 +40,50 @@ const FoodLogger = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedMeal, setSelectedMeal] = useState("breakfast");
   const [isLogging, setIsLogging] = useState(false);
+  const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const searchFoods = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('search-food', {
+        body: { query, page: 0 }
+      });
+
+      if (error) throw error;
+
+      const foods = data.foods?.map((food: any) => ({
+        id: food.foodId,
+        name: food.label,
+        brand: food.brand || 'Generic',
+        calories: food.nutrients.calories,
+        protein: food.nutrients.protein,
+        carbs: food.nutrients.carbs,
+        fat: food.nutrients.fat,
+        fiber: food.nutrients.fiber,
+        sugar: 0, // USDA doesn't always have sugar data
+        sodium: food.nutrients.sodium,
+        servingSize: "100",
+        servingUnit: "g"
+      })) || [];
+
+      setSearchResults(foods);
+    } catch (error) {
+      console.error('Error searching foods:', error);
+      toast({
+        title: "Search Error",
+        description: "Failed to search foods. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const foodDatabase: FoodItem[] = [
     {
@@ -184,10 +228,12 @@ const FoodLogger = () => {
     }
   ];
 
-  const filteredFoods = foodDatabase.filter(food =>
-    food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (food.brand && food.brand.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Use search results if available, otherwise fallback to local database
+  const displayedFoods = searchResults.length > 0 ? searchResults : 
+    foodDatabase.filter(food =>
+      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (food.brand && food.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
   const calculateNutrition = (food: FoodItem, qty: number) => {
     return {
@@ -368,13 +414,25 @@ const FoodLogger = () => {
               <Input
                 placeholder="Search foods..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (e.target.value.length >= 3) {
+                    searchFoods(e.target.value);
+                  } else if (e.target.value.length === 0) {
+                    setSearchResults([]);
+                  }
+                }}
                 className="pl-10"
               />
             </div>
           </CardHeader>
           <CardContent className="space-y-2 max-h-96 overflow-y-auto">
-            {filteredFoods.map((food) => (
+            {isSearching && (
+              <div className="text-center py-4 text-muted-foreground">
+                Searching USDA food database...
+              </div>
+            )}
+            {displayedFoods.map((food) => (
               <div
                 key={food.id}
                 className={`p-3 border rounded-lg cursor-pointer transition-colors ${
@@ -404,12 +462,18 @@ const FoodLogger = () => {
               </div>
             ))}
             
-            {filteredFoods.length === 0 && searchQuery && (
+            {displayedFoods.length === 0 && searchQuery && !isSearching && (
               <div className="text-center py-8 text-muted-foreground">
                 <p>No foods found for "{searchQuery}"</p>
                 <Button variant="outline" size="sm" className="mt-2">
                   Add Custom Food
                 </Button>
+              </div>
+            )}
+            
+            {searchQuery.length > 0 && searchQuery.length < 3 && (
+              <div className="text-center py-4 text-muted-foreground text-sm">
+                Type at least 3 characters to search USDA database
               </div>
             )}
           </CardContent>

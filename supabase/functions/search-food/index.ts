@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, page = 1 } = await req.json();
+    const { query, page = 0 } = await req.json();
     
     if (!query) {
       return new Response(
@@ -24,29 +24,15 @@ serve(async (req) => {
       );
     }
 
-    const API_KEY = Deno.env.get('EDAMAM_APP_KEY');
-    const APP_ID = Deno.env.get('EDAMAM_APP_ID');
-
-    if (!API_KEY || !APP_ID) {
-      console.error('Missing Edamam API credentials');
-      return new Response(
-        JSON.stringify({ error: 'API configuration error' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Search Edamam Food Database
-    const edamamUrl = `https://api.edamam.com/api/food-database/v2/parser?app_id=${APP_ID}&app_key=${API_KEY}&ingr=${encodeURIComponent(query)}&page=${page}`;
+    // Search USDA FoodData Central (completely free, no API key needed)
+    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=20&pageNumber=${page}&dataType=Foundation,SR Legacy,Survey (FNDDS)`;
     
-    console.log('Searching Edamam for:', query);
+    console.log('Searching USDA FoodData Central for:', query);
     
-    const response = await fetch(edamamUrl);
+    const response = await fetch(usdaUrl);
     
     if (!response.ok) {
-      console.error('Edamam API error:', response.status, response.statusText);
+      console.error('USDA API error:', response.status, response.statusText);
       return new Response(
         JSON.stringify({ error: 'Failed to search food database' }),
         { 
@@ -58,33 +44,41 @@ serve(async (req) => {
 
     const data = await response.json();
     
-    // Transform Edamam data to our format
-    const foods = data.hints?.map((hint: any) => {
-      const food = hint.food;
-      const nutrients = food.nutrients;
+    // Transform USDA data to our format
+    const foods = data.foods?.map((food: any) => {
+      const nutrients = food.foodNutrients || [];
+      
+      // Helper to find nutrient by ID
+      const findNutrient = (nutrientId: number) => {
+        const nutrient = nutrients.find((n: any) => n.nutrientId === nutrientId);
+        return nutrient ? nutrient.value || 0 : 0;
+      };
       
       return {
-        foodId: food.foodId,
-        label: food.label,
-        brand: food.brand || null,
-        category: food.category || 'Generic',
-        image: food.image || null,
+        foodId: food.fdcId.toString(),
+        label: food.description,
+        brand: food.brandOwner || food.brandName || null,
+        category: food.foodCategory || 'Generic',
+        image: null,
         nutrients: {
-          calories: Math.round(nutrients.ENERC_KCAL || 0),
-          protein: Math.round((nutrients.PROCNT || 0) * 10) / 10,
-          carbs: Math.round((nutrients.CHOCDF || 0) * 10) / 10,
-          fat: Math.round((nutrients.FAT || 0) * 10) / 10,
-          fiber: Math.round((nutrients.FIBTG || 0) * 10) / 10,
-          sodium: Math.round((nutrients.NA || 0) * 10) / 10,
+          calories: Math.round(findNutrient(1008)), // Energy (kcal)
+          protein: Math.round(findNutrient(1003) * 10) / 10, // Protein
+          carbs: Math.round(findNutrient(1005) * 10) / 10, // Carbs
+          fat: Math.round(findNutrient(1004) * 10) / 10, // Total fat
+          fiber: Math.round(findNutrient(1079) * 10) / 10, // Fiber
+          sodium: Math.round(findNutrient(1093) * 10) / 10, // Sodium (mg)
         },
-        measures: hint.measures || []
+        measures: [
+          { label: '100g', weight: 100 },
+          { label: '1 serving', weight: 100 }
+        ]
       };
     }) || [];
 
     return new Response(
       JSON.stringify({
         foods,
-        totalPages: Math.ceil((data.parsed?.length + data.hints?.length) / 20) || 1,
+        totalPages: Math.ceil((data.totalHits || 0) / 20),
         currentPage: page
       }),
       { 
