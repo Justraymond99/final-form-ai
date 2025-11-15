@@ -430,6 +430,78 @@ export type Database = {
         }
         Relationships: []
       }
+      multi_week_nutrition_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          goal: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+          weekly_plans: Json
+          weeks: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          goal: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+          weekly_plans?: Json
+          weeks?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          goal?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          weekly_plans?: Json
+          weeks?: number
+        }
+        Relationships: []
+      }
+      multi_week_workout_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+          weekly_plans: Json
+          weeks: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+          weekly_plans?: Json
+          weeks?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+          weekly_plans?: Json
+          weeks?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           activity_level: string | null
@@ -537,7 +609,7 @@ export type Database = {
           endpoint: string | null
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           request_count: number | null
           user_agent: string | null
           user_id: string | null
@@ -549,7 +621,7 @@ export type Database = {
           endpoint?: string | null
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           request_count?: number | null
           user_agent?: string | null
           user_id?: string | null
@@ -561,7 +633,7 @@ export type Database = {
           endpoint?: string | null
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           request_count?: number | null
           user_agent?: string | null
           user_id?: string | null
@@ -848,10 +920,7 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: undefined
       }
-      cleanup_expired_audit_logs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_expired_audit_logs: { Args: never; Returns: undefined }
       create_default_achievements: {
         Args: { user_id_param: string }
         Returns: undefined
