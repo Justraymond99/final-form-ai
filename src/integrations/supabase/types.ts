@@ -239,6 +239,51 @@ export type Database = {
         }
         Relationships: []
       }
+      exercises: {
+        Row: {
+          created_at: string
+          description: string | null
+          difficulty: string | null
+          equipment: string[] | null
+          exercise_type: string | null
+          id: string
+          image_url: string | null
+          instructions: string | null
+          muscle_groups: string[]
+          name: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          equipment?: string[] | null
+          exercise_type?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string | null
+          muscle_groups: string[]
+          name: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          difficulty?: string | null
+          equipment?: string[] | null
+          exercise_type?: string | null
+          id?: string
+          image_url?: string | null
+          instructions?: string | null
+          muscle_groups?: string[]
+          name?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           category: string | null
@@ -774,6 +819,117 @@ export type Database = {
         }
         Relationships: []
       }
+      progress_photos: {
+        Row: {
+          created_at: string
+          id: string
+          is_private: boolean | null
+          notes: string | null
+          photo_date: string
+          photo_type: string | null
+          photo_url: string
+          updated_at: string
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_private?: boolean | null
+          notes?: string | null
+          photo_date?: string
+          photo_type?: string | null
+          photo_url: string
+          updated_at?: string
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_private?: boolean | null
+          notes?: string | null
+          photo_date?: string
+          photo_type?: string | null
+          photo_url?: string
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      recipes: {
+        Row: {
+          calories_per_serving: number | null
+          carbs_g: number | null
+          cook_time_minutes: number | null
+          created_at: string
+          cuisine_type: string | null
+          description: string | null
+          dietary_tags: string[] | null
+          difficulty: string | null
+          fat_g: number | null
+          fiber_g: number | null
+          id: string
+          image_url: string | null
+          ingredients: Json
+          instructions: string
+          is_public: boolean | null
+          name: string
+          prep_time_minutes: number | null
+          protein_g: number | null
+          servings: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          calories_per_serving?: number | null
+          carbs_g?: number | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          dietary_tags?: string[] | null
+          difficulty?: string | null
+          fat_g?: number | null
+          fiber_g?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json
+          instructions: string
+          is_public?: boolean | null
+          name: string
+          prep_time_minutes?: number | null
+          protein_g?: number | null
+          servings?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          calories_per_serving?: number | null
+          carbs_g?: number | null
+          cook_time_minutes?: number | null
+          created_at?: string
+          cuisine_type?: string | null
+          description?: string | null
+          dietary_tags?: string[] | null
+          difficulty?: string | null
+          fat_g?: number | null
+          fiber_g?: number | null
+          id?: string
+          image_url?: string | null
+          ingredients?: Json
+          instructions?: string
+          is_public?: boolean | null
+          name?: string
+          prep_time_minutes?: number | null
+          protein_g?: number | null
+          servings?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       scheduled_workouts: {
         Row: {
           completed: boolean | null
@@ -1091,6 +1247,33 @@ export type Database = {
           name?: string
           scheduled_days?: Json | null
           type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_timers: {
+        Row: {
+          created_at: string
+          default_rest_seconds: number | null
+          exercise_name: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_rest_seconds?: number | null
+          exercise_name: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_rest_seconds?: number | null
+          exercise_name?: string
+          id?: string
           updated_at?: string
           user_id?: string
         }
