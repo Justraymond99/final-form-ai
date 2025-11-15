@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Timer, Check, X } from "lucide-react";
+import { ArrowLeft, Plus, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { WorkoutTimer } from "@/components/WorkoutTimer";
 
 interface Set {
   id: string;
@@ -42,27 +43,9 @@ const WorkoutSession = () => {
     }
   ]);
   
-  const [currentTimer, setCurrentTimer] = useState<number | null>(null);
-  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [currentRestExercise, setCurrentRestExercise] = useState<{ name: string; restTime: number } | null>(null);
   const [workoutStartTime] = useState(Date.now());
   const [isFinishing, setIsFinishing] = useState(false);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (currentTimer !== null && timerSeconds > 0) {
-      interval = setInterval(() => {
-        setTimerSeconds(prev => {
-          if (prev <= 1) {
-            setCurrentTimer(null);
-            toast({ title: "Rest Complete!", description: "Time to start your next set" });
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [currentTimer, timerSeconds, toast]);
 
   const addExercise = () => {
     const newExercise: Exercise = {
@@ -118,8 +101,7 @@ const WorkoutSession = () => {
     // Start rest timer
     const exercise = exercises.find(e => e.id === exerciseId);
     if (exercise) {
-      setCurrentTimer(Date.now());
-      setTimerSeconds(exercise.restTime);
+      setCurrentRestExercise({ name: exercise.name, restTime: exercise.restTime });
     }
   };
 
@@ -195,24 +177,18 @@ const WorkoutSession = () => {
         </div>
 
         {/* Rest Timer */}
-        {currentTimer && (
-          <Card className="border-accent bg-accent/10">
-            <CardContent className="p-4 text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Timer className="h-5 w-5 text-accent" />
-                <span className="text-lg font-bold">{formatTime(timerSeconds)}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Rest Time Remaining</p>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="mt-2"
-                onClick={() => setCurrentTimer(null)}
-              >
-                Skip Rest
-              </Button>
-            </CardContent>
-          </Card>
+        {currentRestExercise && (
+          <WorkoutTimer 
+            exerciseName={currentRestExercise.name}
+            defaultSeconds={currentRestExercise.restTime}
+            onComplete={() => {
+              setCurrentRestExercise(null);
+              toast({ 
+                title: "Rest Complete!", 
+                description: "Time to start your next set" 
+              });
+            }}
+          />
         )}
 
         {/* Exercises */}
