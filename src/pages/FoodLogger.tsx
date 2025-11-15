@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { BarcodeScanner } from "@/components/BarcodeScanner";
 
 interface FoodItem {
   id: string;
@@ -311,7 +312,7 @@ const FoodLogger = () => {
         {/* Meal Selection */}
         <Card>
           <CardContent className="p-4">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-4 gap-2 mb-3">
               {["breakfast", "lunch", "dinner", "snacks"].map((meal) => (
                 <Button
                   key={meal}
@@ -324,6 +325,25 @@ const FoodLogger = () => {
                 </Button>
               ))}
             </div>
+            <BarcodeScanner 
+              onFoodFound={(foodData) => {
+                setSelectedFood({
+                  id: foodData.barcode,
+                  name: foodData.food_name || foodData.name,
+                  brand: foodData.brand,
+                  calories: foodData.calories || 0,
+                  protein: foodData.protein_g || 0,
+                  carbs: foodData.carbs_g || 0,
+                  fat: foodData.fat_g || 0,
+                  fiber: foodData.fiber_g || 0,
+                  sugar: foodData.sugar_g || 0,
+                  sodium: foodData.sodium_mg || 0,
+                  servingSize: "1",
+                  servingUnit: "serving",
+                  barcode: foodData.barcode
+                });
+              }}
+            />
           </CardContent>
         </Card>
 

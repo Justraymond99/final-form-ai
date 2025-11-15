@@ -156,6 +156,47 @@ const Profile = () => {
               <TrophyIcon className="h-4 w-4 mr-2" />
               Personal Records
             </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/progress-photos")}
+            >
+              <Ruler className="h-4 w-4 mr-2" />
+              Progress Photos
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/analytics")}
+            >
+              <TrophyIcon className="h-4 w-4 mr-2" />
+              Analytics
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Quick Links */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Resources</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/exercise-library")}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Exercise Library
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/recipes")}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Recipes
+            </Button>
           </CardContent>
         </Card>
 
