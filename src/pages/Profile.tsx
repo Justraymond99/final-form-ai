@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -16,6 +16,7 @@ import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { PerformanceMonitoring } from "@/components/PerformanceMonitoring";
 import { InternationalizationSetup } from "@/components/InternationalizationSetup";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -27,6 +28,7 @@ const Profile = () => {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showPerformance, setShowPerformance] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
+  const navigate = useNavigate();
   
   // Real goals with starting values of 0
   const goals = [
@@ -129,6 +131,31 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        {/* Progress Tracking */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Track Your Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/body-measurements")}
+            >
+              <Ruler className="h-4 w-4 mr-2" />
+              Body Measurements
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/personal-records")}
+            >
+              <TrophyIcon className="h-4 w-4 mr-2" />
+              Personal Records
+            </Button>
           </CardContent>
         </Card>
 

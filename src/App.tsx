@@ -24,6 +24,9 @@ import Profile from "./pages/Profile";
 import Awards from "./pages/Awards";
 import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
+import WorkoutCalendar from "./pages/WorkoutCalendar";
+import BodyMeasurements from "./pages/BodyMeasurements";
+import PersonalRecords from "./pages/PersonalRecords";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -59,6 +62,9 @@ const App = () => (
                 <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/awards" element={<ProtectedRoute><Awards /></ProtectedRoute>} />
+                <Route path="/workout-calendar" element={<ProtectedRoute><WorkoutCalendar /></ProtectedRoute>} />
+                <Route path="/body-measurements" element={<ProtectedRoute><BodyMeasurements /></ProtectedRoute>} />
+                <Route path="/personal-records" element={<ProtectedRoute><PersonalRecords /></ProtectedRoute>} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>

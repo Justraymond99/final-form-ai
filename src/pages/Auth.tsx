@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import { OnboardingFlow } from "@/components/OnboardingFlow";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,6 +24,7 @@ const Auth = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [error, setError] = useState("");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { secureSignIn, secureSignUp, user } = useSecureAuth();
@@ -45,6 +47,9 @@ const Auth = () => {
       const { error } = await secureSignUp(email, password, fullName);
       if (error) {
         setError(error);
+      } else {
+        // Show onboarding after successful signup
+        setShowOnboarding(true);
       }
     } finally {
       setIsLoading(false);
@@ -109,6 +114,14 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  if (showOnboarding) {
+    return (
+      <div className="min-h-screen bg-background">
+        <OnboardingFlow onComplete={() => navigate("/")} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

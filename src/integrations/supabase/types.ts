@@ -59,6 +59,54 @@ export type Database = {
         }
         Relationships: []
       }
+      body_measurements: {
+        Row: {
+          arms_cm: number | null
+          body_fat_percent: number | null
+          chest_cm: number | null
+          created_at: string
+          date: string
+          hips_cm: number | null
+          id: string
+          notes: string | null
+          thighs_cm: number | null
+          updated_at: string
+          user_id: string
+          waist_cm: number | null
+          weight_kg: number | null
+        }
+        Insert: {
+          arms_cm?: number | null
+          body_fat_percent?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          date?: string
+          hips_cm?: number | null
+          id?: string
+          notes?: string | null
+          thighs_cm?: number | null
+          updated_at?: string
+          user_id: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Update: {
+          arms_cm?: number | null
+          body_fat_percent?: number | null
+          chest_cm?: number | null
+          created_at?: string
+          date?: string
+          hips_cm?: number | null
+          id?: string
+          notes?: string | null
+          thighs_cm?: number | null
+          updated_at?: string
+          user_id?: string
+          waist_cm?: number | null
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       custom_goals: {
         Row: {
           completed: boolean | null
@@ -502,6 +550,92 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_queue: {
+        Row: {
+          body: string
+          created_at: string
+          data: Json | null
+          id: string
+          notification_type: string
+          scheduled_for: string
+          sent: boolean | null
+          sent_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          notification_type: string
+          scheduled_for: string
+          sent?: boolean | null
+          sent_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          notification_type?: string
+          scheduled_for?: string
+          sent?: boolean | null
+          sent_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personal_records: {
+        Row: {
+          created_at: string
+          exercise_name: string
+          id: string
+          notes: string | null
+          recorded_at: string
+          reps: number
+          updated_at: string
+          user_id: string
+          weight_kg: number
+          workout_session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          exercise_name: string
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          reps: number
+          updated_at?: string
+          user_id: string
+          weight_kg: number
+          workout_session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          exercise_name?: string
+          id?: string
+          notes?: string | null
+          recorded_at?: string
+          reps?: number
+          updated_at?: string
+          user_id?: string
+          weight_kg?: number
+          workout_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personal_records_workout_session_id_fkey"
+            columns: ["workout_session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activity_level: string | null
@@ -600,6 +734,60 @@ export type Database = {
           weight_kg?: number | null
         }
         Relationships: []
+      }
+      scheduled_workouts: {
+        Row: {
+          completed: boolean | null
+          completed_session_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          updated_at: string
+          user_id: string
+          workout_template_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_session_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          updated_at?: string
+          user_id: string
+          workout_template_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completed_session_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          updated_at?: string
+          user_id?: string
+          workout_template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_workouts_completed_session_id_fkey"
+            columns: ["completed_session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_workouts_workout_template_id_fkey"
+            columns: ["workout_template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       security_audit_log: {
         Row: {
