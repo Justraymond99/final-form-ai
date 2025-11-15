@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { InternationalizationSetup } from "@/components/InternationalizationSetup";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -26,6 +27,7 @@ const Profile = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const navigate = useNavigate();
   
   // Real goals with starting values of 0
@@ -231,6 +233,14 @@ const Profile = () => {
               <Settings className="h-4 w-4 mr-2" />
               Language Settings
             </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => setShowFeedback(true)}
+            >
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Send Feedback
+            </Button>
             <Separator />
             <Button 
               variant="outline" 
@@ -247,6 +257,7 @@ const Profile = () => {
       <Navigation />
       <EditProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
       <AppSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />
+      <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} />
       
       {/* Language Settings Modal */}
       {showLanguage && (
