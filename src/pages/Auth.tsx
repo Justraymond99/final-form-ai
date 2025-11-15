@@ -34,7 +34,36 @@ const Auth = () => {
     if (user) {
       navigate("/");
     }
-  }, [user, navigate]);
+
+    // Handle email confirmation from verification link
+    const handleEmailConfirmation = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      const type = hashParams.get('type');
+
+      if (type === 'signup' && accessToken && refreshToken) {
+        // User just confirmed their email, set the session
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (!error) {
+          toast({
+            title: "Email confirmed!",
+            description: "Your account is now active. Welcome!",
+          });
+          // Clear the hash from URL
+          window.history.replaceState(null, '', window.location.pathname);
+          // Show onboarding for new users
+          setShowOnboarding(true);
+        }
+      }
+    };
+
+    handleEmailConfirmation();
+  }, [user, navigate, toast]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
