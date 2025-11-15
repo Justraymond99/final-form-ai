@@ -288,35 +288,6 @@ export const AdvancedAIFeatures = () => {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* AI Performance Metrics */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            AI Performance Metrics
-          </CardTitle>
-          <CardDescription>
-            Track how AI features are improving your fitness journey
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-primary">94%</div>
-              <div className="text-sm text-muted-foreground">Prediction Accuracy</div>
-            </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-accent">73</div>
-              <div className="text-sm text-muted-foreground">AI Insights Generated</div>
-            </div>
-            <div className="text-center p-4 border rounded-lg">
-              <div className="text-2xl font-bold text-secondary">28%</div>
-              <div className="text-sm text-muted-foreground">Performance Improvement</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
