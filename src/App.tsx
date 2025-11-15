@@ -27,6 +27,10 @@ import NotFound from "./pages/NotFound";
 import WorkoutCalendar from "./pages/WorkoutCalendar";
 import BodyMeasurements from "./pages/BodyMeasurements";
 import PersonalRecords from "./pages/PersonalRecords";
+import ProgressPhotos from "./pages/ProgressPhotos";
+import ExerciseLibrary from "./pages/ExerciseLibrary";
+import ProgressAnalytics from "./pages/ProgressAnalytics";
+import Recipes from "./pages/Recipes";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,6 +69,10 @@ const App = () => (
                 <Route path="/workout-calendar" element={<ProtectedRoute><WorkoutCalendar /></ProtectedRoute>} />
                 <Route path="/body-measurements" element={<ProtectedRoute><BodyMeasurements /></ProtectedRoute>} />
                 <Route path="/personal-records" element={<ProtectedRoute><PersonalRecords /></ProtectedRoute>} />
+                <Route path="/progress-photos" element={<ProtectedRoute><ProgressPhotos /></ProtectedRoute>} />
+                <Route path="/exercise-library" element={<ProtectedRoute><ExerciseLibrary /></ProtectedRoute>} />
+                <Route path="/analytics" element={<ProtectedRoute><ProgressAnalytics /></ProtectedRoute>} />
+                <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
