@@ -54,21 +54,32 @@ const Pricing = () => {
 
   const freeFeatures = [
     "Basic workout logging",
-    "Manual food tracking",
-    "Progress visualization",
-    "Goal setting",
-    "Achievement badges"
+    "Manual food tracking with USDA database",
+    "Progress visualization & charts",
+    "Daily goal tracking (steps, water, calories)",
+    "Achievement badges & streaks",
+    "Manual exercise creation",
+    "Basic meal planning",
+    "Community access"
   ];
 
   const proFeatures = [
-    "AI Workout Generator",
-    "AI Nutrition Planner", 
-    "Advanced analytics",
-    "Custom meal plans",
+    "Everything in Free, plus:",
+    "AI Workout Generator - Custom routines based on your goals",
+    "AI Nutrition Planner - Personalized meal plans",
+    "AI Recovery Planner - Optimize rest & recovery",
+    "AI Fitness Chat - 24/7 personal trainer assistant",
+    "Voice food logging with AI parsing",
+    "Multi-week workout programs",
+    "Multi-week nutrition plans",
+    "Advanced analytics & insights",
+    "Custom meal plan builder",
+    "Premium workout templates",
     "Priority support",
-    "Export data",
-    "Premium templates",
-    "Advanced goal tracking"
+    "Data export (CSV)",
+    "Advanced goal tracking with custom goals",
+    "Shopping list generation",
+    "Recipe recommendations"
   ];
 
   return (
