@@ -9,7 +9,7 @@ export const Navigation = () => {
     { id: "/", label: "Home", icon: Home },
     { id: "/workouts", label: "Workouts", icon: Dumbbell },
     { id: "/nutrition", label: "Nutrition", icon: Apple },
-    { id: "/progress", label: "Progress", icon: Calendar },
+    { id: "/workout-calendar", label: "Calendar", icon: Calendar },
     { id: "/awards", label: "Awards", icon: Trophy },
     { id: "/profile", label: "Profile", icon: User },
   ];
