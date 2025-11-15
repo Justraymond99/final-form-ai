@@ -389,4 +389,3 @@ function getFallbackResponse(message: string, userContext: any): string {
   const userName = profile?.display_name ? profile.display_name.split(' ')[0] : '';
   return `Thanks for reaching out${userName ? `, ${userName}` : ''}! I'm here to help with your fitness journey. I can assist with workout planning, nutrition guidance, goal setting, progress tracking, and motivation. What specific area would you like to focus on today?`;
 }
-}
