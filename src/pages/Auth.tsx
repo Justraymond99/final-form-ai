@@ -373,7 +373,10 @@ const Auth = () => {
 
         <CardFooter className="text-center">
           <p className="text-sm text-muted-foreground">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
+            By continuing, you agree to our{' '}
+            <a href="/terms" className="text-primary hover:underline">Terms of Service</a>
+            {' '}and{' '}
+            <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
           </p>
         </CardFooter>
       </Card>

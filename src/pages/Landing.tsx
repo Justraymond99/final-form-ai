@@ -297,10 +297,16 @@ const Landing = () => {
               </span>
             </div>
             
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
-              <span>Support</span>
+            <div className="flex items-center gap-6 text-sm">
+              <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </a>
+              <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </a>
+              <a href="mailto:support@finalform.app" className="text-muted-foreground hover:text-foreground transition-colors">
+                Support
+              </a>
             </div>
           </div>
           
