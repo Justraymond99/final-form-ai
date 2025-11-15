@@ -88,12 +88,21 @@ Nutrition Requirements:
 - Additional Notes: ${additionalNotes || 'None'}
 - Program Duration: ${programLength} week(s)
 
+CRITICAL INSTRUCTIONS FOR FOOD ITEMS:
+- Use SPECIFIC, REAL food items with exact measurements (e.g., "8oz boneless skinless chicken breast", not "chicken")
+- Include BRAND NAMES for packaged foods when relevant (e.g., "Fage Total 0% Greek Yogurt", "Nature Valley Granola Bar")
+- Use REAL products that exist in grocery stores
+- Specify exact cuts and types (e.g., "93% lean ground beef", "extra virgin olive oil", "baby spinach")
+- For produce, use specific varieties (e.g., "Granny Smith apple", "Roma tomatoes", "yellow onion")
+- Include specific preparations (e.g., "wild-caught salmon fillet", "organic free-range eggs")
+- All quantities must be precise with proper units (oz, g, cups, tbsp, etc.)
+
 Please generate a comprehensive ${programLength}-week nutrition plan with:
 1. Weekly meal schedules for each week with progressive improvements
 2. Daily meal plans with 5 meals per day (breakfast, lunch, dinner, 2 snacks)
 3. Macro breakdown (protein, carbs, fats) for each meal
-4. Shopping lists for each week
-5. Meal prep instructions
+4. Shopping lists for each week with specific brands and products
+5. Meal prep instructions with real ingredient names
 6. Progressive nutrition tips for each week
 
 Format the response as a structured JSON with the following structure:
@@ -112,7 +121,7 @@ Format the response as a structured JSON with the following structure:
           "meals": [
             {
               "meal_type": "breakfast/lunch/dinner/snack_am/snack_pm",
-              "name": "Meal name",
+              "name": "Specific meal name with real ingredients",
               "time": "HH:MM",
               "calories": number,
               "protein_g": number,
@@ -120,16 +129,16 @@ Format the response as a structured JSON with the following structure:
               "fat_g": number,
               "items": [
                 {
-                  "name": "Food item",
-                  "quantity": "amount with unit",
-                  "unit": "unit type",
+                  "name": "Specific food item with brand/type (e.g., 'Fage Total 0% Greek Yogurt')",
+                  "quantity": "precise amount",
+                  "unit": "oz/g/cup/tbsp/etc",
                   "calories": number,
                   "protein_g": number,
                   "carbs_g": number,
                   "fat_g": number
                 }
               ],
-              "instructions": "Brief cooking/prep instructions"
+              "instructions": "Brief cooking/prep instructions with specific ingredient names"
             }
           ]
         }
@@ -139,7 +148,7 @@ Format the response as a structured JSON with the following structure:
           "category": "Proteins/Vegetables/Grains/Dairy/Snacks/etc",
           "items": [
             {
-              "name": "Item name",
+              "name": "Specific product name with brand when applicable",
               "quantity": "amount needed for the week",
               "estimatedCost": "$X.XX"
             }
@@ -156,7 +165,7 @@ Format the response as a structured JSON with the following structure:
   ]
 }
 
-Make sure all meals fit within the calorie target and dietary restrictions.`;
+Make sure all meals fit within the calorie target and dietary restrictions. Use only real, specific foods that people can actually purchase.`;
 
     console.log('Calling OpenAI API...');
 
