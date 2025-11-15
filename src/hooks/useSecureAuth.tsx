@@ -142,7 +142,7 @@ export const SecureAuthProvider = ({ children }: { children: React.ReactNode }) 
         email: email.toLowerCase().trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/auth`,
           data: {
             display_name: displayName?.trim() || ''
           }
