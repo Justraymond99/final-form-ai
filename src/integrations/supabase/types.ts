@@ -284,6 +284,57 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_foods: {
+        Row: {
+          brand: string | null
+          calories: number | null
+          carbs_g: number | null
+          created_at: string
+          fat_g: number | null
+          fiber_g: number | null
+          food_id: string | null
+          food_name: string
+          id: string
+          image_url: string | null
+          protein_g: number | null
+          sodium_mg: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand?: string | null
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_id?: string | null
+          food_name: string
+          id?: string
+          image_url?: string | null
+          protein_g?: number | null
+          sodium_mg?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand?: string | null
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          fat_g?: number | null
+          fiber_g?: number | null
+          food_id?: string | null
+          food_name?: string
+          id?: string
+          image_url?: string | null
+          protein_g?: number | null
+          sodium_mg?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           category: string | null
@@ -855,6 +906,30 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      recent_searches: {
+        Row: {
+          created_at: string
+          id: string
+          search_query: string
+          searched_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          search_query: string
+          searched_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          search_query?: string
+          searched_at?: string
+          user_id?: string
         }
         Relationships: []
       }
