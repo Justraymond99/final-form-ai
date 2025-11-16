@@ -85,6 +85,8 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   };
 
   const generateWorkout = async () => {
+    console.log("Generate workout called", { user, workoutType, difficulty });
+    
     if (!user) {
       toast.error("Please sign in to generate workouts");
       return;
@@ -98,6 +100,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
     setIsGenerating(true);
 
     try {
+      console.log("Invoking ai-workout-generator...");
       const { data, error } = await supabase.functions.invoke('ai-workout-generator', {
         body: {
           workoutType,
@@ -111,7 +114,12 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
         }
       });
 
-      if (error) throw error;
+      console.log("Function response:", { data, error });
+
+      if (error) {
+        console.error("Function error:", error);
+        throw error;
+      }
 
       setGeneratedWorkout(data);
       setWorkoutName(data.name || `${workoutType} Program`);
@@ -119,7 +127,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
       onWorkoutGenerated?.(data);
     } catch (error) {
       console.error('Workout generation error:', error);
-      toast.error("An error occurred while generating your workout");
+      toast.error(error instanceof Error ? error.message : "An error occurred while generating your workout");
     } finally {
       setIsGenerating(false);
     }
