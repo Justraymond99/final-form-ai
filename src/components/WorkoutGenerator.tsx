@@ -41,9 +41,49 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   const [workoutName, setWorkoutName] = useState("");
   const [workoutDescription, setWorkoutDescription] = useState("");
 
+  // Normalize a single-workout plan into a multi-week shape expected by the display
+  const normalizePlan = (p: any) => {
+    if (!p || (p as any).weekly_plans) return p;
+    const toExercise = (e: any) => ({
+      exercise: e?.exercise || e?.name || 'Exercise',
+      sets: e?.sets ?? 1,
+      reps: e?.reps ?? (e?.duration_seconds ? `${e.duration_seconds}s` : '8-12'),
+      rest_seconds: e?.rest_seconds ?? 0,
+      instructions: e?.instructions || e?.tips || e?.benefits || ''
+    });
+    return {
+      name: p.name,
+      description: p.description,
+      difficulty: p.difficulty,
+      weeks: 1,
+      weekly_plans: [
+        {
+          focus: p.type || 'Workout',
+          description: p.notes || p.description,
+          workouts: [
+            {
+              day: 'Day 1',
+              workout_name: p.name,
+              duration: p.estimated_duration || p.duration || Number(duration) || 30,
+              type: p.type,
+              target_muscles: p.target_muscles || [],
+              exercises: [
+                ...(Array.isArray(p.warm_up) ? p.warm_up.map(toExercise) : []),
+                ...(Array.isArray(p.main_exercises) ? p.main_exercises.map(toExercise) : []),
+                ...(Array.isArray(p.cool_down) ? p.cool_down.map(toExercise) : []),
+              ],
+            },
+          ],
+        },
+      ],
+      progression_notes: p.progression_tips || p.notes,
+    };
+  };
+
   const workoutTypes = [
     "Strength Training", "Cardio", "HIIT", "Yoga", "Pilates", "Functional", "Bodyweight", "Mixed"
   ];
+
 
   const difficultyLevels = ["Beginner", "Intermediate", "Advanced"];
 
@@ -100,7 +140,11 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
     setIsGenerating(true);
 
     try {
-      console.log("Invoking ai-workout-generator...");
+      // Ensure we pass the auth token explicitly to the edge function
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      console.log("Invoking ai-workout-generator...", { hasToken: Boolean(accessToken) });
+
       const { data, error } = await supabase.functions.invoke('ai-workout-generator', {
         body: {
           workoutType,
@@ -111,23 +155,34 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
           injuries,
           preferences,
           programLength: parseInt(programLength)
-        }
+        },
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       });
 
       console.log("Function response:", { data, error });
 
       if (error) {
         console.error("Function error:", error);
-        throw error;
+        const msg = (error as any)?.message || "Failed to generate workout";
+        toast.error(msg);
+        return;
       }
 
-      setGeneratedWorkout(data);
-      setWorkoutName(data.name || `${workoutType} Program`);
+      const plan = (data as any)?.workout ?? data;
+      setGeneratedWorkout(plan);
+      setWorkoutName(plan?.name || `${workoutType} Program`);
       toast.success("Workout program generated successfully!");
-      onWorkoutGenerated?.(data);
-    } catch (error) {
+      onWorkoutGenerated?.(plan);
+    } catch (error: any) {
       console.error('Workout generation error:', error);
-      toast.error(error instanceof Error ? error.message : "An error occurred while generating your workout");
+      const msg = error?.message || "An error occurred while generating your workout";
+      if (msg.includes('Rate limit')) {
+        toast.error('AI rate limit exceeded. Please try again in a minute.');
+      } else if (msg.includes('AI credits')) {
+        toast.error('AI credits exhausted. Please try again later.');
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setIsGenerating(false);
     }
