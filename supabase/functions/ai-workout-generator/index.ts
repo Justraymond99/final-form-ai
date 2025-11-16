@@ -214,14 +214,33 @@ Return ONLY a valid JSON object with this structure:
     }
 
     const aiResponse = await response.json();
-    console.log('OpenAI response received');
+    console.log('Lovable AI response received');
+
+    // Extract JSON from markdown code blocks if present
+    const extractJSON = (text: string) => {
+      // Try to find JSON within markdown code blocks
+      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+      if (codeBlockMatch) {
+        return codeBlockMatch[1];
+      }
+      // Try to find raw JSON object
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return jsonMatch[0];
+      }
+      return text;
+    };
 
     let workoutPlan;
     try {
-      workoutPlan = JSON.parse(aiResponse.choices[0].message.content);
+      const content = aiResponse.choices[0].message.content;
+      const cleanedContent = extractJSON(content);
+      workoutPlan = JSON.parse(cleanedContent);
+      console.log('Workout plan parsed successfully');
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      throw new Error('Invalid AI response format');
+      console.error('Raw response:', aiResponse.choices[0].message.content);
+      throw new Error('Invalid AI response format - could not parse JSON');
     }
 
     // Save the generated workout as a template

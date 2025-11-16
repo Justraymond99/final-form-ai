@@ -210,19 +210,37 @@ Make sure all meals fit within the calorie target and dietary restrictions. Use 
     }
 
     const data = await response.json();
-    console.log('OpenAI response received');
+    console.log('Lovable AI response received');
 
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response from OpenAI API');
+      throw new Error('Invalid response from AI API');
     }
 
     const generatedContent = data.choices[0].message.content;
     
+    // Extract JSON from markdown code blocks if present
+    const extractJSON = (text: string) => {
+      // Try to find JSON within markdown code blocks
+      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+      if (codeBlockMatch) {
+        return codeBlockMatch[1];
+      }
+      // Try to find raw JSON object
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return jsonMatch[0];
+      }
+      return text;
+    };
+    
     let nutritionPlan;
     try {
-      nutritionPlan = JSON.parse(generatedContent);
+      const cleanedContent = extractJSON(generatedContent);
+      nutritionPlan = JSON.parse(cleanedContent);
+      console.log('Nutrition plan parsed successfully');
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response as JSON:', parseError);
+      console.error('Failed to parse AI response as JSON:', parseError);
+      console.error('Raw content:', generatedContent);
       // Fallback to text response if JSON parsing fails
       nutritionPlan = {
         textPlan: generatedContent,
