@@ -24,8 +24,21 @@ serve(async (req) => {
       );
     }
 
-    // Search USDA FoodData Central (completely free, no API key needed)
-    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&pageSize=20&pageNumber=${page}&dataType=Foundation,SR Legacy,Survey (FNDDS)`;
+    // Get USDA API key from environment
+    const apiKey = Deno.env.get('USDA_API_KEY');
+    if (!apiKey) {
+      console.error('USDA_API_KEY not found in environment variables');
+      return new Response(
+        JSON.stringify({ error: 'API configuration error' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Search USDA FoodData Central with API key
+    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${encodeURIComponent(query)}&pageSize=20&pageNumber=${page}&dataType=Foundation,SR Legacy,Survey (FNDDS)`;
     
     console.log('Searching USDA FoodData Central for:', query);
     
