@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.send-notifications]
 verify_jwt = true
+
+[functions.ai-food-suggestions]
+verify_jwt = true

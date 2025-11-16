@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Search, Plus, Minus, Star, Clock, Sparkles, X, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
+import { useRecentSearches } from "@/hooks/useRecentSearches";
+import { useFavoriteFoods } from "@/hooks/useFavoriteFoods";
+import { useProfile } from "@/hooks/useProfile";
 
 interface FoodItem {
   id: string;
@@ -36,6 +39,9 @@ const FoodLogger = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useSecureAuth();
+  const { profile } = useProfile();
+  const { searches, addRecentSearch, clearRecentSearches } = useRecentSearches();
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavoriteFoods();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -43,6 +49,34 @@ const FoodLogger = () => {
   const [isLogging, setIsLogging] = useState(false);
   const [searchResults, setSearchResults] = useState<FoodItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState<any[]>([]);
+  const [loadingAI, setLoadingAI] = useState(false);
+
+  useEffect(() => {
+    if (user && selectedMeal) {
+      loadAISuggestions();
+    }
+  }, [selectedMeal, user]);
+
+  const loadAISuggestions = async () => {
+    setLoadingAI(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-food-suggestions', {
+        body: { 
+          userProfile: profile,
+          mealType: selectedMeal 
+        }
+      });
+
+      if (error) throw error;
+
+      setAiSuggestions(data.suggestions || []);
+    } catch (error) {
+      console.error('Error loading AI suggestions:', error);
+    } finally {
+      setLoadingAI(false);
+    }
+  };
 
   const searchFoods = async (query: string) => {
     if (!query.trim()) {
@@ -51,6 +85,12 @@ const FoodLogger = () => {
     }
 
     setIsSearching(true);
+    
+    // Add to recent searches
+    if (query.trim()) {
+      addRecentSearch(query.trim());
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('search-food', {
         body: { query, page: 0 }
@@ -67,7 +107,7 @@ const FoodLogger = () => {
         carbs: food.nutrients.carbs,
         fat: food.nutrients.fat,
         fiber: food.nutrients.fiber,
-        sugar: 0, // USDA doesn't always have sugar data
+        sugar: 0,
         sodium: food.nutrients.sodium,
         servingSize: "100",
         servingUnit: "g"
@@ -84,6 +124,34 @@ const FoodLogger = () => {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleFavoriteToggle = async (food: FoodItem) => {
+    if (isFavorite(food.name, food.brand)) {
+      const fav = favorites.find(f => f.food_name === food.name && f.brand === food.brand);
+      if (fav) {
+        await removeFavorite(fav.id);
+      }
+    } else {
+      await addFavorite({
+        food_name: food.name,
+        brand: food.brand || null,
+        food_id: food.id,
+        calories: food.calories,
+        protein_g: food.protein,
+        carbs_g: food.carbs,
+        fat_g: food.fat,
+        fiber_g: food.fiber,
+        sodium_mg: food.sodium,
+        image_url: null,
+      });
+    }
+  };
+
+  const selectFoodFromSuggestion = async (suggestionName: string) => {
+    // Search for the suggested food
+    setSearchQuery(suggestionName);
+    await searchFoods(suggestionName);
   };
 
   const foodDatabase: FoodItem[] = [
@@ -426,13 +494,145 @@ const FoodLogger = () => {
           </Card>
         )}
 
+        {/* AI Suggestions */}
+        {!selectedFood && aiSuggestions.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  AI Suggestions for {selectedMeal}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadAISuggestions}
+                  disabled={loadingAI}
+                >
+                  Refresh
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {loadingAI ? (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  Loading AI suggestions...
+                </div>
+              ) : (
+                aiSuggestions.map((suggestion, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3 border rounded-lg cursor-pointer hover:bg-accent/5 transition-colors"
+                    onClick={() => selectFoodFromSuggestion(suggestion.name)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-sm">{suggestion.name}</h4>
+                        {suggestion.brand && (
+                          <p className="text-xs text-muted-foreground">{suggestion.brand}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">{suggestion.reason}</p>
+                      </div>
+                      <Sparkles className="h-3 w-3 text-primary" />
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Favorites */}
+        {!selectedFood && favorites.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Heart className="h-4 w-4 text-red-500" />
+                Your Favorites
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                {favorites.slice(0, 6).map((fav) => {
+                  const favFood: FoodItem = {
+                    id: fav.id,
+                    name: fav.food_name,
+                    brand: fav.brand || undefined,
+                    calories: Number(fav.calories) || 0,
+                    protein: Number(fav.protein_g) || 0,
+                    carbs: Number(fav.carbs_g) || 0,
+                    fat: Number(fav.fat_g) || 0,
+                    fiber: Number(fav.fiber_g) || 0,
+                    sugar: 0,
+                    sodium: Number(fav.sodium_mg) || 0,
+                    servingSize: "100",
+                    servingUnit: "g"
+                  };
+                  
+                  return (
+                    <div
+                      key={fav.id}
+                      className="p-2 border rounded-lg cursor-pointer hover:bg-accent/5 transition-colors"
+                      onClick={() => setSelectedFood(favFood)}
+                    >
+                      <h4 className="font-medium text-sm truncate">{fav.food_name}</h4>
+                      {fav.brand && (
+                        <p className="text-xs text-muted-foreground truncate">{fav.brand}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">{fav.calories} cal</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recent Searches */}
+        {!selectedFood && searches.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Recent Searches
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearRecentSearches}
+                >
+                  Clear
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {searches.slice(0, 8).map((search, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-secondary/80"
+                    onClick={() => {
+                      setSearchQuery(search);
+                      searchFoods(search);
+                    }}
+                  >
+                    {search}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Food Search */}
         <Card>
           <CardHeader>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search foods..."
+                placeholder="Search foods (brands, fast food, generic)..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -448,21 +648,23 @@ const FoodLogger = () => {
           </CardHeader>
           <CardContent className="space-y-2 max-h-96 overflow-y-auto">
             {isSearching && (
-              <div className="text-center py-4 text-muted-foreground">
-                Searching USDA food database...
+              <div className="text-center py-4 text-muted-foreground text-sm">
+                Searching food databases (USDA & branded items)...
               </div>
             )}
             {displayedFoods.map((food) => (
               <div
                 key={food.id}
-                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                className={`p-3 border rounded-lg transition-colors ${
                   selectedFood?.id === food.id 
                     ? "border-primary bg-primary/5" 
                     : "border-border/30 hover:bg-accent/5"
                 }`}
-                onClick={() => setSelectedFood(food)}
               >
-                <div className="flex justify-between items-start">
+                <div 
+                  className="flex justify-between items-start cursor-pointer"
+                  onClick={() => setSelectedFood(food)}
+                >
                   <div className="flex-1">
                     <h3 className="font-medium">{food.name}</h3>
                     {food.brand && (
@@ -472,11 +674,30 @@ const FoodLogger = () => {
                       {food.servingSize}{food.servingUnit} - {food.calories} cal
                     </p>
                   </div>
-                  <div className="text-right text-sm">
-                    <div className="font-medium">{food.calories} cal</div>
-                    <div className="text-muted-foreground">
-                      P:{food.protein}g C:{food.carbs}g F:{food.fat}g
+                  <div className="text-right text-sm flex items-start gap-2">
+                    <div>
+                      <div className="font-medium">{food.calories} cal</div>
+                      <div className="text-muted-foreground">
+                        P:{food.protein}g C:{food.carbs}g F:{food.fat}g
+                      </div>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFavoriteToggle(food);
+                      }}
+                    >
+                      <Heart 
+                        className={`h-4 w-4 ${
+                          isFavorite(food.name, food.brand) 
+                            ? 'fill-red-500 text-red-500' 
+                            : 'text-muted-foreground'
+                        }`} 
+                      />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -493,7 +714,7 @@ const FoodLogger = () => {
             
             {searchQuery.length > 0 && searchQuery.length < 3 && (
               <div className="text-center py-4 text-muted-foreground text-sm">
-                Type at least 3 characters to search USDA database
+                Type at least 3 characters to search food databases
               </div>
             )}
           </CardContent>
