@@ -15,8 +15,17 @@ verify_jwt = false
 [functions.ai-nutrition-generator]
 verify_jwt = true
 
-[functions.send-notifications]
+[functions.ai-workout-generator]
 verify_jwt = true
 
+[functions.ai-recovery-planner]
+verify_jwt = true
+
+[functions.ai-fitness-chat]
+verify_jwt = false
+
 [functions.ai-food-suggestions]
+verify_jwt = true
+
+[functions.send-notifications]
 verify_jwt = true
