@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useProfile } from "@/hooks/useProfile";
 import { PremiumGate } from "@/components/PremiumGate";
-import { VoiceFoodLogger } from "@/components/VoiceFoodLogger";
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface MacroGoals {
@@ -331,7 +331,6 @@ const Nutrition = () => {
                   <span className="text-sm">Water</span>
                 </div>
               </Button>
-              <VoiceFoodLogger onFoodLogged={() => window.location.reload()} />
             </div>
 
             {/* Meals */}
