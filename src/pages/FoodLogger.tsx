@@ -101,7 +101,7 @@ const FoodLogger = () => {
       const foods = data.foods?.map((food: any) => ({
         id: food.foodId,
         name: food.label,
-        brand: food.brand || 'Generic',
+        brand: food.brand,
         calories: food.nutrients.calories,
         protein: food.nutrients.protein,
         carbs: food.nutrients.carbs,
