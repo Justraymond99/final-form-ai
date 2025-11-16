@@ -5,6 +5,93 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Search USDA FoodData Central
+async function searchUSDA(query: string, page: number) {
+  const apiKey = Deno.env.get('USDA_API_KEY');
+  if (!apiKey) {
+    console.error('USDA_API_KEY not found');
+    return null;
+  }
+
+  const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${encodeURIComponent(query)}&pageSize=10&pageNumber=${page}&dataType=Branded,Foundation,SR Legacy`;
+  
+  const response = await fetch(usdaUrl);
+  if (!response.ok) {
+    console.error('USDA API error:', response.status);
+    return null;
+  }
+
+  const data = await response.json();
+  
+  return data.foods?.map((food: any) => {
+    const nutrients = food.foodNutrients || [];
+    
+    const findNutrient = (nutrientId: number) => {
+      const nutrient = nutrients.find((n: any) => n.nutrientId === nutrientId);
+      return nutrient ? nutrient.value || 0 : 0;
+    };
+    
+    return {
+      foodId: `usda_${food.fdcId}`,
+      label: food.description,
+      brand: food.brandOwner || food.brandName || null,
+      category: food.foodCategory || 'Generic',
+      image: null,
+      source: 'USDA',
+      nutrients: {
+        calories: Math.round(findNutrient(1008)),
+        protein: Math.round(findNutrient(1003) * 10) / 10,
+        carbs: Math.round(findNutrient(1005) * 10) / 10,
+        fat: Math.round(findNutrient(1004) * 10) / 10,
+        fiber: Math.round(findNutrient(1079) * 10) / 10,
+        sodium: Math.round(findNutrient(1093) * 10) / 10,
+      },
+      measures: [
+        { label: '100g', weight: 100 },
+        { label: '1 serving', weight: food.servingSize || 100 }
+      ]
+    };
+  }) || [];
+}
+
+// Search OpenFoodFacts for branded items
+async function searchOpenFoodFacts(query: string, page: number) {
+  const offUrl = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&page=${page + 1}&page_size=10&json=1&fields=product_name,brands,image_url,nutriments,serving_size`;
+  
+  const response = await fetch(offUrl);
+  if (!response.ok) {
+    console.error('OpenFoodFacts API error:', response.status);
+    return null;
+  }
+
+  const data = await response.json();
+  
+  return data.products?.map((product: any) => {
+    const n = product.nutriments || {};
+    
+    return {
+      foodId: `off_${product.code || Math.random().toString(36).substr(2, 9)}`,
+      label: product.product_name || 'Unknown Product',
+      brand: product.brands || null,
+      category: 'Branded Food',
+      image: product.image_url || null,
+      source: 'OpenFoodFacts',
+      nutrients: {
+        calories: Math.round(n.energy_value || n['energy-kcal_100g'] || 0),
+        protein: Math.round((n.proteins_100g || 0) * 10) / 10,
+        carbs: Math.round((n.carbohydrates_100g || 0) * 10) / 10,
+        fat: Math.round((n.fat_100g || 0) * 10) / 10,
+        fiber: Math.round((n.fiber_100g || 0) * 10) / 10,
+        sodium: Math.round((n.sodium_100g || 0) * 1000 * 10) / 10, // Convert g to mg
+      },
+      measures: [
+        { label: '100g', weight: 100 },
+        { label: '1 serving', weight: parseFloat(product.serving_size) || 100 }
+      ]
+    };
+  }).filter((item: any) => item.nutrients.calories > 0) || [];
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -24,12 +111,33 @@ serve(async (req) => {
       );
     }
 
-    // Get USDA API key from environment
-    const apiKey = Deno.env.get('USDA_API_KEY');
-    if (!apiKey) {
-      console.error('USDA_API_KEY not found in environment variables');
+    console.log('Searching for:', query);
+
+    // Search both USDA and OpenFoodFacts in parallel
+    const [usdaResults, offResults] = await Promise.allSettled([
+      searchUSDA(query, page),
+      searchOpenFoodFacts(query, page)
+    ]);
+
+    let allFoods: any[] = [];
+
+    // Add OpenFoodFacts results (branded items) first
+    if (offResults.status === 'fulfilled' && offResults.value) {
+      allFoods.push(...offResults.value);
+      console.log(`Found ${offResults.value.length} items from OpenFoodFacts`);
+    }
+
+    // Add USDA results (generic items)
+    if (usdaResults.status === 'fulfilled' && usdaResults.value) {
+      allFoods.push(...usdaResults.value);
+      console.log(`Found ${usdaResults.value.length} items from USDA`);
+    }
+
+    // If both failed, return error
+    if (allFoods.length === 0) {
+      console.error('Both food databases failed');
       return new Response(
-        JSON.stringify({ error: 'API configuration error' }),
+        JSON.stringify({ error: 'Failed to search food database' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -37,61 +145,10 @@ serve(async (req) => {
       );
     }
 
-    // Search USDA FoodData Central with API key
-    const usdaUrl = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${encodeURIComponent(query)}&pageSize=20&pageNumber=${page}&dataType=Foundation,SR Legacy,Survey (FNDDS)`;
-    
-    console.log('Searching USDA FoodData Central for:', query);
-    
-    const response = await fetch(usdaUrl);
-    
-    if (!response.ok) {
-      console.error('USDA API error:', response.status, response.statusText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to search food database' }),
-        { 
-          status: response.status, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    const data = await response.json();
-    
-    // Transform USDA data to our format
-    const foods = data.foods?.map((food: any) => {
-      const nutrients = food.foodNutrients || [];
-      
-      // Helper to find nutrient by ID
-      const findNutrient = (nutrientId: number) => {
-        const nutrient = nutrients.find((n: any) => n.nutrientId === nutrientId);
-        return nutrient ? nutrient.value || 0 : 0;
-      };
-      
-      return {
-        foodId: food.fdcId.toString(),
-        label: food.description,
-        brand: food.brandOwner || food.brandName || null,
-        category: food.foodCategory || 'Generic',
-        image: null,
-        nutrients: {
-          calories: Math.round(findNutrient(1008)), // Energy (kcal)
-          protein: Math.round(findNutrient(1003) * 10) / 10, // Protein
-          carbs: Math.round(findNutrient(1005) * 10) / 10, // Carbs
-          fat: Math.round(findNutrient(1004) * 10) / 10, // Total fat
-          fiber: Math.round(findNutrient(1079) * 10) / 10, // Fiber
-          sodium: Math.round(findNutrient(1093) * 10) / 10, // Sodium (mg)
-        },
-        measures: [
-          { label: '100g', weight: 100 },
-          { label: '1 serving', weight: 100 }
-        ]
-      };
-    }) || [];
-
     return new Response(
       JSON.stringify({
-        foods,
-        totalPages: Math.ceil((data.totalHits || 0) / 20),
+        foods: allFoods.slice(0, 20), // Limit to 20 total results
+        totalPages: Math.ceil(allFoods.length / 20),
         currentPage: page
       }),
       { 
