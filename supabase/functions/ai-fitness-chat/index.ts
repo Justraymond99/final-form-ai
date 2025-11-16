@@ -1,8 +1,7 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -22,8 +21,8 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
 
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    if (!lovableApiKey) {
+      throw new Error('Lovable API key not configured');
     }
 
     console.log('Processing AI fitness chat request for user:', userId);
@@ -36,26 +35,28 @@ serve(async (req) => {
     const systemPrompt = createSystemPrompt(userContext);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
+          'Authorization': `Bearer ${lovableApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'google/gemini-2.5-flash',
           messages: [
             { 
               role: 'system', 
-              content: "You are a helpful fitness assistant. Keep responses short and practical."
+              content: `You are a helpful fitness assistant. Provide personalized advice based on:
+- User Profile: Age ${userContext.profile?.age}, Weight ${userContext.profile?.weight_kg}kg, Height ${userContext.profile?.height_cm}cm
+- Activity: ${userContext.profile?.activity_level || 'moderate'}
+- Goals: ${userContext.profile?.fitness_goals?.join(', ') || 'general fitness'}
+Keep responses short and practical.`
             },
             { 
               role: 'user', 
               content: message 
             }
           ],
-          temperature: 0.3,
-          max_tokens: 150, // Super minimal tokens
         }),
       });
 
