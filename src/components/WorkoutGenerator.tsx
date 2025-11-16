@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { PremiumGate } from "@/components/PremiumGate";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -147,21 +146,17 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   };
 
   return (
-    <PremiumGate 
-      feature="AI Workout Generator" 
-      description="Get personalized workout programs designed specifically for your goals, fitness level, and available equipment using advanced AI."
-    >
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Workout Generator
-            </CardTitle>
-            <CardDescription>
-              Generate personalized workout programs with progressive overload and variety.
-            </CardDescription>
-          </CardHeader>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-primary" />
+            Workout Generator
+          </CardTitle>
+          <CardDescription>
+            Generate personalized workout programs with progressive overload and variety.
+          </CardDescription>
+        </CardHeader>
           
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -288,6 +283,5 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
           />
         )}
       </div>
-    </PremiumGate>
   );
 };
