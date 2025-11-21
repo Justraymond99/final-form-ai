@@ -33,6 +33,7 @@ import ProgressAnalytics from "./pages/ProgressAnalytics";
 import Recipes from "./pages/Recipes";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Install from "./pages/Install";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ const App = () => (
               <Routes>
                 <Route path="/landing" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/install" element={<Install />} />
                 <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
                 <Route path="/workout-session" element={<ProtectedRoute><WorkoutSession /></ProtectedRoute>} />
