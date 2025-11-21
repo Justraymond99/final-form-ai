@@ -91,15 +91,15 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="border-b border-purple-800/20 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/80 sticky top-0 z-50">
+      <header className="border-b border-border/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="/final-form-logo.png" alt="Final Form Logo" className="h-8 w-8" />
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold gradient-primary bg-clip-text text-transparent">
               Final Form
             </span>
           </div>
-          <Button onClick={handleGetStarted} className="bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white">
+          <Button onClick={handleGetStarted} className="gradient-primary hover:opacity-90">
             Get Started
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -107,20 +107,20 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 text-center bg-gradient-to-br from-black via-purple-950/50 to-black">
+      <section className="py-20 px-4 text-center bg-gradient-to-br from-background via-card to-background">
         <div className="max-w-4xl mx-auto space-y-8">
-          <Badge variant="outline" className="border-purple-500/50 text-purple-400 bg-purple-950/30">
+          <Badge variant="outline" className="border-primary/50 text-primary bg-card">
             <Smartphone className="mr-2 h-4 w-4" />
             Now Available for iOS & Android
           </Badge>
           
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-purple-300 to-white bg-clip-text text-transparent leading-tight">
-            Your AI Fitness
+          <h1 className="text-5xl md:text-7xl font-bold gradient-primary bg-clip-text text-transparent leading-tight">
+            Helping you reach,
             <br />
-            Companion
+            your Final Form
           </h1>
           
-          <p className="text-xl text-purple-100/80 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Transform your fitness journey with personalized AI-powered workouts, smart nutrition planning, 
             and intelligent progress tracking. All in one beautiful mobile app.
           </p>
@@ -129,19 +129,19 @@ const Landing = () => {
             <Button 
               size="lg" 
               onClick={handleGetStarted}
-              className="h-14 px-8 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white text-lg"
+              className="h-14 px-8 gradient-primary hover:opacity-90 text-lg"
             >
               <Download className="mr-2 h-5 w-5" />
               Start Your Journey
             </Button>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1">
-                <Apple className="h-6 w-6 text-purple-300" />
-                <span className="text-sm text-purple-300">iOS</span>
+                <Apple className="h-6 w-6 text-primary" />
+                <span className="text-sm text-primary">iOS</span>
               </div>
               <div className="flex items-center gap-1">
-                <Smartphone className="h-6 w-6 text-purple-300" />
-                <span className="text-sm text-purple-300">Android</span>
+                <Smartphone className="h-6 w-6 text-primary" />
+                <span className="text-sm text-primary">Android</span>
               </div>
             </div>
           </div>
@@ -247,14 +247,14 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-950/30 via-black to-purple-950/30">
+      <section className="py-20 px-4 bg-gradient-to-r from-card/30 via-background to-card/30">
         <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-4xl font-bold text-white">
+          <h2 className="text-4xl font-bold">
             Ready to Transform Your
-            <span className="bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent"> Fitness Journey?</span>
+            <span className="gradient-primary bg-clip-text text-transparent"> Fitness Journey?</span>
           </h2>
           
-          <p className="text-xl text-purple-100/80 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Join thousands of users who have already discovered the power of AI-driven fitness coaching.
           </p>
           
@@ -262,7 +262,7 @@ const Landing = () => {
             <Button 
               size="lg" 
               onClick={handleGetStarted}
-              className="h-16 px-12 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white text-lg"
+              className="h-16 px-12 gradient-primary hover:opacity-90 text-lg"
             >
               <Download className="mr-3 h-6 w-6" />
               Download Now - It's Free
@@ -292,7 +292,7 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center gap-2 mb-4 md:mb-0">
               <img src="/final-form-logo.png" alt="Final Form Logo" className="h-8 w-8" />
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 via-purple-300 to-white bg-clip-text text-transparent">
+              <span className="text-xl font-bold gradient-primary bg-clip-text text-transparent">
                 Final Form
               </span>
             </div>
