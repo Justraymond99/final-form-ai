@@ -54,10 +54,10 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route path="/landing" element={<Landing />} />
+                <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/install" element={<Install />} />
-                <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                 <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
                 <Route path="/workout-session" element={<ProtectedRoute><WorkoutSession /></ProtectedRoute>} />
                 <Route path="/workout-builder" element={<ProtectedRoute><WorkoutBuilder /></ProtectedRoute>} />

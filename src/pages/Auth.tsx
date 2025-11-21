@@ -32,7 +32,7 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     if (user) {
-      navigate("/");
+      navigate("/home");
     }
 
     // Handle email confirmation from verification link
@@ -147,7 +147,7 @@ const Auth = () => {
   if (showOnboarding) {
     return (
       <div className="min-h-screen bg-background">
-        <OnboardingFlow onComplete={() => navigate("/")} />
+        <OnboardingFlow onComplete={() => navigate("/home")} />
       </div>
     );
   }

@@ -104,7 +104,7 @@ const SubscriptionSuccess = () => {
           </Button>
 
           <Button 
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             variant="ghost"
             className="w-full"
           >

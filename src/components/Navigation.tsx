@@ -6,7 +6,7 @@ export const Navigation = () => {
   const location = useLocation();
 
   const tabs = [
-    { id: "/", label: "Home", icon: Home },
+    { id: "/home", label: "Home", icon: Home },
     { id: "/workouts", label: "Workouts", icon: Dumbbell },
     { id: "/nutrition", label: "Nutrition", icon: Apple },
     { id: "/workout-calendar", label: "Calendar", icon: Calendar },
