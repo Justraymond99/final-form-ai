@@ -3,7 +3,7 @@ import { Home, Utensils, Dumbbell, TrendingUp, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const navigationItems = [
-  { icon: Home, label: "Home", path: "/" },
+  { icon: Home, label: "Home", path: "/home" },
   { icon: Utensils, label: "Nutrition", path: "/nutrition" },
   { icon: Dumbbell, label: "Workouts", path: "/workouts" },
   { icon: TrendingUp, label: "Progress", path: "/progress" },

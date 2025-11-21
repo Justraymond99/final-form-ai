@@ -56,7 +56,7 @@ const Install = () => {
               Final Form is now installed on your device. You can access it from your home screen.
             </p>
           </div>
-          <Button onClick={() => navigate('/')} className="w-full">
+          <Button onClick={() => navigate('/home')} className="w-full">
             Get Started
           </Button>
         </Card>
@@ -153,7 +153,7 @@ const Install = () => {
           </div>
         )}
 
-        <Button variant="outline" onClick={() => navigate('/')} className="w-full">
+        <Button variant="outline" onClick={() => navigate('/home')} className="w-full">
           Skip for Now
         </Button>
       </Card>
