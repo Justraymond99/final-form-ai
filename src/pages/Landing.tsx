@@ -58,19 +58,19 @@ const Landing = () => {
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
+      name: "James Bishop",
       role: "Fitness Enthusiast",
       content: "This app completely transformed my workout routine. The AI recommendations are spot-on!",
       rating: 5
     },
     {
-      name: "Mike Chen",
+      name: "Kelvin Dodzi",
       role: "Busy Professional",
       content: "Finally an app that understands my schedule. Quick workouts that actually work.",
       rating: 5
     },
     {
-      name: "Emma Davis",
+      name: "Calvin Costa",
       role: "Beginner",
       content: "Perfect for someone just starting their fitness journey. Very intuitive and motivating.",
       rating: 5
