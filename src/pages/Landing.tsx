@@ -115,7 +115,7 @@ const Landing = () => {
           </Badge>
           
           <h1 className="text-5xl md:text-7xl font-bold gradient-primary bg-clip-text text-transparent leading-tight">
-            Helping you reach your final form
+            Helping you reach your Final Form
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
