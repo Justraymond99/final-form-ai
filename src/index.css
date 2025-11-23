@@ -11,9 +11,9 @@
     --foreground: 0 0% 98%;
     
     /* Brand colors - energetic fitness theme */
-    --primary: 14 86% 55%; /* Vibrant orange for energy */
+    --primary: 270 70% 60%; /* Vibrant purple for energy */
     --primary-foreground: 240 10% 3.9%;
-    --primary-glow: 14 100% 60%;
+    --primary-glow: 270 80% 70%;
     
     --secondary: 217 91% 60%; /* Electric blue for tech */
     --secondary-foreground: 240 10% 3.9%;
@@ -22,14 +22,14 @@
     --accent-foreground: 0 0% 98%;
     
     /* Fitness-specific colors */
-    --energy: 14 86% 55%; /* Orange for calories/energy */
+    --energy: 270 70% 60%; /* Purple for calories/energy */
     --hydration: 200 100% 60%; /* Blue for water */
     --strength: 260 84% 60%; /* Purple for workouts */
     --wellness: 142 76% 36%; /* Green for meditation */
     
     /* Progress colors */
     --progress-bg: 240 6% 10%;
-    --progress-fill: 14 86% 55%;
+    --progress-fill: 270 70% 60%;
     
     /* Card system */
     --card: 240 10% 6%;
@@ -49,13 +49,13 @@
     
     --border: 240 6% 12%;
     --input: 240 6% 12%;
-    --ring: 14 86% 55%;
+    --ring: 270 70% 60%;
     
     --radius: 0.75rem;
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-energy: linear-gradient(135deg, hsl(var(--energy)), hsl(14 100% 65%));
+    --gradient-energy: linear-gradient(135deg, hsl(var(--energy)), hsl(270 80% 70%));
     --gradient-strength: linear-gradient(135deg, hsl(var(--strength)), hsl(260 84% 70%));
     --gradient-wellness: linear-gradient(135deg, hsl(var(--wellness)), hsl(142 76% 45%));
     --gradient-hydration: linear-gradient(135deg, hsl(var(--hydration)), hsl(200 100% 70%));

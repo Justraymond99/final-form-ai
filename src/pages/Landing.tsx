@@ -180,37 +180,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                10K+
-              </div>
-              <p className="text-muted-foreground">Active Users</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                50K+
-              </div>
-              <p className="text-muted-foreground">Workouts Generated</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                95%
-              </div>
-              <p className="text-muted-foreground">Success Rate</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                4.9★
-              </div>
-              <p className="text-muted-foreground">App Rating</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials */}
       <section className="py-20 px-4 bg-card/20">
