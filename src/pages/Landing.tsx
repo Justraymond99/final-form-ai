@@ -179,6 +179,125 @@ const Landing = () => {
       </section>
 
 
+      {/* Pricing Comparison */}
+      <section className="py-20 px-4 bg-background">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              Choose Your 
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Plan</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Start free and upgrade when you're ready for more
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free Plan */}
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm p-8 flex flex-col">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold mb-2">Free</h3>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-4xl font-bold">$0</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+                <p className="text-muted-foreground">Perfect for getting started with your fitness journey</p>
+              </div>
+              
+              <div className="space-y-4 mb-8 flex-grow">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Basic workout tracking</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Food logging</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Progress tracking</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Achievement system</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Water & hydration tracking</span>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleGetStarted} 
+                variant="outline"
+                className="w-full h-12"
+              >
+                Get Started Free
+              </Button>
+            </Card>
+
+            {/* Premium Plan */}
+            <Card className="border-primary/50 bg-card backdrop-blur-sm p-8 flex flex-col relative overflow-hidden">
+              <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
+                Popular
+              </Badge>
+              
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold mb-2">Premium</h3>
+                <div className="flex items-baseline gap-2 mb-4">
+                  <span className="text-4xl font-bold gradient-primary bg-clip-text text-transparent">$9.99</span>
+                  <span className="text-muted-foreground">/month</span>
+                </div>
+                <p className="text-muted-foreground">Unlock the full power of AI-driven fitness</p>
+              </div>
+              
+              <div className="space-y-4 mb-8 flex-grow">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span className="font-semibold">Everything in Free, plus:</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>AI Workout Generator</strong> - Personalized plans</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>AI Nutrition Planning</strong> - Custom meal plans</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>Voice Food Logger</strong> - Log with AI speech</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>AI Fitness Chatbot</strong> - 24/7 coaching</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>Advanced Analytics</strong> - Detailed insights</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>Multi-week Programs</strong> - Long-term planning</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <span><strong>Priority Support</strong> - Get help faster</span>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleGetStarted}
+                className="w-full h-12 gradient-primary hover:opacity-90"
+              >
+                Upgrade to Premium
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section className="py-20 px-4 bg-card/20">
         <div className="max-w-6xl mx-auto">
