@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { NutritionGenerator } from "@/components/NutritionGenerator";
 import { SavedMealPlans } from "@/components/SavedMealPlans";
+import { ShoppingList } from "@/components/ShoppingList";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
@@ -227,10 +228,11 @@ const Nutrition = () => {
         </div>
 
         <Tabs defaultValue="tracking" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="tracking">Tracking</TabsTrigger>
             <TabsTrigger value="generator">Generator</TabsTrigger>
-            <TabsTrigger value="saved">Saved Plans</TabsTrigger>
+            <TabsTrigger value="saved">Plans</TabsTrigger>
+            <TabsTrigger value="groceries">Groceries</TabsTrigger>
           </TabsList>
 
           <TabsContent value="tracking" className="space-y-6 mt-6">
@@ -426,6 +428,10 @@ const Nutrition = () => {
 
           <TabsContent value="saved" className="mt-6">
             <SavedMealPlans />
+          </TabsContent>
+
+          <TabsContent value="groceries" className="mt-6">
+            <ShoppingList />
           </TabsContent>
         </Tabs>
       </div>
