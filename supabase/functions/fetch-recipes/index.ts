@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,14 +24,57 @@ interface Recipe {
   fat?: number;
 }
 
+// Verify authentication
+async function verifyAuth(req: Request): Promise<{ userId: string | null; error: string | null }> {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) {
+    return { userId: null, error: 'Missing authorization header' };
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
+
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error || !user) {
+      return { userId: null, error: 'Invalid or expired token' };
+    }
+
+    return { userId: user.id, error: null };
+  } catch (error) {
+    console.error('Auth verification error:', error);
+    return { userId: null, error: 'Authentication failed' };
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Verify authentication
+    const { userId, error: authError } = await verifyAuth(req);
+    if (authError || !userId) {
+      console.warn('Unauthorized fetch-recipes request:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { category, searchTerm, count = 12 } = await req.json();
-    console.log('Fetching recipes with params:', { category, searchTerm, count });
+    console.log(`User ${userId} fetching recipes with params:`, { category, searchTerm, count });
 
     let recipes: Recipe[] = [];
 

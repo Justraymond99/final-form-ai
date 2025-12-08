@@ -4,12 +4,40 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Verify authentication and return authenticated user ID
+async function verifyAuth(req: Request): Promise<{ userId: string | null; error: string | null }> {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) {
+    return { userId: null, error: 'Missing authorization header' };
+  }
+
+  try {
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    });
+
+    const { data: { user }, error } = await authClient.auth.getUser();
+    if (error || !user) {
+      return { userId: null, error: 'Invalid or expired token' };
+    }
+
+    return { userId: user.id, error: null };
+  } catch (error) {
+    console.error('Auth verification error:', error);
+    return { userId: null, error: 'Authentication failed' };
+  }
+}
+
+// Create service client for database queries
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 serve(async (req) => {
@@ -19,16 +47,45 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication first
+    const { userId: authenticatedUserId, error: authError } = await verifyAuth(req);
+    if (authError || !authenticatedUserId) {
+      console.warn('Unauthorized ai-fitness-chat request:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { message, userId, stream = true } = await req.json();
+
+    // CRITICAL: Ensure the requested userId matches the authenticated user
+    // This prevents users from accessing other users' fitness data
+    if (userId && userId !== authenticatedUserId) {
+      console.warn(`User ${authenticatedUserId} attempted to access data for user ${userId}`);
+      return new Response(
+        JSON.stringify({ error: 'Access denied: Cannot access other users\' data' }),
+        { 
+          status: 403, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Use the authenticated user ID for all operations
+    const targetUserId = authenticatedUserId;
 
     if (!lovableApiKey) {
       throw new Error('Lovable API key not configured');
     }
 
-    console.log('Processing AI fitness chat request for user:', userId, 'stream:', stream);
+    console.log('Processing AI fitness chat request for user:', targetUserId, 'stream:', stream);
 
-    // Get user's fitness context
-    const userContext = await getUserFitnessContext(userId);
+    // Get user's fitness context using the authenticated user ID
+    const userContext = await getUserFitnessContext(targetUserId);
     console.log('User fitness context retrieved');
 
     // If streaming is requested
