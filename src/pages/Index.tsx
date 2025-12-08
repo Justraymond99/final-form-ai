@@ -7,6 +7,7 @@ import { SwipeableNavigation } from "@/components/SwipeableNavigation";
 import { AIChatbot } from "@/components/AIChatbot";
 import { AIRecoveryPlanner } from "@/components/AIRecoveryPlanner";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
+import { FeatureTour } from "@/components/FeatureTour";
 import { AdvancedAIFeatures } from "@/components/AdvancedAIFeatures";
 import { ContentLibrary } from "@/components/ContentLibrary";
 import { UserFeedback } from "@/components/UserFeedback";
@@ -48,6 +49,7 @@ const Index = () => {
   const { initializeNotifications } = useNotifications();
   const { track } = useAnalytics();
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showFeatureTour, setShowFeatureTour] = useState(false);
   const [showAdvancedAI, setShowAdvancedAI] = useState(false);
   const [showContentLibrary, setShowContentLibrary] = useState(false);
   
@@ -388,6 +390,20 @@ const Index = () => {
           onComplete={() => {
             setShowOnboarding(false);
             track('onboarding_completed', {});
+            // Show feature tour after onboarding if not completed
+            if (!localStorage.getItem('feature_tour_completed')) {
+              setTimeout(() => setShowFeatureTour(true), 500);
+            }
+          }} 
+        />
+      )}
+      
+      {/* Feature Tour */}
+      {showFeatureTour && (
+        <FeatureTour 
+          onComplete={() => {
+            setShowFeatureTour(false);
+            track('feature_tour_completed', {});
           }} 
         />
       )}
