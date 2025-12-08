@@ -227,7 +227,7 @@ const Auth = () => {
                 )}
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-primary hover:opacity-90 text-background"
+                  className="w-full gradient-primary text-primary-foreground font-semibold hover:opacity-90"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
@@ -334,7 +334,7 @@ const Auth = () => {
                 )}
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-primary hover:opacity-90 text-background"
+                  className="w-full gradient-primary text-primary-foreground font-semibold hover:opacity-90"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating account..." : "Create Account"}

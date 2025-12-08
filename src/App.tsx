@@ -66,7 +66,7 @@ const App = () => (
                 <Route path="/food-logger" element={<ProtectedRoute><FoodLogger /></ProtectedRoute>} />
                 <Route path="/progress" element={<ProtectedRoute><Progress /></ProtectedRoute>} />
                 <Route path="/goals" element={<ProtectedRoute><Goals /></ProtectedRoute>} />
-                <Route path="/pricing" element={<ProtectedRoute><Pricing /></ProtectedRoute>} />
+                <Route path="/pricing" element={<Pricing />} />
                 <Route path="/subscription-success" element={<ProtectedRoute><SubscriptionSuccess /></ProtectedRoute>} />
                 <Route path="/social" element={<ProtectedRoute><Social /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
