@@ -2,6 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   Smartphone, 
   Dumbbell, 
@@ -555,6 +561,77 @@ const Landing = () => {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-background">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              Frequently Asked
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Questions</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Got questions? We've got answers
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="item-1" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                Is Final Form really free to use?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Yes! Our free plan includes basic workout tracking, food logging, progress tracking, achievements, and hydration tracking. You can use these features forever without paying. Premium features like AI workout generation and personalized meal plans require a subscription.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                What makes the AI workouts different from other apps?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Our AI considers your fitness level, available equipment, time constraints, muscle recovery, and personal goals to create truly personalized workouts. The plans adapt as you progress, ensuring you're always challenged but never overwhelmed.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                Can I cancel my Premium subscription anytime?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Absolutely! You can cancel your subscription at any time with no hidden fees or penalties. Your Premium features will remain active until the end of your billing period, and you'll automatically switch to the free plan.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                Is my data private and secure?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Your privacy is our top priority. All your data is encrypted and stored securely. We never sell your personal information to third parties. You can export or delete your data at any time from your account settings.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                Do I need gym equipment to use the app?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Not at all! When setting up your profile, you can specify what equipment you have access to (or none at all). Our AI will generate workouts that work with your available resources, including bodyweight-only routines for home workouts.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6" className="border border-border/50 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+              <AccordionTrigger className="text-left font-semibold hover:no-underline py-6">
+                How does the voice food logging work?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground pb-6">
+                Simply tap the microphone button and describe what you ate naturally, like "I had a chicken salad with olive oil dressing for lunch." Our AI will parse your description, identify the foods, estimate portions, and log the nutritional information automatically.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
