@@ -1,8 +1,39 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Verify authentication
+async function verifyAuth(req: Request): Promise<{ userId: string | null; error: string | null }> {
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader) {
+    return { userId: null, error: 'Missing authorization header' };
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
+
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error || !user) {
+      return { userId: null, error: 'Invalid or expired token' };
+    }
+
+    return { userId: user.id, error: null };
+  } catch (error) {
+    console.error('Auth verification error:', error);
+    return { userId: null, error: 'Authentication failed' };
+  }
 }
 
 // Search USDA FoodData Central
@@ -99,6 +130,19 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const { userId, error: authError } = await verifyAuth(req);
+    if (authError || !userId) {
+      console.warn('Unauthorized search-food request:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { 
+          status: 401, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { query, page = 0 } = await req.json();
     
     if (!query) {
@@ -111,7 +155,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Searching for:', query);
+    console.log(`User ${userId} searching for:`, query);
 
     // Search both USDA and OpenFoodFacts in parallel
     const [usdaResults, offResults] = await Promise.allSettled([
