@@ -7,10 +7,10 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.fetch-recipes]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-fitness-articles]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-nutrition-generator]
 verify_jwt = true
@@ -22,7 +22,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ai-fitness-chat]
-verify_jwt = false
+verify_jwt = true
 
 [functions.ai-food-suggestions]
 verify_jwt = true
