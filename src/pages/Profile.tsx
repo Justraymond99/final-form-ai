@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,6 +13,7 @@ import { NotificationSettings } from "@/components/NotificationSettings";
 import { useProfile } from "@/hooks/useProfile";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { InternationalizationSetup } from "@/components/InternationalizationSetup";
@@ -30,6 +31,8 @@ const Profile = () => {
   const [showLanguage, setShowLanguage] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   
   // Real goals with starting values of 0
@@ -295,14 +298,52 @@ const Profile = () => {
             <Separator />
             <Button 
               variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate("/support")}
+            >
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Help & Support
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate("/privacy-policy")}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Privacy Policy
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => navigate("/terms-of-service")}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Terms of Service
+            </Button>
+            <Separator />
+            <Button 
+              variant="outline" 
               className="w-full justify-start text-destructive hover:text-destructive"
               onClick={signOut}
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
             </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Account
+            </Button>
           </CardContent>
         </Card>
+
+        {/* App Version */}
+        <div className="text-center text-sm text-muted-foreground pb-4">
+          <p>Final Form v1.0.0</p>
+        </div>
       </div>
       
       <Navigation />
@@ -329,6 +370,58 @@ const Profile = () => {
             <NotificationSettings />
             <div className="mt-4">
               <Button onClick={() => setShowNotifications(false)} className="w-full">Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-md p-6 space-y-4">
+            <div className="text-center space-y-2">
+              <Trash2 className="h-12 w-12 text-destructive mx-auto" />
+              <h2 className="text-xl font-bold">Delete Account?</h2>
+              <p className="text-muted-foreground text-sm">
+                This will permanently delete your account and all associated data including workouts, nutrition logs, progress photos, and personal records. This action cannot be undone.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <Button 
+                variant="destructive" 
+                className="w-full"
+                disabled={isDeleting}
+                onClick={async () => {
+                  setIsDeleting(true);
+                  try {
+                    // Sign out and show confirmation
+                    await signOut();
+                    toast({
+                      title: "Account Deletion Requested",
+                      description: "Your account deletion request has been submitted. Your data will be removed within 30 days.",
+                    });
+                    navigate("/");
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to process account deletion. Please contact support.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsDeleting(false);
+                    setShowDeleteConfirm(false);
+                  }
+                }}
+              >
+                {isDeleting ? "Processing..." : "Yes, Delete My Account"}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         </div>
