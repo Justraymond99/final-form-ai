@@ -177,8 +177,8 @@ const Index = () => {
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">{getGreeting()}, {firstName}! 👋</h1>
               <p className="text-sm sm:text-base text-muted-foreground">Ready to crush your fitness goals?</p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-base sm:text-lg font-bold text-background">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 gradient-primary rounded-full flex items-center justify-center shadow-primary">
+              <span className="text-base sm:text-lg font-bold text-primary-foreground">
                 {firstName ? firstName[0].toUpperCase() : 'U'}
               </span>
             </div>
