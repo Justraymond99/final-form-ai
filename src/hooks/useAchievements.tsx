@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface Achievement {
   id: string;
@@ -19,8 +20,42 @@ interface Achievement {
 
 export const useAchievements = () => {
   const { user } = useSecureAuth();
+  const { toast } = useToast();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const previousCompletedIds = useRef<Set<string>>(new Set());
+
+  // Send browser notification for achievement
+  const sendAchievementNotification = async (achievement: Achievement) => {
+    // Check if notification preferences allow it
+    const prefs = localStorage.getItem('notification_preferences');
+    const preferences = prefs ? JSON.parse(prefs) : { achievementNotifications: true };
+    
+    if (!preferences.achievementNotifications) return;
+
+    // Show toast notification
+    toast({
+      title: "🎉 Achievement Unlocked!",
+      description: `${achievement.title}: ${achievement.description}`,
+    });
+
+    // Try browser push notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const registration = await navigator.serviceWorker?.ready;
+        if (registration) {
+          await registration.showNotification("🎉 Achievement Unlocked!", {
+            body: `${achievement.title}: ${achievement.description}`,
+            icon: '/icon-192.png',
+            badge: '/icon-192.png',
+            tag: `achievement-${achievement.id}`
+          });
+        }
+      } catch (error) {
+        console.log('Push notification not available:', error);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -38,7 +73,26 @@ export const useAchievements = () => {
           .order('created_at', { ascending: true });
 
         if (error) throw error;
-        setAchievements(data || []);
+        
+        const newAchievements = data || [];
+        
+        // Check for newly completed achievements
+        newAchievements.forEach(achievement => {
+          if (
+            achievement.completed && 
+            !previousCompletedIds.current.has(achievement.id) &&
+            previousCompletedIds.current.size > 0 // Don't notify on initial load
+          ) {
+            sendAchievementNotification(achievement);
+          }
+        });
+
+        // Update the set of completed achievement IDs
+        previousCompletedIds.current = new Set(
+          newAchievements.filter(a => a.completed).map(a => a.id)
+        );
+
+        setAchievements(newAchievements);
       } catch (error) {
         console.error('Error fetching achievements:', error);
       } finally {
@@ -68,7 +122,7 @@ export const useAchievements = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, toast]);
 
   const getCompletedAchievements = () => {
     return achievements.filter(a => a.completed);
