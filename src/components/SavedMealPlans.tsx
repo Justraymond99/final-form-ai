@@ -3,15 +3,37 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMealPlans } from "@/hooks/useMealPlans";
+import { useShoppingList } from "@/hooks/useShoppingList";
 import { useToast } from "@/hooks/use-toast";
-import { ChefHat, Calendar, Target, Trash2, Play, Loader2 } from "lucide-react";
+import { ChefHat, Calendar, Target, Trash2, Play, Loader2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
 export const SavedMealPlans = () => {
   const { mealPlans, loading, deleteMealPlan, addMealToFoodLog } = useMealPlans();
+  const { createShoppingListFromMealPlan } = useShoppingList();
   const { toast } = useToast();
   const [deletingPlan, setDeletingPlan] = useState<string | null>(null);
   const [addingMeal, setAddingMeal] = useState<string | null>(null);
+  const [creatingList, setCreatingList] = useState<string | null>(null);
+
+  const handleCreateShoppingList = async (planId: string, planName: string) => {
+    setCreatingList(planId);
+    const result = await createShoppingListFromMealPlan(planId, planName);
+    
+    if (result.success) {
+      toast({
+        title: "Shopping list created!",
+        description: `Grocery list for "${planName}" is ready.`,
+      });
+    } else {
+      toast({
+        title: "Failed to create list",
+        description: result.error || "Could not generate shopping list",
+        variant: "destructive",
+      });
+    }
+    setCreatingList(null);
+  };
 
   const handleDeletePlan = async (planId: string) => {
     setDeletingPlan(planId);
@@ -122,19 +144,34 @@ export const SavedMealPlans = () => {
                         </Badge>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeletePlan(plan.id)}
-                      disabled={deletingPlan === plan.id}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      {deletingPlan === plan.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCreateShoppingList(plan.id, plan.name)}
+                        disabled={creatingList === plan.id}
+                        title="Create shopping list"
+                      >
+                        {creatingList === plan.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <ShoppingCart className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeletePlan(plan.id)}
+                        disabled={deletingPlan === plan.id}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        {deletingPlan === plan.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   {/* Nutrition Targets */}
