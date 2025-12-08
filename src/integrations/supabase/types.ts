@@ -59,6 +59,72 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_response_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          expires_at: string
+          id: string
+          model: string
+          prompt_hash: string
+          response: Json
+          tokens_used: number | null
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          model?: string
+          prompt_hash: string
+          response: Json
+          tokens_used?: number | null
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          model?: string
+          prompt_hash?: string
+          response?: Json
+          tokens_used?: number | null
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          event_name: string
+          event_properties: Json | null
+          id: string
+          page_url: string | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          event_name: string
+          event_properties?: Json | null
+          id?: string
+          page_url?: string | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          event_name?: string
+          event_properties?: Json | null
+          id?: string
+          page_url?: string | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       body_measurements: {
         Row: {
           arms_cm: number | null
@@ -322,6 +388,45 @@ export type Database = {
           water_intake_ml?: number | null
           workout_completed?: boolean | null
           workout_streak?: number | null
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          created_at: string
+          error_message: string
+          error_stack: string | null
+          error_type: string
+          function_name: string | null
+          id: string
+          request_data: Json | null
+          resolved: boolean | null
+          severity: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message: string
+          error_stack?: string | null
+          error_type: string
+          function_name?: string | null
+          id?: string
+          request_data?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string
+          error_stack?: string | null
+          error_type?: string
+          function_name?: string | null
+          id?: string
+          request_data?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1572,6 +1677,7 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: undefined
       }
+      cleanup_expired_ai_cache: { Args: never; Returns: undefined }
       cleanup_expired_audit_logs: { Args: never; Returns: undefined }
       create_default_achievements: {
         Args: { user_id_param: string }
