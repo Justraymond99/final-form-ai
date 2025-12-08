@@ -12,6 +12,7 @@ import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useRecentSearches } from "@/hooks/useRecentSearches";
 import { useFavoriteFoods } from "@/hooks/useFavoriteFoods";
 import { useProfile } from "@/hooks/useProfile";
+import { VoiceFoodLogger } from "@/components/VoiceFoodLogger";
 
 interface FoodItem {
   id: string;
@@ -264,6 +265,31 @@ const FoodLogger = () => {
                 });
               }}
             />
+            
+            {/* Voice Food Logger */}
+            <div className="mt-3">
+              <VoiceFoodLogger 
+                selectedMeal={selectedMeal}
+                onFoodParsed={(parsedFood) => {
+                  setSelectedFood({
+                    id: `voice_${Date.now()}`,
+                    name: parsedFood.name,
+                    brand: undefined,
+                    calories: parsedFood.calories,
+                    protein: parsedFood.protein,
+                    carbs: parsedFood.carbs,
+                    fat: parsedFood.fat,
+                    fiber: parsedFood.fiber,
+                    sugar: parsedFood.sugar,
+                    sodium: parsedFood.sodium,
+                    servingSize: String(parsedFood.quantity),
+                    servingUnit: parsedFood.unit
+                  });
+                  setQuantity(parsedFood.quantity);
+                  setSelectedMeal(parsedFood.meal_type);
+                }}
+              />
+            </div>
           </CardContent>
         </Card>
 
