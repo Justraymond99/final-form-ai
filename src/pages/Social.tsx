@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Users, Trophy, MessageCircle, Heart, Share2, TrendingUp, Crown, Zap } from "lucide-react";
+import { Users, Trophy, MessageCircle, Share2, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navigation } from "@/components/Navigation";
 import { SocialFeatures } from "@/components/SocialFeatures";
+import { ChallengesSection } from "@/components/ChallengesSection";
 import { useToast } from "@/hooks/use-toast";
 
 const Social = () => {
@@ -149,45 +149,8 @@ const Social = () => {
           </CardContent>
         </Card>
 
-        {/* Challenges */}
-        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Crown className="h-5 w-5 text-accent" />
-              Active Challenges
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {challenges.map((challenge) => (
-              <div
-                key={challenge.id}
-                className="p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">{challenge.title}</h3>
-                  <Badge variant="secondary" className="text-xs">
-                    {challenge.participants} joined
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{challenge.description}</p>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>{challenge.progress} / {challenge.target}</span>
-                    <span className="text-primary font-medium">
-                      {Math.round((challenge.progress / challenge.target) * 100)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-primary to-accent h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${(challenge.progress / challenge.target) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        {/* Real Challenges Section */}
+        <ChallengesSection />
       </div>
       
       <Navigation />

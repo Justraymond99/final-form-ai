@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TrendingUp, Calendar, Award } from "lucide-react";
+import { TrendingUp, Calendar, Award, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,6 +8,8 @@ import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { ProgressSummary } from "@/components/ProgressSummary";
+import { VolumeChart } from "@/components/VolumeChart";
 
 const ProgressAnalytics = () => {
   const { user } = useSecureAuth();
@@ -158,6 +160,12 @@ const ProgressAnalytics = () => {
               <SelectItem value="365">Last year</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Progress Summary Cards */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <ProgressSummary />
+          <VolumeChart />
         </div>
 
         <Tabs defaultValue="weight" className="space-y-4">

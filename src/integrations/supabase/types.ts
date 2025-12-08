@@ -107,6 +107,92 @@ export type Database = {
         }
         Relationships: []
       }
+      challenge_participants: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          current_value: number | null
+          id: string
+          joined_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          current_value?: number | null
+          id?: string
+          joined_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          current_value?: number | null
+          id?: string
+          joined_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          challenge_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string
+          id: string
+          is_public: boolean | null
+          start_date: string
+          target_value: number
+          title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          challenge_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          is_public?: boolean | null
+          start_date: string
+          target_value: number
+          title: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          challenge_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_public?: boolean | null
+          start_date?: string
+          target_value?: number
+          title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       custom_goals: {
         Row: {
           completed: boolean | null
@@ -448,6 +534,33 @@ export type Database = {
           sodium_mg?: number | null
           sugar_g?: number | null
           unit?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -906,6 +1019,60 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight_kg?: number | null
+        }
+        Relationships: []
+      }
+      progress_summaries: {
+        Row: {
+          avg_daily_calories: number | null
+          created_at: string
+          highlights: Json | null
+          id: string
+          period_end: string
+          period_start: string
+          period_type: string
+          total_calories_logged: number | null
+          total_duration_minutes: number | null
+          total_steps: number | null
+          total_volume: number | null
+          total_water_ml: number | null
+          total_workouts: number | null
+          user_id: string
+          weight_change_kg: number | null
+        }
+        Insert: {
+          avg_daily_calories?: number | null
+          created_at?: string
+          highlights?: Json | null
+          id?: string
+          period_end: string
+          period_start: string
+          period_type: string
+          total_calories_logged?: number | null
+          total_duration_minutes?: number | null
+          total_steps?: number | null
+          total_volume?: number | null
+          total_water_ml?: number | null
+          total_workouts?: number | null
+          user_id: string
+          weight_change_kg?: number | null
+        }
+        Update: {
+          avg_daily_calories?: number | null
+          created_at?: string
+          highlights?: Json | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          total_calories_logged?: number | null
+          total_duration_minutes?: number | null
+          total_steps?: number | null
+          total_volume?: number | null
+          total_water_ml?: number | null
+          total_workouts?: number | null
+          user_id?: string
+          weight_change_kg?: number | null
         }
         Relationships: []
       }
