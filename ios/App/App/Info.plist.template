@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  iOS Info.plist Template for Final Form
+  
+  IMPORTANT: After running `npx cap add ios`, merge these keys into ios/App/App/Info.plist
+  
+  These privacy descriptions are REQUIRED by Apple for App Store approval.
+  Customize the descriptions based on your actual app functionality.
+-->
+<plist version="1.0">
+<dict>
+    <!-- App Display Name -->
+    <key>CFBundleDisplayName</key>
+    <string>Final Form</string>
+    
+    <!-- Camera Permission (for progress photos) -->
+    <key>NSCameraUsageDescription</key>
+    <string>Final Form needs camera access to take progress photos and scan food barcodes.</string>
+    
+    <!-- Photo Library Permission -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Final Form needs photo library access to save and view your progress photos.</string>
+    
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Final Form needs permission to save your progress photos to your photo library.</string>
+    
+    <!-- Health Kit Permission (for Apple Health integration) -->
+    <key>NSHealthShareUsageDescription</key>
+    <string>Final Form reads your health data to sync workouts, steps, and activity data.</string>
+    
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>Final Form writes workout data to Apple Health to keep your fitness data in sync.</string>
+    
+    <!-- Motion and Fitness (for step counting) -->
+    <key>NSMotionUsageDescription</key>
+    <string>Final Form uses motion data to track your steps and daily activity.</string>
+    
+    <!-- Face ID (for app lock feature if implemented) -->
+    <key>NSFaceIDUsageDescription</key>
+    <string>Final Form can use Face ID to secure your fitness data and quickly unlock the app.</string>
+    
+    <!-- Push Notifications -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+        <string>fetch</string>
+    </array>
+    
+    <!-- App Tracking Transparency (required for any analytics/ads) -->
+    <key>NSUserTrackingUsageDescription</key>
+    <string>Final Form may use this data to provide personalized fitness recommendations and improve your experience.</string>
+    
+    <!-- Allow arbitrary loads for development - REMOVE FOR PRODUCTION -->
+    <!-- <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict> -->
+    
+    <!-- Supported interface orientations -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    
+    <!-- Status bar style -->
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleLightContent</string>
+    
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
+    
+    <!-- Launch storyboard -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+</dict>
+</plist>

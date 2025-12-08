@@ -34,6 +34,7 @@ import Recipes from "./pages/Recipes";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Install from "./pages/Install";
+import Support from "./pages/Support";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,7 +79,10 @@ const App = () => (
                 <Route path="/analytics" element={<ProtectedRoute><ProgressAnalytics /></ProtectedRoute>} />
                 <Route path="/recipes" element={<ProtectedRoute><Recipes /></ProtectedRoute>} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/support" element={<Support />} />
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
