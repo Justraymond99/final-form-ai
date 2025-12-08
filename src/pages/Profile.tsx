@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Navigation } from "@/components/Navigation";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AppSettingsDialog } from "@/components/AppSettingsDialog";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { useProfile } from "@/hooks/useProfile";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +29,7 @@ const Profile = () => {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
   
   // Real goals with starting values of 0
@@ -277,6 +279,14 @@ const Profile = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
+              onClick={() => setShowNotifications(true)}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notification Settings
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
               onClick={() => setShowFeedback(true)}
             >
               <MessageSquare className="h-4 w-4 mr-2" />
@@ -307,6 +317,18 @@ const Profile = () => {
             <InternationalizationSetup />
             <div className="p-4">
               <Button onClick={() => setShowLanguage(false)}>Close</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Settings Modal */}
+      {showNotifications && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-lg max-h-[80vh] overflow-y-auto p-4">
+            <NotificationSettings />
+            <div className="mt-4">
+              <Button onClick={() => setShowNotifications(false)} className="w-full">Close</Button>
             </div>
           </div>
         </div>
