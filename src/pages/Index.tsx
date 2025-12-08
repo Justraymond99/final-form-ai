@@ -11,6 +11,7 @@ import { FeatureTour } from "@/components/FeatureTour";
 import { AdvancedAIFeatures } from "@/components/AdvancedAIFeatures";
 import { ContentLibrary } from "@/components/ContentLibrary";
 import { UserFeedback } from "@/components/UserFeedback";
+import { WeeklyInsights } from "@/components/WeeklyInsights";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -349,6 +350,11 @@ const Index = () => {
             difficulty={nextWorkout.difficulty as "Intermediate" | "Beginner" | "Advanced"}
             onStart={() => console.log("Starting workout...")}
           />
+        </div>
+
+        {/* Weekly Insights */}
+        <div className="mb-6 sm:mb-8">
+          <WeeklyInsights />
         </div>
 
         {/* Quick Actions */}
