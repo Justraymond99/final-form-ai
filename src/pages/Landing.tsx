@@ -15,7 +15,12 @@ import {
   ArrowRight,
   CheckCircle,
   Utensils,
-  Activity
+  Activity,
+  UserPlus,
+  Sparkles,
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -76,6 +81,66 @@ const Landing = () => {
       rating: 5
     }
   ];
+
+  const howItWorks = [
+    {
+      step: 1,
+      icon: <UserPlus className="h-8 w-8" />,
+      title: "Create Your Profile",
+      description: "Tell us about your fitness goals, experience level, and preferences. Our AI will personalize everything for you."
+    },
+    {
+      step: 2,
+      icon: <Sparkles className="h-8 w-8" />,
+      title: "Get AI-Powered Plans",
+      description: "Receive custom workout and nutrition plans tailored specifically to your goals and lifestyle."
+    },
+    {
+      step: 3,
+      icon: <Dumbbell className="h-8 w-8" />,
+      title: "Track Your Workouts",
+      description: "Log exercises, track progress, and let the app guide you through each session with timers and tips."
+    },
+    {
+      step: 4,
+      icon: <TrendingUp className="h-8 w-8" />,
+      title: "See Results",
+      description: "Watch your progress unfold with detailed analytics, achievements, and milestone celebrations."
+    }
+  ];
+
+  const appScreenshots = [
+    {
+      title: "Dashboard",
+      description: "Your daily fitness hub with stats, goals, and quick actions",
+      gradient: "from-primary/20 to-accent/20"
+    },
+    {
+      title: "AI Workouts",
+      description: "Personalized workout plans generated just for you",
+      gradient: "from-accent/20 to-secondary/20"
+    },
+    {
+      title: "Nutrition",
+      description: "Smart meal planning and calorie tracking",
+      gradient: "from-secondary/20 to-primary/20"
+    },
+    {
+      title: "Progress",
+      description: "Beautiful charts showing your fitness journey",
+      gradient: "from-primary/20 to-secondary/20"
+    }
+  ];
+
+  const [currentScreenshot, setCurrentScreenshot] = useState(0);
+
+  const nextScreenshot = () => {
+    setCurrentScreenshot((prev) => (prev + 1) % appScreenshots.length);
+  };
+
+  const prevScreenshot = () => {
+    setCurrentScreenshot((prev) => (prev - 1 + appScreenshots.length) % appScreenshots.length);
+  };
 
   const handleGetStarted = () => {
     navigate("/auth");
@@ -174,6 +239,167 @@ const Landing = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* App Screenshots Section */}
+      <section className="py-20 px-4 bg-background overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              See the App in
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Action</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              A beautifully designed experience that makes fitness tracking effortless and enjoyable
+            </p>
+          </div>
+
+          <div className="relative flex items-center justify-center gap-8">
+            {/* Navigation Button - Left */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prevScreenshot}
+              className="hidden md:flex h-12 w-12 rounded-full border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+
+            {/* Phone Mockup */}
+            <div className="relative">
+              <div className="relative w-[280px] h-[560px] bg-card rounded-[3rem] border-4 border-border/50 shadow-2xl overflow-hidden">
+                {/* Phone Notch */}
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-background rounded-full z-10" />
+                
+                {/* Screen Content */}
+                <div className={`absolute inset-4 rounded-[2.25rem] bg-gradient-to-br ${appScreenshots[currentScreenshot].gradient} flex flex-col items-center justify-center p-6 transition-all duration-500`}>
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto">
+                      <Dumbbell className="h-8 w-8 text-primary" />
+                    </div>
+                    <h3 className="text-2xl font-bold">{appScreenshots[currentScreenshot].title}</h3>
+                    <p className="text-muted-foreground text-sm">{appScreenshots[currentScreenshot].description}</p>
+                    
+                    {/* Fake UI Elements */}
+                    <div className="space-y-3 mt-6">
+                      <div className="h-12 bg-card/60 rounded-xl w-full" />
+                      <div className="h-8 bg-card/40 rounded-lg w-3/4 mx-auto" />
+                      <div className="flex gap-2 justify-center">
+                        <div className="h-20 w-20 bg-card/50 rounded-xl" />
+                        <div className="h-20 w-20 bg-card/50 rounded-xl" />
+                        <div className="h-20 w-20 bg-card/50 rounded-xl" />
+                      </div>
+                      <div className="h-24 bg-card/30 rounded-xl w-full" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Glow Effect */}
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-secondary/20 rounded-[4rem] blur-2xl -z-10" />
+            </div>
+
+            {/* Navigation Button - Right */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={nextScreenshot}
+              className="hidden md:flex h-12 w-12 rounded-full border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+          </div>
+
+          {/* Screenshot Indicators */}
+          <div className="flex justify-center gap-2 mt-8">
+            {appScreenshots.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentScreenshot(index)}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  index === currentScreenshot 
+                    ? "bg-primary w-8" 
+                    : "bg-border hover:bg-muted-foreground"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="flex justify-center gap-4 mt-6 md:hidden">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prevScreenshot}
+              className="h-10 w-10 rounded-full"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={nextScreenshot}
+              className="h-10 w-10 rounded-full"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-4 bg-card/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              How It
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Works</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Get started in minutes and begin your transformation journey today
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItWorks.map((item, index) => (
+              <div key={index} className="relative group">
+                {/* Connector Line (hidden on last item and mobile) */}
+                {index < howItWorks.length - 1 && (
+                  <div className="hidden lg:block absolute top-12 left-[60%] w-full h-0.5 bg-gradient-to-r from-primary/50 to-transparent" />
+                )}
+                
+                <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 text-center h-full">
+                  <CardContent className="p-6 pt-8">
+                    {/* Step Number */}
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                      {item.step}
+                    </div>
+                    
+                    {/* Icon */}
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 text-primary">
+                      {item.icon}
+                    </div>
+                    
+                    <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                  </CardContent>
+                </Card>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA under How It Works */}
+          <div className="text-center mt-12">
+            <Button 
+              size="lg" 
+              onClick={handleGetStarted}
+              className="h-14 px-8 gradient-primary hover:opacity-90"
+            >
+              Start Your Transformation
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
         </div>
       </section>
