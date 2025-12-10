@@ -68,17 +68,23 @@ export const useProfile = () => {
   }, [user]);
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user || !profile) return;
+    if (!user) return { success: false, error: 'No user' };
 
     try {
+      // Use upsert to handle both insert and update cases
       const { error } = await supabase
         .from('profiles')
-        .update(updates)
-        .eq('user_id', user.id);
+        .upsert({
+          user_id: user.id,
+          ...updates,
+          updated_at: new Date().toISOString(),
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
       
-      setProfile({ ...profile, ...updates });
+      setProfile(prev => prev ? { ...prev, ...updates } : null);
       return { success: true };
     } catch (error) {
       console.error('Error updating profile:', error);
