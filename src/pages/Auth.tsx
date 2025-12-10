@@ -25,14 +25,45 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [error, setError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { secureSignIn, secureSignUp, user } = useSecureAuth();
 
-  useEffect(() => {
-    // Check if user is already logged in
-    if (user) {
+  // Check if user has completed onboarding
+  const checkOnboardingStatus = async (userId: string) => {
+    setCheckingOnboarding(true);
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name, fitness_goals, activity_level')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      // If no profile or missing key onboarding data, show onboarding
+      const hasCompletedOnboarding = profile && 
+        profile.display_name && 
+        profile.fitness_goals && 
+        profile.fitness_goals.length > 0;
+
+      if (!hasCompletedOnboarding) {
+        setShowOnboarding(true);
+      } else {
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      // If error, just proceed to home
       navigate("/home");
+    } finally {
+      setCheckingOnboarding(false);
+    }
+  };
+
+  useEffect(() => {
+    // If user is logged in, check onboarding status
+    if (user && !showOnboarding && !checkingOnboarding) {
+      checkOnboardingStatus(user.id);
     }
 
     // Handle email confirmation from verification link
@@ -43,27 +74,24 @@ const Auth = () => {
       const type = hashParams.get('type');
 
       if (type === 'signup' && accessToken && refreshToken) {
-        // User just confirmed their email, set the session
-        const { error } = await supabase.auth.setSession({
+        const { error, data } = await supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         });
 
-        if (!error) {
+        if (!error && data.user) {
           toast({
             title: "Email confirmed!",
-            description: "Your account is now active. Welcome!",
+            description: "Your account is now active. Let's set up your profile!",
           });
-          // Clear the hash from URL
           window.history.replaceState(null, '', window.location.pathname);
-          // Show onboarding for new users
           setShowOnboarding(true);
         }
       }
     };
 
     handleEmailConfirmation();
-  }, [user, navigate, toast]);
+  }, [user, navigate, toast, showOnboarding, checkingOnboarding]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +125,7 @@ const Auth = () => {
       if (error) {
         setError(error);
       }
+      // After successful sign in, the useEffect will check onboarding status
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +172,24 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while checking onboarding
+  if (checkingOnboarding) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto animate-pulse">
+            <img 
+              src="/lovable-uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
+              alt="Final Form Logo" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <p className="text-muted-foreground">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (showOnboarding) {
     return (
