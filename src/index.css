@@ -157,4 +157,98 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-card);
   }
+  
+  /* Interactive element animations */
+  .interactive-scale {
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .interactive-scale:hover {
+    @apply scale-[1.02];
+  }
+  
+  .interactive-scale:active {
+    @apply scale-[0.98];
+  }
+  
+  /* Icon hover animation */
+  .icon-hover {
+    @apply transition-all duration-200;
+  }
+  
+  .icon-hover:hover {
+    @apply scale-110;
+  }
+  
+  /* Badge pulse for notifications */
+  .badge-pulse {
+    @apply relative;
+  }
+  
+  .badge-pulse::after {
+    content: '';
+    @apply absolute inset-0 rounded-full animate-ping bg-primary/50;
+  }
+  
+  /* Focus ring animation */
+  .focus-ring-animated:focus-visible {
+    @apply ring-2 ring-primary ring-offset-2 ring-offset-background;
+    animation: focus-pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes focus-pulse {
+    0%, 100% {
+      ring-opacity: 1;
+    }
+    50% {
+      ring-opacity: 0.5;
+    }
+  }
+  
+  /* Stagger animation for lists */
+  .stagger-in > * {
+    @apply opacity-0 translate-y-2;
+    animation: stagger-fade-in 0.3s ease-out forwards;
+  }
+  
+  .stagger-in > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-in > *:nth-child(2) { animation-delay: 50ms; }
+  .stagger-in > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-in > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger-in > *:nth-child(5) { animation-delay: 200ms; }
+  .stagger-in > *:nth-child(6) { animation-delay: 250ms; }
+  .stagger-in > *:nth-child(n+7) { animation-delay: 300ms; }
+  
+  @keyframes stagger-fade-in {
+    to {
+      @apply opacity-100 translate-y-0;
+    }
+  }
+  
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer;
+  }
+  
+  /* Success checkmark animation */
+  @keyframes checkmark {
+    0% {
+      stroke-dashoffset: 100;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  
+  .animate-checkmark {
+    stroke-dasharray: 100;
+    animation: checkmark 0.5s ease-out forwards;
+  }
 }
