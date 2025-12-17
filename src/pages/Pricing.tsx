@@ -376,7 +376,7 @@ const Pricing = () => {
           <h2 className="text-2xl font-bold">Why Choose FitTracker Pro?</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center space-y-3">
-              <div className="mx-auto w-12 h-12 bg-gradient-strength rounded-full flex items-center justify-center">
+              <div className="mx-auto w-12 h-12 gradient-strength rounded-full flex items-center justify-center">
                 <Brain className="h-6 w-6 text-background" />
               </div>
               <h3 className="font-semibold">AI-Powered</h3>
@@ -385,7 +385,7 @@ const Pricing = () => {
               </p>
             </div>
             <div className="text-center space-y-3">
-              <div className="mx-auto w-12 h-12 bg-gradient-energy rounded-full flex items-center justify-center">
+              <div className="mx-auto w-12 h-12 gradient-energy rounded-full flex items-center justify-center">
                 <Target className="h-6 w-6 text-background" />
               </div>
               <h3 className="font-semibold">Goal-Oriented</h3>
@@ -394,7 +394,7 @@ const Pricing = () => {
               </p>
             </div>
             <div className="text-center space-y-3">
-              <div className="mx-auto w-12 h-12 bg-gradient-wellness rounded-full flex items-center justify-center">
+              <div className="mx-auto w-12 h-12 gradient-wellness rounded-full flex items-center justify-center">
                 <Star className="h-6 w-6 text-background" />
               </div>
               <h3 className="font-semibold">Premium Experience</h3>
