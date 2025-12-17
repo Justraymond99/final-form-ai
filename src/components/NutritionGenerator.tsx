@@ -201,6 +201,12 @@ export const NutritionGenerator = () => {
                   <SelectItem value="4">4 Weeks</SelectItem>
                   <SelectItem value="8">8 Weeks</SelectItem>
                   <SelectItem value="12">12 Weeks</SelectItem>
+                  <SelectItem value="16">16 Weeks</SelectItem>
+                  <SelectItem value="18">18 Weeks</SelectItem>
+                  <SelectItem value="24">24 Weeks</SelectItem>
+                  <SelectItem value="36">36 Weeks</SelectItem>
+                  <SelectItem value="48">48 Weeks</SelectItem>
+                  <SelectItem value="52">52 Weeks (1 Year)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
