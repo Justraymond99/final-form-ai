@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SwipeableNavigation } from "@/components/SwipeableNavigation";
+import { Navigation } from "@/components/Navigation";
 import { WorkoutGenerator } from "@/components/WorkoutGenerator";
 import { WorkoutScheduler } from "@/components/WorkoutScheduler";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -210,7 +210,7 @@ const Workouts = () => {
         </Tabs>
       </div>
       
-      <SwipeableNavigation />
+      <Navigation />
     </div>
   );
 };

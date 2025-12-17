@@ -3,7 +3,7 @@ import { StatsCard } from "@/components/StatsCard";
 import { QuickActions } from "@/components/QuickActions";
 import { TodayStreak } from "@/components/TodayStreak";
 import { NextWorkout } from "@/components/NextWorkout";
-import { SwipeableNavigation } from "@/components/SwipeableNavigation";
+import { Navigation } from "@/components/Navigation";
 import { AIChatbot } from "@/components/AIChatbot";
 import { AIRecoveryPlanner } from "@/components/AIRecoveryPlanner";
 import { OnboardingFlow } from "@/components/OnboardingFlow";
@@ -408,7 +408,7 @@ const Index = () => {
         </div>
       </div>
       
-      <SwipeableNavigation />
+      <Navigation />
       <AIChatbot />
       <UserFeedback />
       

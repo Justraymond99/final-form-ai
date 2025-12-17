@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SwipeableNavigation } from "@/components/SwipeableNavigation";
+import { Navigation } from "@/components/Navigation";
 import { NutritionGenerator } from "@/components/NutritionGenerator";
 import { SavedMealPlans } from "@/components/SavedMealPlans";
 import { ShoppingList } from "@/components/ShoppingList";
@@ -436,7 +436,7 @@ const Nutrition = () => {
         </Tabs>
       </div>
       
-      <SwipeableNavigation />
+      <Navigation />
     </div>
   );
 };

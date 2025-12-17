@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2 } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2, Camera, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -170,7 +170,7 @@ const Profile = () => {
               className="w-full justify-start"
               onClick={() => navigate("/progress-photos")}
             >
-              <Ruler className="h-4 w-4 mr-2" />
+              <Camera className="h-4 w-4 mr-2" />
               Progress Photos
             </Button>
             <Button
@@ -178,7 +178,7 @@ const Profile = () => {
               className="w-full justify-start"
               onClick={() => navigate("/analytics")}
             >
-              <TrophyIcon className="h-4 w-4 mr-2" />
+              <BarChart3 className="h-4 w-4 mr-2" />
               Analytics
             </Button>
           </CardContent>
