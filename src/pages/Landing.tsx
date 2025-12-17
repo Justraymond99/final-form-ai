@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,10 +29,19 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 
 const Landing = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const { user, loading } = useSecureAuth();
+
+  // Redirect logged-in users to home
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/home", { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   const features = [
     {

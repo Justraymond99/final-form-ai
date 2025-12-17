@@ -12,6 +12,7 @@ import { AnimatedRoutes } from "./components/AnimatedRoutes";
 import { PaywallProvider } from "./components/PaywallModal";
 import { OnboardingTrialNudge } from "./components/OnboardingTrialNudge";
 import { TrialNotificationsInit } from "./components/TrialNotificationsInit";
+import { RateAppPrompt } from "./components/RateAppPrompt";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ const App: React.FC = () => (
                 <PaywallProvider>
                   <TrialNotificationsInit />
                   <OnboardingTrialNudge />
+                  <RateAppPrompt />
                   <AnimatedRoutes />
                 </PaywallProvider>
               </BrowserRouter>
