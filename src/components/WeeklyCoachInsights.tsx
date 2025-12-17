@@ -103,7 +103,7 @@ export const WeeklyCoachInsights = () => {
 
   if (loading) {
     return (
-      <Card className="animate-pulse">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -111,13 +111,41 @@ export const WeeklyCoachInsights = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-48 bg-muted rounded-lg" />
+          <div className="space-y-3">
+            <div className="h-12 bg-muted rounded-lg animate-pulse" />
+            <div className="grid grid-cols-4 gap-2">
+              {[1,2,3,4].map(i => <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />)}
+            </div>
+            <div className="h-20 bg-muted rounded-lg animate-pulse" />
+          </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (!insights) return null;
+  // Default insights to prevent flickering
+  const defaultInsights: WeeklyInsights = insights || {
+    summary: "Start tracking your workouts to get personalized weekly insights!",
+    grade: "B",
+    highlights: [
+      { type: "positive", text: "You're on the right track!" }
+    ],
+    stats: {
+      workoutsCompleted: 0,
+      totalMinutes: 0,
+      caloriesBurned: 0,
+      consistency: "N/A"
+    },
+    weeklyGoals: [
+      { goal: "Complete 3 workouts this week", priority: "high" }
+    ],
+    focusAreas: [
+      { area: "Consistency", tip: "Try to workout at the same time each day" }
+    ],
+    motivationalQuote: "Every workout counts. Start today!"
+  };
+
+  const displayInsights = insights || defaultInsights;
 
   return (
     <Card className="overflow-hidden">
@@ -128,8 +156,8 @@ export const WeeklyCoachInsights = () => {
             Weekly Coach
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Badge className={`${gradeColors[insights.grade] || 'bg-muted'} text-white`}>
-              Grade: {insights.grade}
+            <Badge className={`${gradeColors[displayInsights.grade] || 'bg-muted'} text-white`}>
+              Grade: {displayInsights.grade}
             </Badge>
             <Button variant="ghost" size="sm" onClick={() => navigate('/insights')}>
               <History className="h-4 w-4" />
@@ -142,35 +170,35 @@ export const WeeklyCoachInsights = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Summary */}
-        <p className="text-sm">{insights.summary}</p>
+        <p className="text-sm">{displayInsights.summary}</p>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-4 gap-2">
           <div className="text-center p-2 rounded-lg bg-muted/50">
             <Flame className="h-4 w-4 mx-auto mb-1 text-orange-500" />
-            <p className="text-lg font-bold">{insights.stats.workoutsCompleted}</p>
+            <p className="text-lg font-bold">{displayInsights.stats.workoutsCompleted}</p>
             <p className="text-xs text-muted-foreground">Workouts</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-muted/50">
             <Clock className="h-4 w-4 mx-auto mb-1 text-blue-500" />
-            <p className="text-lg font-bold">{insights.stats.totalMinutes}</p>
+            <p className="text-lg font-bold">{displayInsights.stats.totalMinutes}</p>
             <p className="text-xs text-muted-foreground">Minutes</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-muted/50">
             <Flame className="h-4 w-4 mx-auto mb-1 text-red-500" />
-            <p className="text-lg font-bold">{insights.stats.caloriesBurned}</p>
+            <p className="text-lg font-bold">{displayInsights.stats.caloriesBurned}</p>
             <p className="text-xs text-muted-foreground">Cal Burned</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-muted/50">
             <Target className="h-4 w-4 mx-auto mb-1 text-green-500" />
-            <p className="text-lg font-bold">{insights.stats.consistency}</p>
+            <p className="text-lg font-bold">{displayInsights.stats.consistency}</p>
             <p className="text-xs text-muted-foreground">Consistent</p>
           </div>
         </div>
 
         {/* Highlights */}
         <div className="space-y-1.5">
-          {insights.highlights.slice(0, expanded ? undefined : 2).map((h, i) => (
+          {displayInsights.highlights.slice(0, expanded ? undefined : 2).map((h, i) => (
             <div key={i} className="flex items-start gap-2 text-sm">
               {highlightIcons[h.type] || <Star className="h-4 w-4" />}
               <span>{h.text}</span>
@@ -186,7 +214,7 @@ export const WeeklyCoachInsights = () => {
                 <Target className="h-4 w-4" />
                 Goals for This Week
               </p>
-              {insights.weeklyGoals.map((goal, i) => (
+              {displayInsights.weeklyGoals.map((goal, i) => (
                 <div 
                   key={i} 
                   className={`p-2 rounded-lg border text-sm ${
@@ -206,7 +234,7 @@ export const WeeklyCoachInsights = () => {
             {/* Focus Areas */}
             <div className="space-y-2">
               <p className="text-sm font-medium">Focus Areas</p>
-              {insights.focusAreas.map((focus, i) => (
+              {displayInsights.focusAreas.map((focus, i) => (
                 <div key={i} className="text-sm">
                   <span className="font-medium">{focus.area}:</span>{" "}
                   <span className="text-muted-foreground">{focus.tip}</span>
@@ -215,22 +243,22 @@ export const WeeklyCoachInsights = () => {
             </div>
 
             {/* Next Week Plan */}
-            {insights.nextWeekPlan && (
+            {displayInsights.nextWeekPlan && (
               <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
                 <p className="font-medium text-sm mb-2">Next Week's Plan</p>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <span className="text-muted-foreground">Workouts:</span>{" "}
-                    {insights.nextWeekPlan.recommendedWorkouts}
+                    {displayInsights.nextWeekPlan.recommendedWorkouts}
                   </div>
                   <div>
                     <span className="text-muted-foreground">Rest Days:</span>{" "}
-                    {insights.nextWeekPlan.restDays}
+                    {displayInsights.nextWeekPlan.restDays}
                   </div>
                 </div>
                 <p className="text-xs mt-2">
                   <span className="text-muted-foreground">Key Priority:</span>{" "}
-                  {insights.nextWeekPlan.keyPriority}
+                  {displayInsights.nextWeekPlan.keyPriority}
                 </p>
               </div>
             )}
@@ -249,7 +277,7 @@ export const WeeklyCoachInsights = () => {
 
         {/* Motivational Quote */}
         <p className="text-center text-sm italic text-muted-foreground border-t pt-3">
-          "{insights.motivationalQuote}"
+          "{displayInsights.motivationalQuote}"
         </p>
       </CardContent>
     </Card>

@@ -95,7 +95,7 @@ export const RecoveryCoach = () => {
 
   if (loading) {
     return (
-      <Card className="animate-pulse">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5" />
@@ -103,13 +103,36 @@ export const RecoveryCoach = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-32 bg-muted rounded-lg" />
+          <div className="space-y-3">
+            <div className="h-16 bg-muted rounded-lg animate-pulse" />
+            <div className="h-24 bg-muted rounded-lg animate-pulse" />
+          </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (!recovery) return null;
+  // Show default state instead of returning null to prevent flickering
+  const defaultRecovery: RecoveryData = recovery || {
+    restDayRecommended: false,
+    recoveryScore: 75,
+    muscleRecovery: {
+      fullyRecovered: ["Chest", "Back"],
+      recovering: ["Legs"],
+      fatigued: []
+    },
+    recommendations: [
+      { type: "hydration", title: "Stay Hydrated", description: "Drink at least 8 glasses of water today", priority: "medium" },
+      { type: "sleep", title: "Get Rest", description: "Aim for 7-9 hours of quality sleep", priority: "medium" }
+    ],
+    nextWorkoutSuggestion: {
+      muscleGroups: ["Arms", "Shoulders"],
+      intensity: "moderate",
+      focusAreas: ["Upper body"]
+    }
+  };
+
+  const displayRecovery = recovery || defaultRecovery;
 
   return (
     <Card className="overflow-hidden">
@@ -129,8 +152,8 @@ export const RecoveryCoach = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">Recovery Score</p>
-            <p className={`text-3xl font-bold ${getRecoveryColor(recovery.recoveryScore)}`}>
-              {recovery.recoveryScore}%
+            <p className={`text-3xl font-bold ${getRecoveryColor(displayRecovery.recoveryScore)}`}>
+              {displayRecovery.recoveryScore}%
             </p>
           </div>
           <div className="w-24 h-24 relative">
@@ -151,15 +174,15 @@ export const RecoveryCoach = () => {
                 stroke="currentColor"
                 strokeWidth="8"
                 fill="none"
-                strokeDasharray={`${recovery.recoveryScore * 2.51} 251`}
-                className={getRecoveryColor(recovery.recoveryScore)}
+                strokeDasharray={`${displayRecovery.recoveryScore * 2.51} 251`}
+                className={getRecoveryColor(displayRecovery.recoveryScore)}
               />
             </svg>
           </div>
         </div>
 
         {/* Rest Day Alert */}
-        {recovery.restDayRecommended && (
+        {displayRecovery.restDayRecommended && (
           <div className="p-3 rounded-lg bg-warning/10 border border-warning/30 flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
             <div>
@@ -175,19 +198,19 @@ export const RecoveryCoach = () => {
         <div className="space-y-2">
           <p className="text-sm font-medium">Muscle Recovery Status</p>
           <div className="flex flex-wrap gap-1.5">
-            {recovery.muscleRecovery.fullyRecovered.map(muscle => (
+            {displayRecovery.muscleRecovery.fullyRecovered.map(muscle => (
               <Badge key={muscle} variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30">
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 {muscle}
               </Badge>
             ))}
-            {recovery.muscleRecovery.recovering.map(muscle => (
+            {displayRecovery.muscleRecovery.recovering.map(muscle => (
               <Badge key={muscle} variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
                 <Clock className="h-3 w-3 mr-1" />
                 {muscle}
               </Badge>
             ))}
-            {recovery.muscleRecovery.fatigued.map(muscle => (
+            {displayRecovery.muscleRecovery.fatigued.map(muscle => (
               <Badge key={muscle} variant="outline" className="bg-red-500/10 text-red-600 border-red-500/30">
                 <AlertTriangle className="h-3 w-3 mr-1" />
                 {muscle}
@@ -200,7 +223,7 @@ export const RecoveryCoach = () => {
         <div className="space-y-2">
           <p className="text-sm font-medium">Today's Recovery Tips</p>
           <div className="space-y-2">
-            {recovery.recommendations.slice(0, 3).map((rec, i) => (
+            {displayRecovery.recommendations.slice(0, 3).map((rec, i) => (
               <div
                 key={i}
                 className={`p-3 rounded-lg border ${priorityColors[rec.priority]}`}
@@ -216,7 +239,7 @@ export const RecoveryCoach = () => {
         </div>
 
         {/* Next Workout Suggestion */}
-        {!recovery.restDayRecommended && recovery.nextWorkoutSuggestion && (
+        {!displayRecovery.restDayRecommended && displayRecovery.nextWorkoutSuggestion && (
           <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
             <p className="font-medium text-sm mb-2 flex items-center gap-2">
               <Dumbbell className="h-4 w-4" />
@@ -225,17 +248,17 @@ export const RecoveryCoach = () => {
             <div className="space-y-1 text-xs">
               <p>
                 <span className="text-muted-foreground">Focus:</span>{" "}
-                {recovery.nextWorkoutSuggestion.muscleGroups.join(", ")}
+                {displayRecovery.nextWorkoutSuggestion.muscleGroups.join(", ")}
               </p>
               <p>
                 <span className="text-muted-foreground">Intensity:</span>{" "}
                 <Badge variant="outline" className="text-xs py-0">
-                  {recovery.nextWorkoutSuggestion.intensity}
+                  {displayRecovery.nextWorkoutSuggestion.intensity}
                 </Badge>
               </p>
-              {recovery.nextWorkoutSuggestion.avoidMuscles?.length > 0 && (
+              {displayRecovery.nextWorkoutSuggestion.avoidMuscles && displayRecovery.nextWorkoutSuggestion.avoidMuscles.length > 0 && (
                 <p className="text-yellow-600">
-                  Avoid: {recovery.nextWorkoutSuggestion.avoidMuscles.join(", ")}
+                  Avoid: {displayRecovery.nextWorkoutSuggestion.avoidMuscles.join(", ")}
                 </p>
               )}
             </div>
@@ -243,9 +266,9 @@ export const RecoveryCoach = () => {
         )}
 
         {/* Motivational Message */}
-        {recovery.motivationalMessage && (
+        {displayRecovery.motivationalMessage && (
           <p className="text-center text-sm italic text-muted-foreground pt-2 border-t">
-            "{recovery.motivationalMessage}"
+            "{displayRecovery.motivationalMessage}"
           </p>
         )}
       </CardContent>
