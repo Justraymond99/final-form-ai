@@ -11,7 +11,7 @@ const Support = () => {
       icon: Mail,
       title: "Email Support",
       description: "Get help via email within 24-48 hours",
-      action: () => window.open("mailto:support@finalform.app", "_blank"),
+      action: () => window.open("mailto:support@final-form-ai.com", "_blank"),
       buttonText: "Send Email",
     },
     {
@@ -50,7 +50,7 @@ const Support = () => {
     },
     {
       question: "What should I do if I experience a bug?",
-      answer: "Please email us at support@finalform.app with a description of the issue, your device model, and iOS version. Screenshots are helpful!",
+      answer: "Please email us at support@final-form-ai.com with a description of the issue, your device model, and iOS version. Screenshots are helpful!",
     },
     {
       question: "How do I restore my purchases?",
@@ -151,7 +151,7 @@ const Support = () => {
               <p className="text-muted-foreground text-sm">
                 Our support team typically responds within 24-48 hours
               </p>
-              <Button onClick={() => window.open("mailto:support@finalform.app", "_blank")}>
+              <Button onClick={() => window.open("mailto:support@final-form-ai.com", "_blank")}>
                 <Mail className="mr-2 h-4 w-4" />
                 Contact Support
               </Button>

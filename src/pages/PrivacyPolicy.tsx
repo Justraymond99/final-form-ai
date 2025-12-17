@@ -144,8 +144,8 @@ const PrivacyPolicy = () => {
               If you have questions about this Privacy Policy, please contact us at:
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-foreground/90">Email: privacy@finalform.app</p>
-              <p className="text-foreground/90">Support: support@finalform.app</p>
+              <p className="text-foreground/90">Email: privacy@final-form-ai.com</p>
+              <p className="text-foreground/90">Support: support@final-form-ai.com</p>
             </div>
           </section>
         </div>
