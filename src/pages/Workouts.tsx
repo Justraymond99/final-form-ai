@@ -43,9 +43,9 @@ const Workouts = () => {
   // Format recent workouts for display
   const recentWorkouts = dbRecentWorkouts.map(workout => ({
     id: workout.id,
-    name: workout.name,
+    name: workout.name || "Workout",
     duration: `${workout.duration_minutes || 30} min`,
-    exercises: workout.exercises_data ? Object.keys(workout.exercises_data).length : 0,
+    exercises: Array.isArray(workout.exercises_data) ? workout.exercises_data.length : 0,
     lastPerformed: new Date(workout.started_at).toLocaleDateString()
   }));
 
@@ -68,11 +68,13 @@ const Workouts = () => {
   };
 
   const handleDeleteTemplate = async (templateId: string, templateName: string) => {
+    console.log('Deleting template:', templateId);
     const result = await deleteTemplate(templateId);
+    console.log('Delete result:', result);
     if (result?.success) {
       toast({ title: "Template Deleted", description: `"${templateName}" has been removed.` });
     } else {
-      toast({ title: "Error", description: "Failed to delete template", variant: "destructive" });
+      toast({ title: "Error", description: result?.error?.toString() || "Failed to delete template", variant: "destructive" });
     }
   };
   const handleDeletePlan = async (planId: string, planName: string) => {

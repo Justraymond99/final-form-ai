@@ -19,6 +19,7 @@ import { StreakProtection } from "@/components/StreakProtection";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { useMultiWeekPlans } from "@/hooks/useMultiWeekPlans";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAnalytics } from "@/hooks/useAnalytics";
@@ -42,13 +43,21 @@ import {
   Clock,
   Dumbbell,
   Heart,
-  Home
+  Home,
+  Play,
+  FolderOpen,
+  ChevronRight
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { formatLabel } from "@/lib/utils";
 
 const Index = () => {
   const { profile, loading: profileLoading } = useProfile();
   const { data: dailyData, updateSteps, updateMeditation } = useDailyTracking();
-  const { templates } = useWorkouts();
+  const { templates, recentWorkouts } = useWorkouts();
+  const { workoutPlans } = useMultiWeekPlans();
+  const navigate = useNavigate();
   const [actualCalories, setActualCalories] = useState(0);
   const { user } = useSecureAuth();
   const { initializeNotifications } = useNotifications();
@@ -352,6 +361,58 @@ const Index = () => {
           <StreakProtection />
         </div>
 
+        {/* Saved Programs - Quick Start */}
+        {workoutPlans.length > 0 && (
+          <div className="mb-6 sm:mb-8">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">Your Programs</h2>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/workouts')}>
+                View All <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {workoutPlans.slice(0, 3).map((plan) => (
+                <Card 
+                  key={plan.id} 
+                  className="cursor-pointer hover:bg-accent/5 transition-colors"
+                  onClick={() => {
+                    // Get first workout from first week
+                    const firstWeek = plan.weekly_plans?.[0];
+                    const firstWorkout = firstWeek?.workouts?.[0];
+                    if (firstWorkout) {
+                      localStorage.setItem('currentWorkout', JSON.stringify({
+                        name: `${plan.name} - ${firstWorkout.workout_name || firstWorkout.day}`,
+                        exercises_data: firstWorkout.exercises || [],
+                        duration_minutes: firstWorkout.duration || 30,
+                      }));
+                      navigate('/workout-session');
+                    } else {
+                      navigate('/workouts');
+                    }
+                  }}
+                >
+                  <CardContent className="p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <FolderOpen className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">{plan.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {plan.weeks} weeks • {formatLabel(plan.difficulty)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                      <Play className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Next Workout */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">Up Next</h2>
@@ -360,7 +421,7 @@ const Index = () => {
             estimatedTime={nextWorkout.duration_minutes}
             targetMuscles={nextWorkout.target_muscles}
             difficulty={nextWorkout.difficulty as "Intermediate" | "Beginner" | "Advanced"}
-            onStart={() => console.log("Starting workout...")}
+            onStart={() => navigate('/workouts')}
           />
         </div>
 
