@@ -7,6 +7,7 @@ import { PremiumGate } from "@/components/PremiumGate";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { formatLabel } from "@/lib/utils";
 import { Star, Clock, Target, Zap, Play, Save } from "lucide-react";
 
 interface PremiumTemplate {
@@ -259,7 +260,7 @@ export const PremiumWorkoutTemplates = () => {
                       <div>
                         <CardTitle className="text-lg">{template.name}</CardTitle>
                         <Badge className={getDifficultyColor(template.difficulty)}>
-                          {template.difficulty}
+                          {formatLabel(template.difficulty)}
                         </Badge>
                       </div>
                       <Badge variant="outline" className="border-primary text-primary">
@@ -333,7 +334,7 @@ export const PremiumWorkoutTemplates = () => {
                       <div className="text-sm text-muted-foreground">Duration</div>
                     </div>
                     <div>
-                      <div className="font-semibold capitalize">{selectedTemplate.difficulty}</div>
+                      <div className="font-semibold">{formatLabel(selectedTemplate.difficulty)}</div>
                       <div className="text-sm text-muted-foreground">Difficulty</div>
                     </div>
                     <div>

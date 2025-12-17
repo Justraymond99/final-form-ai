@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles, Trash2, Calendar, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatLabel } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -198,7 +199,7 @@ const Workouts = () => {
                       >
                         <div className="space-y-1">
                           <h3 className="font-medium">{template.name}</h3>
-                          <p className="text-sm text-muted-foreground">{template.exercises} exercises • {template.difficulty}</p>
+                          <p className="text-sm text-muted-foreground">{template.exercises} exercises • {formatLabel(template.difficulty)}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
@@ -241,7 +242,7 @@ const Workouts = () => {
                             </AlertDialogContent>
                           </AlertDialog>
                           <Badge variant="outline" className="border-accent/30 text-accent">
-                            {template.type}
+                            {formatLabel(template.type)}
                           </Badge>
                         </div>
                       </div>
@@ -283,7 +284,7 @@ const Workouts = () => {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>{plan.weeks} weeks</span>
                           <span>•</span>
-                          <span className="capitalize">{plan.difficulty}</span>
+                          <span>{formatLabel(plan.difficulty)}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">

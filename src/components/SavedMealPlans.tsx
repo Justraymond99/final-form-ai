@@ -6,6 +6,7 @@ import { useMealPlans } from "@/hooks/useMealPlans";
 import { useMultiWeekPlans } from "@/hooks/useMultiWeekPlans";
 import { useShoppingList } from "@/hooks/useShoppingList";
 import { useToast } from "@/hooks/use-toast";
+import { formatLabel } from "@/lib/utils";
 import { ChefHat, Calendar, Target, Trash2, Play, Loader2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 
@@ -207,7 +208,7 @@ export const SavedMealPlans = () => {
                       <div className="flex gap-2 flex-wrap">
                         <Badge variant="secondary">
                           <Target className="h-3 w-3 mr-1" />
-                          {plan.goal}
+                          {formatLabel(plan.goal)}
                         </Badge>
                         <Badge variant="outline">
                           {plan.weeks} week{plan.weeks > 1 ? 's' : ''}
@@ -301,7 +302,7 @@ export const SavedMealPlans = () => {
                         {plan.goal && (
                           <Badge variant="secondary">
                             <Target className="h-3 w-3 mr-1" />
-                            {plan.goal}
+                            {formatLabel(plan.goal)}
                           </Badge>
                         )}
                         {plan.target_calories && (

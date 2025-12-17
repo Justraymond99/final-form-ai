@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { formatLabel } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -190,7 +191,7 @@ export const MultiWeekWorkoutDisplay = ({
             </Badge>
             <Badge variant="secondary" className="text-xs">
               <Target className="w-3 h-3 mr-1 flex-shrink-0" />
-              {workoutPlan.difficulty || 'Custom'}
+              {formatLabel(workoutPlan.difficulty) || 'Custom'}
             </Badge>
             <Badge variant="secondary" className="text-xs">
               <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
@@ -272,7 +273,7 @@ export const MultiWeekWorkoutDisplay = ({
                           <AccordionContent>
                             <div className="space-y-3 pt-2">
                               <div className="flex flex-wrap gap-1">
-                                <Badge variant="secondary" className="text-xs">{workout.type}</Badge>
+                                <Badge variant="secondary" className="text-xs">{formatLabel(workout.type)}</Badge>
                                 <Badge variant="outline" className="text-xs">
                                   <Dumbbell className="h-3 w-3 mr-1 flex-shrink-0" />
                                   {workout.target_muscles?.slice(0, 2).join(', ') || 'Full Body'}
