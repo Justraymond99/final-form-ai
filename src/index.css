@@ -6,26 +6,91 @@
 
 @layer base {
   :root {
-    /* Core fitness theme colors */
+    /* Light mode - Clean fitness theme */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    
+    /* Brand colors - energetic fitness theme */
+    --primary: 270 70% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 270 80% 60%;
+    
+    --secondary: 217 91% 50%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Fitness-specific colors */
+    --energy: 270 70% 50%;
+    --hydration: 200 100% 50%;
+    --strength: 260 84% 50%;
+    --wellness: 142 76% 36%;
+    
+    /* Progress colors */
+    --progress-bg: 240 6% 90%;
+    --progress-fill: 270 70% 50%;
+    
+    /* Card system */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --card-elevated: 0 0% 98%;
+    --card-border: 240 6% 90%;
+    
+    /* UI Elements */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    --muted: 240 6% 96%;
+    --muted-foreground: 240 5% 45%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 270 70% 50%;
+    
+    --radius: 0.75rem;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-energy: linear-gradient(135deg, hsl(var(--energy)), hsl(270 80% 60%));
+    --gradient-strength: linear-gradient(135deg, hsl(var(--strength)), hsl(260 84% 60%));
+    --gradient-wellness: linear-gradient(135deg, hsl(var(--wellness)), hsl(142 76% 45%));
+    --gradient-hydration: linear-gradient(135deg, hsl(var(--hydration)), hsl(200 100% 60%));
+    
+    /* Shadows */
+    --shadow-primary: 0 4px 20px -4px hsl(var(--primary) / 0.2);
+    --shadow-card: 0 8px 32px -8px hsl(240 10% 3.9% / 0.1);
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.1);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .dark {
+    /* Dark mode - Original fitness theme */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     
     /* Brand colors - energetic fitness theme */
-    --primary: 270 70% 60%; /* Vibrant purple for energy */
+    --primary: 270 70% 60%;
     --primary-foreground: 240 10% 3.9%;
     --primary-glow: 270 80% 70%;
     
-    --secondary: 217 91% 60%; /* Electric blue for tech */
+    --secondary: 217 91% 60%;
     --secondary-foreground: 240 10% 3.9%;
     
-    --accent: 142 76% 36%; /* Success green */
+    --accent: 142 76% 36%;
     --accent-foreground: 0 0% 98%;
     
     /* Fitness-specific colors */
-    --energy: 270 70% 60%; /* Purple for calories/energy */
-    --hydration: 200 100% 60%; /* Blue for water */
-    --strength: 260 84% 60%; /* Purple for workouts */
-    --wellness: 142 76% 36%; /* Green for meditation */
+    --energy: 270 70% 60%;
+    --hydration: 200 100% 60%;
+    --strength: 260 84% 60%;
+    --wellness: 142 76% 36%;
     
     /* Progress colors */
     --progress-bg: 240 6% 10%;
@@ -51,8 +116,6 @@
     --input: 240 6% 12%;
     --ring: 270 70% 60%;
     
-    --radius: 0.75rem;
-    
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
     --gradient-energy: linear-gradient(135deg, hsl(var(--energy)), hsl(270 80% 70%));
@@ -64,10 +127,6 @@
     --shadow-primary: 0 4px 20px -4px hsl(var(--primary) / 0.3);
     --shadow-card: 0 8px 32px -8px hsl(240 10% 3.9% / 0.3);
     --shadow-glow: 0 0 40px hsl(var(--primary) / 0.15);
-    
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 }
 

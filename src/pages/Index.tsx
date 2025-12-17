@@ -14,6 +14,7 @@ import { UserFeedback } from "@/components/UserFeedback";
 import { WeeklyInsights } from "@/components/WeeklyInsights";
 import { RecoveryCoach } from "@/components/RecoveryCoach";
 import { WeeklyCoachInsights } from "@/components/WeeklyCoachInsights";
+import { DashboardSkeleton } from "@/components/DashboardSkeleton";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -44,7 +45,7 @@ import {
 } from "lucide-react";
 
 const Index = () => {
-  const { profile } = useProfile();
+  const { profile, loading: profileLoading } = useProfile();
   const { data: dailyData, updateSteps, updateMeditation } = useDailyTracking();
   const { templates } = useWorkouts();
   const [actualCalories, setActualCalories] = useState(0);
@@ -168,6 +169,11 @@ const Index = () => {
   };
 
   const nextWorkout = getNextWorkout();
+
+  // Show skeleton while loading
+  if (profileLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

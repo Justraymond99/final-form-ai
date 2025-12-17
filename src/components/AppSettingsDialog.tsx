@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "next-themes";
+import { Moon, Sun, Monitor } from "lucide-react";
 
 interface AppSettingsDialogProps {
   open: boolean;
@@ -14,17 +16,22 @@ interface AppSettingsDialogProps {
 
 export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps) => {
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [settings, setSettings] = useState({
     notifications: true,
     workoutReminders: true,
     mealReminders: false,
-    darkMode: false,
     units: "metric",
     dataSync: true,
   });
 
+  // Ensure theme is mounted before rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleSave = () => {
-    // In a real app, these would be saved to the backend or local storage
     toast({
       title: "Settings saved!",
       description: "Your app preferences have been updated.",
@@ -82,18 +89,42 @@ export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps
 
           <Separator />
 
-          {/* Appearance */}
+          {/* Appearance - Theme Toggle */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium">Appearance</h3>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="dark-mode" className="text-sm">
-                Dark Mode
-              </Label>
-              <Switch
-                id="dark-mode"
-                checked={settings.darkMode}
-                onCheckedChange={(checked) => setSettings({...settings, darkMode: checked})}
-              />
+            <div className="space-y-3">
+              <Label className="text-sm">Theme</Label>
+              {mounted && (
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    variant={theme === "light" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTheme("light")}
+                    className="flex items-center gap-2"
+                  >
+                    <Sun className="h-4 w-4" />
+                    Light
+                  </Button>
+                  <Button
+                    variant={theme === "dark" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTheme("dark")}
+                    className="flex items-center gap-2"
+                  >
+                    <Moon className="h-4 w-4" />
+                    Dark
+                  </Button>
+                  <Button
+                    variant={theme === "system" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setTheme("system")}
+                    className="flex items-center gap-2"
+                  >
+                    <Monitor className="h-4 w-4" />
+                    Auto
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
