@@ -15,10 +15,13 @@ import {
   RefreshCw,
   ChevronRight,
   Sparkles,
-  Calendar
+  Calendar,
+  History
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useGenerationHistory } from "@/hooks/useGenerationHistory";
+import { useNavigate } from "react-router-dom";
 
 interface WeeklyInsights {
   summary: string;
@@ -64,6 +67,8 @@ export const WeeklyCoachInsights = () => {
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+  const { saveGeneration } = useGenerationHistory();
+  const navigate = useNavigate();
 
   const fetchInsights = async () => {
     setLoading(true);
@@ -74,6 +79,13 @@ export const WeeklyCoachInsights = () => {
       
       setInsights(data.insights);
       setRawStats(data.rawStats);
+      
+      // Save insights to generation history
+      if (data.insights) {
+        await saveGeneration('insights', data.insights, `Weekly Insights - ${new Date().toLocaleDateString()}`, {
+          rawStats: data.rawStats
+        });
+      }
     } catch (error) {
       console.error('Error fetching weekly insights:', error);
       toast({
@@ -119,6 +131,9 @@ export const WeeklyCoachInsights = () => {
             <Badge className={`${gradeColors[insights.grade] || 'bg-muted'} text-white`}>
               Grade: {insights.grade}
             </Badge>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/insights')}>
+              <History className="h-4 w-4" />
+            </Button>
             <Button variant="ghost" size="sm" onClick={fetchInsights}>
               <RefreshCw className="h-4 w-4" />
             </Button>

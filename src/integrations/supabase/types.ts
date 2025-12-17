@@ -670,6 +670,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generation_history: {
+        Row: {
+          content: Json
+          created_at: string
+          generation_type: string
+          id: string
+          is_saved: boolean | null
+          metadata: Json | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          generation_type: string
+          id?: string
+          is_saved?: boolean | null
+          metadata?: Json | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          generation_type?: string
+          id?: string
+          is_saved?: boolean | null
+          metadata?: Json | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           completed: boolean | null
