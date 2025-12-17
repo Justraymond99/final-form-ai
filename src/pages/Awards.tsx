@@ -124,7 +124,7 @@ const Awards = () => {
 
         {/* Achievement Categories */}
         <Tabs defaultValue="fitness" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6 bg-transparent border border-border/50 rounded-lg p-1">
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
