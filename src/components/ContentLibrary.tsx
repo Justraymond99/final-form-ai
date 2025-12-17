@@ -126,58 +126,61 @@ export const ContentLibrary = () => {
       </div>
 
       {/* Recipes Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {recipes.map((recipe) => (
           <Card 
             key={recipe.id} 
-            className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col"
+            className="hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden h-full"
             onClick={() => setSelectedRecipe(recipe)}
           >
-            <div className="aspect-video relative overflow-hidden">
+            <div className="aspect-video relative overflow-hidden bg-muted">
               <img 
                 src={recipe.image} 
                 alt={recipe.title}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
-              <Badge className="absolute top-2 right-2 bg-background/80">
+              <Badge className="absolute top-2 right-2 bg-background/90 text-foreground text-xs">
                 {recipe.category}
               </Badge>
             </div>
-            <CardHeader className="pb-2 flex-shrink-0">
-              <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem]">{recipe.title}</CardTitle>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <CardHeader className="p-3 pb-2">
+              <CardTitle className="text-sm font-semibold leading-tight line-clamp-2">
+                {recipe.title}
+              </CardTitle>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                 <span className="flex items-center gap-1">
-                  <ChefHat className="w-3 h-3 flex-shrink-0" />
-                  <span className="truncate">{recipe.area}</span>
+                  <ChefHat className="w-3 h-3" />
+                  {recipe.area}
                 </span>
                 <span className="flex items-center gap-1">
-                  <Users className="w-3 h-3 flex-shrink-0" />
-                  {recipe.ingredients.length} ingredients
+                  <Users className="w-3 h-3" />
+                  {recipe.ingredients.length}
                 </span>
               </div>
             </CardHeader>
-            <CardContent className="flex-1">
-              {recipe.calories && (
-                <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  <div className="overflow-hidden">
-                    <div className="font-bold text-primary truncate">{recipe.calories}</div>
-                    <div className="text-muted-foreground">Cal</div>
+            {recipe.calories && (
+              <CardContent className="p-3 pt-0">
+                <div className="grid grid-cols-4 gap-1 text-center">
+                  <div>
+                    <div className="text-xs font-bold text-primary">{recipe.calories}</div>
+                    <div className="text-[10px] text-muted-foreground">Cal</div>
                   </div>
-                  <div className="overflow-hidden">
-                    <div className="font-bold text-green-600 truncate">{recipe.protein}g</div>
-                    <div className="text-muted-foreground">Protein</div>
+                  <div>
+                    <div className="text-xs font-bold text-green-600">{recipe.protein}g</div>
+                    <div className="text-[10px] text-muted-foreground">Pro</div>
                   </div>
-                  <div className="overflow-hidden">
-                    <div className="font-bold text-blue-600 truncate">{recipe.carbs}g</div>
-                    <div className="text-muted-foreground">Carbs</div>
+                  <div>
+                    <div className="text-xs font-bold text-blue-600">{recipe.carbs}g</div>
+                    <div className="text-[10px] text-muted-foreground">Carb</div>
                   </div>
-                  <div className="overflow-hidden">
-                    <div className="font-bold text-orange-600 truncate">{recipe.fat}g</div>
-                    <div className="text-muted-foreground">Fat</div>
+                  <div>
+                    <div className="text-xs font-bold text-orange-600">{recipe.fat}g</div>
+                    <div className="text-[10px] text-muted-foreground">Fat</div>
                   </div>
                 </div>
-              )}
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         ))}
       </div>
