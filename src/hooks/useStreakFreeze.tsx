@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { toast } from "sonner";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export const useStreakFreeze = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const queryClient = useQueryClient();
 
   // Get freezes used this month

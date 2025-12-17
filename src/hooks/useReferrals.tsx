@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { toast } from "sonner";
 
 const generateReferralCode = () => {
@@ -13,7 +13,7 @@ const generateReferralCode = () => {
 };
 
 export const useReferrals = () => {
-  const { user } = useAuth();
+  const { user } = useSecureAuth();
   const queryClient = useQueryClient();
 
   // Get user's referrals
