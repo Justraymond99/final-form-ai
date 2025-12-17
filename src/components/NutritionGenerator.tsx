@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { PremiumGate } from "@/components/PremiumGate";
 import { ChefHat, Loader2 } from "lucide-react";
 import { MultiWeekNutritionDisplay } from "@/components/MultiWeekNutritionDisplay";
 
@@ -136,140 +135,135 @@ export const NutritionGenerator = () => {
   };
 
   return (
-    <PremiumGate 
-      feature="AI Nutrition Generator" 
-      description="Get personalized meal plans tailored to your goals, dietary preferences, and budget using advanced AI."
-    >
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ChefHat className="h-5 w-5" />
-              Nutrition Generator
-            </CardTitle>
-            <CardDescription>
-              Generate personalized meal plans with progressive nutrition optimization
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ChefHat className="h-5 w-5" />
+            Nutrition Generator
+          </CardTitle>
+          <CardDescription>
+            Generate personalized meal plans with progressive nutrition optimization
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="goal">Primary Goal</Label>
+            <Select value={goal} onValueChange={setGoal}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select your nutrition goal" />
+              </SelectTrigger>
+              <SelectContent>
+                {goalOptions.map((option) => (
+                  <SelectItem key={option} value={option.toLowerCase().replace(' ', '_')}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="goal">Primary Goal</Label>
-              <Select value={goal} onValueChange={setGoal}>
+              <Label htmlFor="calories">Target Calories/Day</Label>
+              <Input
+                id="calories"
+                type="number"
+                value={targetCalories}
+                onChange={(e) => setTargetCalories(e.target.value)}
+                min={1200}
+                max={4000}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cooking-time">Max Cooking Time (min)</Label>
+              <Select value={cookingTime} onValueChange={setCookingTime}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select your nutrition goal" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {goalOptions.map((option) => (
-                    <SelectItem key={option} value={option.toLowerCase().replace(' ', '_')}>
-                      {option}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="15">15 minutes</SelectItem>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="60">60 minutes</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="calories">Target Calories/Day</Label>
-                <Input
-                  id="calories"
-                  type="number"
-                  value={targetCalories}
-                  onChange={(e) => setTargetCalories(e.target.value)}
-                  min={1200}
-                  max={4000}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cooking-time">Max Cooking Time (min)</Label>
-                <Select value={cookingTime} onValueChange={setCookingTime}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15">15 minutes</SelectItem>
-                    <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="60">60 minutes</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="program-length">Program Length</Label>
-                <Select value={programLength} onValueChange={setProgramLength}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select length" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Week</SelectItem>
-                    <SelectItem value="4">4 Weeks</SelectItem>
-                    <SelectItem value="8">8 Weeks</SelectItem>
-                    <SelectItem value="12">12 Weeks</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Dietary Preferences</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {dietaryOptions.map((dietary) => (
-                  <div key={dietary} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={dietary}
-                      checked={dietaryPreferences.includes(dietary)}
-                      onCheckedChange={(checked) => handleDietaryChange(dietary, checked as boolean)}
-                    />
-                    <Label htmlFor={dietary} className="text-sm">
-                      {dietary}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="notes">Additional Notes</Label>
-              <Textarea
-                id="notes"
-                placeholder="Any specific requirements, allergies, or preferences..."
-                value={additionalNotes}
-                onChange={(e) => setAdditionalNotes(e.target.value)}
-                className="min-h-24"
-              />
+              <Label htmlFor="program-length">Program Length</Label>
+              <Select value={programLength} onValueChange={setProgramLength}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select length" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Week</SelectItem>
+                  <SelectItem value="4">4 Weeks</SelectItem>
+                  <SelectItem value="8">8 Weeks</SelectItem>
+                  <SelectItem value="12">12 Weeks</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+          </div>
 
-            <Button 
-              onClick={generateNutritionPlan} 
-              className="w-full" 
-              disabled={isGenerating}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating Plan...
-                </>
-              ) : (
-                <>
-                  <ChefHat className="h-4 w-4 mr-2" />
-                  Generate Plan
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
+          <div className="space-y-3">
+            <Label>Dietary Preferences</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {dietaryOptions.map((dietary) => (
+                <div key={dietary} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={dietary}
+                    checked={dietaryPreferences.includes(dietary)}
+                    onCheckedChange={(checked) => handleDietaryChange(dietary, checked as boolean)}
+                  />
+                  <Label htmlFor={dietary} className="text-sm">
+                    {dietary}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        {generatedPlan && (
-          <MultiWeekNutritionDisplay 
-            nutritionPlan={generatedPlan}
-            onSave={(name: string, description: string) => {
-              console.log('Saving plan:', name, description);
-            }}
-            onAddMealToLog={handleAddMealToLog}
-          />
-        )}
-      </div>
-    </PremiumGate>
+          <div className="space-y-2">
+            <Label htmlFor="notes">Additional Notes</Label>
+            <Textarea
+              id="notes"
+              placeholder="Any specific requirements, allergies, or preferences..."
+              value={additionalNotes}
+              onChange={(e) => setAdditionalNotes(e.target.value)}
+              className="min-h-24"
+            />
+          </div>
+
+          <Button 
+            onClick={generateNutritionPlan} 
+            className="w-full" 
+            disabled={isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating Plan...
+              </>
+            ) : (
+              <>
+                <ChefHat className="h-4 w-4 mr-2" />
+                Generate Plan
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {generatedPlan && (
+        <MultiWeekNutritionDisplay 
+          nutritionPlan={generatedPlan}
+          onSave={(name: string, description: string) => {
+            console.log('Saving plan:', name, description);
+          }}
+          onAddMealToLog={handleAddMealToLog}
+        />
+      )}
+    </div>
   );
 };

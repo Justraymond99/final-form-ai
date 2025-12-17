@@ -214,14 +214,6 @@ const Pricing = () => {
             </div>
           )}
 
-          {!isIOSNative && (
-            <div className="bg-muted/50 p-4 rounded-lg border border-border">
-              <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Apple className="h-5 w-5" />
-                <span>Subscriptions available on iOS app only</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Billing Toggle */}

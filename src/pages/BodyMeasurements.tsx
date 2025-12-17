@@ -4,12 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useBodyMeasurements } from "@/hooks/useBodyMeasurements";
 import { Navigation } from "@/components/Navigation";
 import { format } from "date-fns";
 import { Ruler, TrendingUp, Plus } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+
+// Conversion utilities
+const kgToLbs = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
+const lbsToKg = (lbs: number) => Math.round(lbs / 2.20462 * 10) / 10;
+const cmToInches = (cm: number) => Math.round(cm / 2.54 * 10) / 10;
+const inchesToCm = (inches: number) => Math.round(inches * 2.54 * 10) / 10;
 
 const BodyMeasurements = () => {
   const [weight, setWeight] = useState("");
@@ -20,19 +27,40 @@ const BodyMeasurements = () => {
   const [thighs, setThighs] = useState("");
   const [bodyFat, setBodyFat] = useState("");
   const [notes, setNotes] = useState("");
+  const [useImperial, setUseImperial] = useState(true); // Default to imperial (lbs/inches)
   const { toast } = useToast();
   const { measurements, addMeasurement, loading } = useBodyMeasurements();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Convert to metric for storage if using imperial
+      const weightKg = weight 
+        ? (useImperial ? lbsToKg(parseFloat(weight)) : parseFloat(weight))
+        : undefined;
+      const chestCm = chest
+        ? (useImperial ? inchesToCm(parseFloat(chest)) : parseFloat(chest))
+        : undefined;
+      const waistCm = waist
+        ? (useImperial ? inchesToCm(parseFloat(waist)) : parseFloat(waist))
+        : undefined;
+      const hipsCm = hips
+        ? (useImperial ? inchesToCm(parseFloat(hips)) : parseFloat(hips))
+        : undefined;
+      const armsCm = arms
+        ? (useImperial ? inchesToCm(parseFloat(arms)) : parseFloat(arms))
+        : undefined;
+      const thighsCm = thighs
+        ? (useImperial ? inchesToCm(parseFloat(thighs)) : parseFloat(thighs))
+        : undefined;
+
       await addMeasurement({
-        weight_kg: weight ? parseFloat(weight) : undefined,
-        chest_cm: chest ? parseFloat(chest) : undefined,
-        waist_cm: waist ? parseFloat(waist) : undefined,
-        hips_cm: hips ? parseFloat(hips) : undefined,
-        arms_cm: arms ? parseFloat(arms) : undefined,
-        thighs_cm: thighs ? parseFloat(thighs) : undefined,
+        weight_kg: weightKg,
+        chest_cm: chestCm,
+        waist_cm: waistCm,
+        hips_cm: hipsCm,
+        arms_cm: armsCm,
+        thighs_cm: thighsCm,
         body_fat_percent: bodyFat ? parseFloat(bodyFat) : undefined,
         notes: notes || undefined,
       });
@@ -58,19 +86,33 @@ const BodyMeasurements = () => {
     }
   };
 
+  // Convert display values based on unit preference
+  const displayWeight = (kg: number | null) => {
+    if (!kg) return 0;
+    return useImperial ? kgToLbs(kg) : kg;
+  };
+
+  const displayLength = (cm: number | null) => {
+    if (!cm) return 0;
+    return useImperial ? cmToInches(cm) : cm;
+  };
+
+  const weightUnit = useImperial ? "lbs" : "kg";
+  const lengthUnit = useImperial ? "in" : "cm";
+
   const chartData = measurements
     .slice()
     .reverse()
     .slice(-10)
     .map((m) => ({
       date: format(new Date(m.date), "MMM d"),
-      weight: m.weight_kg || 0,
-      waist: m.waist_cm || 0,
-      chest: m.chest_cm || 0,
+      weight: displayWeight(m.weight_kg),
+      waist: displayLength(m.waist_cm),
+      chest: displayLength(m.chest_cm),
     }));
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">Body Measurements</h1>
@@ -85,20 +127,30 @@ const BodyMeasurements = () => {
                 <Plus className="h-5 w-5" />
                 Log Measurements
               </CardTitle>
-              <CardDescription>Enter today's measurements</CardDescription>
+              <CardDescription className="flex items-center justify-between">
+                <span>Enter today's measurements</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs">Metric</span>
+                  <Switch 
+                    checked={useImperial} 
+                    onCheckedChange={setUseImperial}
+                  />
+                  <span className="text-xs">Imperial</span>
+                </div>
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Label htmlFor="weight">Weight ({weightUnit})</Label>
                     <Input
                       id="weight"
                       type="number"
                       step="0.1"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      placeholder="70.5"
+                      placeholder={useImperial ? "155.5" : "70.5"}
                     />
                   </div>
                   <div className="space-y-2">
@@ -113,59 +165,59 @@ const BodyMeasurements = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="chest">Chest (cm)</Label>
+                    <Label htmlFor="chest">Chest ({lengthUnit})</Label>
                     <Input
                       id="chest"
                       type="number"
                       step="0.1"
                       value={chest}
                       onChange={(e) => setChest(e.target.value)}
-                      placeholder="95.5"
+                      placeholder={useImperial ? "37.5" : "95.5"}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="waist">Waist (cm)</Label>
+                    <Label htmlFor="waist">Waist ({lengthUnit})</Label>
                     <Input
                       id="waist"
                       type="number"
                       step="0.1"
                       value={waist}
                       onChange={(e) => setWaist(e.target.value)}
-                      placeholder="80.0"
+                      placeholder={useImperial ? "31.5" : "80.0"}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="hips">Hips (cm)</Label>
+                    <Label htmlFor="hips">Hips ({lengthUnit})</Label>
                     <Input
                       id="hips"
                       type="number"
                       step="0.1"
                       value={hips}
                       onChange={(e) => setHips(e.target.value)}
-                      placeholder="90.0"
+                      placeholder={useImperial ? "35.4" : "90.0"}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="arms">Arms (cm)</Label>
+                    <Label htmlFor="arms">Arms ({lengthUnit})</Label>
                     <Input
                       id="arms"
                       type="number"
                       step="0.1"
                       value={arms}
                       onChange={(e) => setArms(e.target.value)}
-                      placeholder="35.0"
+                      placeholder={useImperial ? "13.8" : "35.0"}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="thighs">Thighs (cm)</Label>
+                  <Label htmlFor="thighs">Thighs ({lengthUnit})</Label>
                   <Input
                     id="thighs"
                     type="number"
                     step="0.1"
                     value={thighs}
                     onChange={(e) => setThighs(e.target.value)}
-                    placeholder="55.0"
+                    placeholder={useImperial ? "21.7" : "55.0"}
                   />
                 </div>
                 <div className="space-y-2">
@@ -204,9 +256,9 @@ const BodyMeasurements = () => {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Line type="monotone" dataKey="weight" stroke="hsl(var(--primary))" name="Weight (kg)" />
-                      <Line type="monotone" dataKey="waist" stroke="hsl(var(--accent))" name="Waist (cm)" />
-                      <Line type="monotone" dataKey="chest" stroke="hsl(var(--secondary))" name="Chest (cm)" />
+                      <Line type="monotone" dataKey="weight" stroke="hsl(var(--primary))" name={`Weight (${weightUnit})`} />
+                      <Line type="monotone" dataKey="waist" stroke="hsl(var(--accent))" name={`Waist (${lengthUnit})`} />
+                      <Line type="monotone" dataKey="chest" stroke="hsl(var(--secondary))" name={`Chest (${lengthUnit})`} />
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
@@ -230,12 +282,16 @@ const BodyMeasurements = () => {
                     <div key={m.id} className="p-3 rounded-lg bg-muted/50 border border-border">
                       <div className="flex justify-between items-start mb-2">
                         <span className="font-semibold">{format(new Date(m.date), "MMM d, yyyy")}</span>
-                        {m.weight_kg && <span className="text-primary">{m.weight_kg} kg</span>}
+                        {m.weight_kg && (
+                          <span className="text-primary">
+                            {displayWeight(m.weight_kg)} {weightUnit}
+                          </span>
+                        )}
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-sm text-muted-foreground">
-                        {m.chest_cm && <div>Chest: {m.chest_cm}cm</div>}
-                        {m.waist_cm && <div>Waist: {m.waist_cm}cm</div>}
-                        {m.arms_cm && <div>Arms: {m.arms_cm}cm</div>}
+                        {m.chest_cm && <div>Chest: {displayLength(m.chest_cm)}{lengthUnit}</div>}
+                        {m.waist_cm && <div>Waist: {displayLength(m.waist_cm)}{lengthUnit}</div>}
+                        {m.arms_cm && <div>Arms: {displayLength(m.arms_cm)}{lengthUnit}</div>}
                       </div>
                     </div>
                   ))}
