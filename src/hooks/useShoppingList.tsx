@@ -150,6 +150,58 @@ export const useShoppingList = () => {
     }
   };
 
+  const createShoppingListFromItems = async (planName: string, items: string[]) => {
+    if (!user) return { success: false, error: 'User not authenticated' };
+
+    try {
+      // Create shopping list
+      const { data: list, error: listError } = await supabase
+        .from('shopping_lists')
+        .insert({
+          user_id: user.id,
+          name: `Groceries for ${planName}`,
+        })
+        .select()
+        .single();
+
+      if (listError) throw listError;
+
+      // Aggregate quantities for duplicate items
+      const itemMap = new Map<string, number>();
+      
+      items.forEach(item => {
+        const key = item.toLowerCase().trim();
+        if (itemMap.has(key)) {
+          itemMap.set(key, itemMap.get(key)! + 1);
+        } else {
+          itemMap.set(key, 1);
+        }
+      });
+
+      // Create shopping list items
+      const shoppingItems = Array.from(itemMap.entries()).map(([name, quantity]) => ({
+        shopping_list_id: list.id,
+        user_id: user.id,
+        product_name: name.charAt(0).toUpperCase() + name.slice(1),
+        quantity: quantity,
+        unit: 'piece',
+        is_purchased: false,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('shopping_list_items')
+        .insert(shoppingItems);
+
+      if (insertError) throw insertError;
+
+      await fetchShoppingLists();
+      return { success: true, listId: list.id };
+    } catch (error) {
+      console.error('Error creating shopping list from items:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  };
+
   const toggleItemPurchased = async (itemId: string, isPurchased: boolean) => {
     if (!user) return { success: false, error: 'User not authenticated' };
 
@@ -272,6 +324,7 @@ export const useShoppingList = () => {
     shoppingLists,
     loading,
     createShoppingListFromMealPlan,
+    createShoppingListFromItems,
     toggleItemPurchased,
     deleteShoppingList,
     addItemToList,
