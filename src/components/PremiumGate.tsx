@@ -1,20 +1,30 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywall } from "@/components/PaywallModal";
 import { useNavigate } from "react-router-dom";
-import { Crown, Sparkles, Lock, Shield } from "lucide-react";
+import { Crown, Sparkles, Lock, Shield, Gift } from "lucide-react";
 
 interface PremiumGateProps {
   children: ReactNode;
   feature: string;
   description?: string;
+  useModal?: boolean; // If true, shows modal instead of inline block
 }
 
-export const PremiumGate = ({ children, feature, description }: PremiumGateProps) => {
+export const PremiumGate = ({ children, feature, description, useModal = false }: PremiumGateProps) => {
   const { hasPremiumAccess, loading } = useSubscription();
+  const { showPaywall } = usePaywall();
   const navigate = useNavigate();
+
+  // If useModal is true and user doesn't have access, show paywall on mount
+  useEffect(() => {
+    if (useModal && !loading && !hasPremiumAccess) {
+      showPaywall(feature);
+    }
+  }, [useModal, loading, hasPremiumAccess, feature, showPaywall]);
 
   if (loading) {
     return (
@@ -55,13 +65,21 @@ export const PremiumGate = ({ children, feature, description }: PremiumGateProps
           </p>
         </div>
         
-        <div className="space-y-3 pt-4">
+        {/* Trial highlight */}
+        <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-3 border border-primary/20">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-primary">
+            <Gift className="h-4 w-4" />
+            Try free for 7 days
+          </div>
+        </div>
+        
+        <div className="space-y-3 pt-2">
           <Button 
-            onClick={() => navigate('/pricing')}
+            onClick={() => showPaywall(feature)}
             className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
           >
-            <Crown className="h-4 w-4 mr-2" />
-            Upgrade to Pro
+            <Sparkles className="h-4 w-4 mr-2" />
+            Start Free Trial
           </Button>
           
           <Button 

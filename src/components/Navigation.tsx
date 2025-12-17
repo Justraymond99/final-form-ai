@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Home, Dumbbell, Apple, Calendar, Trophy, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { TrialCountdownCompact } from "./TrialCountdown";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -16,6 +17,11 @@ export const Navigation = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-card-border px-4 py-2 z-50">
+      {/* Trial/Pro Badge - Floating above nav */}
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+        <TrialCountdownCompact />
+      </div>
+      
       <div className="flex items-center justify-around max-w-md mx-auto">
         {tabs.map((tab) => (
           <Link
