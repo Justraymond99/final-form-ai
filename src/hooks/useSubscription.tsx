@@ -1,7 +1,15 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { Capacitor } from "@capacitor/core";
-import { Purchases, PurchasesPackage, CustomerInfo, LOG_LEVEL } from "@revenuecat/purchases-capacitor";
+
+// Types for RevenueCat (defined here to avoid import issues in web)
+interface PurchasesPackage {
+  identifier: string;
+  packageType: string;
+  product: {
+    priceString: string;
+  };
+}
 
 interface SubscriptionContextType {
   subscribed: boolean;
@@ -21,6 +29,15 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 
 // RevenueCat iOS Public API Key
 const REVENUECAT_IOS_API_KEY = "appl_FgmYvLdacMBIcQcgaiGzBNqgfPn";
+
+// Check if running on iOS native (safe for web)
+const getIsIOSNative = () => {
+  try {
+    return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  } catch {
+    return false;
+  }
+};
 
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
@@ -42,13 +59,13 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [purchasesModule, setPurchasesModule] = useState<any>(null);
 
-  // Check if running on iOS native
-  const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  const isIOSNative = getIsIOSNative();
 
-  // Initialize RevenueCat on iOS
+  // Dynamically load RevenueCat only on iOS native
   useEffect(() => {
-    const initializeRevenueCat = async () => {
+    const loadRevenueCat = async () => {
       if (!isIOSNative) {
         console.log("[Subscription] Not on iOS native, skipping RevenueCat");
         setLoading(false);
@@ -56,7 +73,27 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       }
 
       try {
+        console.log("[Subscription] Loading RevenueCat module...");
+        const module = await import("@revenuecat/purchases-capacitor");
+        setPurchasesModule(module);
+        console.log("[Subscription] RevenueCat module loaded");
+      } catch (err) {
+        console.error("[Subscription] Failed to load RevenueCat:", err);
+        setLoading(false);
+      }
+    };
+
+    loadRevenueCat();
+  }, [isIOSNative]);
+
+  // Initialize RevenueCat once module is loaded
+  useEffect(() => {
+    const initializeRevenueCat = async () => {
+      if (!isIOSNative || !purchasesModule) return;
+
+      try {
         console.log("[Subscription] Initializing RevenueCat...");
+        const { Purchases, LOG_LEVEL } = purchasesModule;
         
         await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
         
@@ -67,11 +104,6 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
         setIsInitialized(true);
         console.log("[Subscription] RevenueCat initialized");
-
-        // Fetch offerings
-        await fetchOfferings();
-        // Check subscription status
-        await checkSubscription();
       } catch (err) {
         console.error("[Subscription] RevenueCat init error:", err);
         setLoading(false);
@@ -79,48 +111,32 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     };
 
     initializeRevenueCat();
-  }, [user?.id]);
+  }, [purchasesModule, user?.id, isIOSNative]);
 
-  // Sync user with RevenueCat when auth changes
+  // Fetch offerings when initialized
   useEffect(() => {
-    const syncUser = async () => {
-      if (!isInitialized || !isIOSNative) return;
+    const fetchOfferings = async () => {
+      if (!isInitialized || !purchasesModule) return;
 
       try {
-        if (user?.id) {
-          console.log("[Subscription] Syncing user:", user.id);
-          await Purchases.logIn({ appUserID: user.id });
-        } else {
-          await Purchases.logOut();
+        console.log("[Subscription] Fetching offerings...");
+        const { Purchases } = purchasesModule;
+        const offerings = await Purchases.getOfferings();
+        
+        if (offerings.current?.availablePackages) {
+          setPackages(offerings.current.availablePackages);
+          console.log("[Subscription] Found packages:", offerings.current.availablePackages.length);
         }
-        await checkSubscription();
       } catch (err) {
-        console.error("[Subscription] User sync error:", err);
+        console.error("[Subscription] Error fetching offerings:", err);
       }
     };
 
-    syncUser();
-  }, [user?.id, isInitialized]);
+    fetchOfferings();
+  }, [isInitialized, purchasesModule]);
 
-  const fetchOfferings = async () => {
-    if (!isIOSNative) return;
-
-    try {
-      console.log("[Subscription] Fetching offerings...");
-      const offerings = await Purchases.getOfferings();
-      
-      if (offerings.current?.availablePackages) {
-        setPackages(offerings.current.availablePackages);
-        console.log("[Subscription] Found packages:", offerings.current.availablePackages.length);
-      }
-    } catch (err) {
-      console.error("[Subscription] Error fetching offerings:", err);
-    }
-  };
-
-  const checkSubscription = async () => {
-    if (!isIOSNative) {
-      // For web preview, set default states
+  const checkSubscription = useCallback(async () => {
+    if (!isIOSNative || !purchasesModule) {
       setSubscribed(false);
       setHasPremiumAccess(false);
       setIsInTrial(false);
@@ -132,10 +148,10 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       setLoading(true);
       console.log("[Subscription] Checking subscription status...");
       
+      const { Purchases } = purchasesModule;
       const info = await Purchases.getCustomerInfo();
       const customerInfo = info.customerInfo;
 
-      // Check for active entitlements (pro or premium)
       const proEntitlement = customerInfo?.entitlements?.active?.["pro"];
       const premiumEntitlement = customerInfo?.entitlements?.active?.["premium"];
       const activeEntitlement = proEntitlement || premiumEntitlement;
@@ -146,11 +162,9 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       setHasPremiumAccess(hasActive);
 
       if (activeEntitlement) {
-        // Check if in trial period
         const periodType = activeEntitlement.periodType;
         setIsInTrial(periodType === "TRIAL");
 
-        // Get expiration date
         if (activeEntitlement.expirationDate) {
           setSubscriptionEnd(activeEntitlement.expirationDate);
           if (periodType === "TRIAL") {
@@ -158,7 +172,6 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
           }
         }
 
-        // Determine plan type from product identifier
         const productId = activeEntitlement.productIdentifier;
         if (productId?.includes("yearly") || productId?.includes("annual")) {
           setPlanType("yearly");
@@ -187,10 +200,39 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     } finally {
       setLoading(false);
     }
-  };
+  }, [isIOSNative, purchasesModule]);
+
+  // Check subscription when initialized
+  useEffect(() => {
+    if (isInitialized) {
+      checkSubscription();
+    }
+  }, [isInitialized, checkSubscription]);
+
+  // Sync user with RevenueCat when auth changes
+  useEffect(() => {
+    const syncUser = async () => {
+      if (!isInitialized || !isIOSNative || !purchasesModule) return;
+
+      try {
+        const { Purchases } = purchasesModule;
+        if (user?.id) {
+          console.log("[Subscription] Syncing user:", user.id);
+          await Purchases.logIn({ appUserID: user.id });
+        } else {
+          await Purchases.logOut();
+        }
+        await checkSubscription();
+      } catch (err) {
+        console.error("[Subscription] User sync error:", err);
+      }
+    };
+
+    syncUser();
+  }, [user?.id, isInitialized, isIOSNative, purchasesModule, checkSubscription]);
 
   const purchasePackage = async (pkg: PurchasesPackage): Promise<boolean> => {
-    if (!isIOSNative) {
+    if (!isIOSNative || !purchasesModule) {
       console.warn("[Subscription] Purchases only available on iOS");
       return false;
     }
@@ -199,9 +241,9 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       setLoading(true);
       console.log("[Subscription] Purchasing package:", pkg.identifier);
       
+      const { Purchases } = purchasesModule;
       const result = await Purchases.purchasePackage({ aPackage: pkg });
       
-      // Check if purchase was successful
       const proEntitlement = result.customerInfo?.entitlements?.active?.["pro"];
       const premiumEntitlement = result.customerInfo?.entitlements?.active?.["premium"];
       const hasActive = proEntitlement !== undefined || premiumEntitlement !== undefined;
@@ -216,7 +258,6 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     } catch (err: any) {
       console.error("[Subscription] Purchase error:", err);
       
-      // User cancelled - not an error
       if (err.code === "1" || err.userCancelled) {
         return false;
       }
@@ -228,7 +269,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   };
 
   const restorePurchases = async (): Promise<boolean> => {
-    if (!isIOSNative) {
+    if (!isIOSNative || !purchasesModule) {
       console.warn("[Subscription] Restore only available on iOS");
       return false;
     }
@@ -237,6 +278,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
       setLoading(true);
       console.log("[Subscription] Restoring purchases...");
       
+      const { Purchases } = purchasesModule;
       const info = await Purchases.restorePurchases();
       
       const proEntitlement = info.customerInfo?.entitlements?.active?.["pro"];
@@ -265,10 +307,10 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
 
     const interval = setInterval(() => {
       checkSubscription();
-    }, 60000); // Check every minute
+    }, 60000);
 
     return () => clearInterval(interval);
-  }, [isInitialized]);
+  }, [isInitialized, checkSubscription]);
 
   const value = {
     subscribed,
