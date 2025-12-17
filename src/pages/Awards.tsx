@@ -123,15 +123,15 @@ const Awards = () => {
         </Card>
 
         {/* Achievement Categories */}
-        <Tabs defaultValue="fitness" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6 bg-transparent border border-border/50 rounded-lg p-1">
+        <Tabs defaultValue="first_time" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6 h-auto bg-card/50 border border-border/50 rounded-lg p-1">
             {categories.map((category) => {
               const IconComponent = category.icon;
               return (
                 <TabsTrigger 
                   key={category.id} 
                   value={category.id}
-                  className="flex flex-col gap-1 py-3 data-[state=active]:bg-primary/10"
+                  className="flex flex-col gap-1 py-3 px-2 rounded-md data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
                 >
                   <IconComponent className={`h-4 w-4 ${category.color}`} />
                   <span className="text-xs">{category.name}</span>
