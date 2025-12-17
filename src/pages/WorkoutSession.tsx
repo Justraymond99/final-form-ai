@@ -42,38 +42,53 @@ const WorkoutSession = () => {
   const [isFinishing, setIsFinishing] = useState(false);
   const [expandedInstructions, setExpandedInstructions] = useState<string | null>(null);
 
-  // Load workout from localStorage on mount
+  // Load workout from storage on mount
+  // Note: React 18 StrictMode runs effects twice in dev, so we persist the payload in sessionStorage
+  // to avoid losing it after the first mount/unmount cycle.
   useEffect(() => {
-    const storedWorkout = localStorage.getItem('currentWorkout');
-    console.log('Loading workout from localStorage:', storedWorkout);
-    
+    const storedFromSession = sessionStorage.getItem("currentWorkout");
+    const storedFromLocal = localStorage.getItem("currentWorkout");
+
+    const storedWorkout = storedFromSession || storedFromLocal;
+    console.log("Loading workout from storage:", {
+      hasSession: Boolean(storedFromSession),
+      hasLocal: Boolean(storedFromLocal),
+    });
+
+    // If it exists in localStorage (start actions write there), copy it into sessionStorage
+    // so a StrictMode remount still has access to it.
+    if (!storedFromSession && storedFromLocal) {
+      sessionStorage.setItem("currentWorkout", storedFromLocal);
+      localStorage.removeItem("currentWorkout");
+    }
+
     if (storedWorkout) {
       try {
         const workout = JSON.parse(storedWorkout);
-        console.log('Parsed workout:', workout);
+        console.log("Parsed workout:", workout);
         setWorkoutName(workout.name || "Workout");
-        
+
         // Get exercises array - could be in exercises_data or exercises field
         const exercisesArray = workout.exercises_data || workout.exercises || [];
-        console.log('Exercises array:', exercisesArray);
-        
+        console.log("Exercises array:", exercisesArray);
+
         if (Array.isArray(exercisesArray) && exercisesArray.length > 0) {
           const convertedExercises = exercisesArray.map((ex: any, index: number) => {
             console.log(`Converting exercise ${index}:`, ex);
-            
-            // Parse reps - could be "8-12", "10", or just a number
+
+            // Parse reps - could be "8-12", "10", "45s", etc.
             const repsStr = String(ex.reps || ex.target_reps || "10");
             const repsNum = parseInt(repsStr.split("-")[0]) || 10;
-            
+
             // Number of sets - default to 3 if not specified
             const numSets = Number(ex.sets) || Number(ex.target_sets) || 3;
-            
+
             // Create set objects with the correct reps
             const sets: Set[] = Array.from({ length: numSets }, (_, i) => ({
               id: `${index}-${i}`,
               reps: repsNum,
               weight: 0,
-              completed: false
+              completed: false,
             }));
 
             return {
@@ -81,26 +96,23 @@ const WorkoutSession = () => {
               name: formatLabel(ex.exercise || ex.name || `Exercise ${index + 1}`),
               sets,
               restTime: Number(ex.rest_seconds) || Number(ex.rest) || 90,
-              instructions: ex.instructions || ex.notes || ""
+              instructions: ex.instructions || ex.notes || "",
             };
           });
-          
-          console.log('Converted exercises:', convertedExercises);
-          
+
+          console.log("Converted exercises:", convertedExercises);
+
           if (convertedExercises.length > 0) {
             setExercises(convertedExercises);
           } else {
             setExercises([createEmptyExercise()]);
           }
         } else {
-          console.log('No exercises found, using empty exercise');
+          console.log("No exercises found, using empty exercise");
           setExercises([createEmptyExercise()]);
         }
-        
-        // Clear from localStorage after loading
-        localStorage.removeItem('currentWorkout');
       } catch (error) {
-        console.error('Error loading workout:', error);
+        console.error("Error loading workout:", error);
         setExercises([createEmptyExercise()]);
       }
     } else {
@@ -226,19 +238,23 @@ const WorkoutSession = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Workout Complete!", 
-        description: `Great job! ${getCompletedSets()}/${getTotalSets()} sets completed in ${formatTime(durationMinutes * 60)}` 
+      // Clear in-progress workout payload now that it's saved.
+      sessionStorage.removeItem("currentWorkout");
+      localStorage.removeItem("currentWorkout");
+
+      toast({
+        title: "Workout Complete!",
+        description: `Great job! ${getCompletedSets()}/${getTotalSets()} sets completed in ${formatTime(durationMinutes * 60)}`
       });
-      
+
       setTimeout(() => {
         navigate("/workouts");
       }, 100);
     } catch (error) {
       console.error('Error saving workout session:', error);
-      toast({ 
-        title: "Error", 
-        description: "Failed to save workout. Please try again." 
+      toast({
+        title: "Error",
+        description: "Failed to save workout. Please try again."
       });
     } finally {
       setIsFinishing(false);
