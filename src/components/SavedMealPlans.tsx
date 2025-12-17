@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMealPlans } from "@/hooks/useMealPlans";
 import { useMultiWeekPlans } from "@/hooks/useMultiWeekPlans";
 import { useShoppingList } from "@/hooks/useShoppingList";
@@ -9,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatLabel } from "@/lib/utils";
 import { ChefHat, Calendar, Target, Trash2, Play, Loader2, ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { MultiWeekNutritionDisplay } from "@/components/MultiWeekNutritionDisplay";
 
 export const SavedMealPlans = () => {
   const { mealPlans, loading: mealPlansLoading, deleteMealPlan, addMealToFoodLog } = useMealPlans();
@@ -18,6 +20,7 @@ export const SavedMealPlans = () => {
   const [deletingPlan, setDeletingPlan] = useState<string | null>(null);
   const [addingMeal, setAddingMeal] = useState<string | null>(null);
   const [creatingList, setCreatingList] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
 
   const loading = mealPlansLoading || nutritionPlansLoading;
 
@@ -198,7 +201,11 @@ export const SavedMealPlans = () => {
               const sampleDay = weeklyPlans?.sampleDay;
               
               return (
-                <div key={plan.id} className="border rounded-lg p-4">
+                <div 
+                  key={plan.id} 
+                  className="border rounded-lg p-4 cursor-pointer hover:bg-accent/5 transition-colors"
+                  onClick={() => setSelectedPlan(plan)}
+                >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{plan.name}</h3>
@@ -224,7 +231,7 @@ export const SavedMealPlans = () => {
                         </Badge>
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="outline"
                         size="sm"
@@ -275,10 +282,7 @@ export const SavedMealPlans = () => {
                   {/* Sample Day Preview */}
                   {sampleDay && (
                     <div className="text-sm text-muted-foreground">
-                      <p className="font-medium text-foreground mb-1">Sample meals:</p>
-                      <p>• Breakfast: {sampleDay.breakfast?.name}</p>
-                      <p>• Lunch: {sampleDay.lunch?.name}</p>
-                      <p>• Dinner: {sampleDay.dinner?.name}</p>
+                      <p className="font-medium text-foreground mb-1">Tap to view full plan</p>
                     </div>
                   )}
                 </div>
@@ -407,6 +411,26 @@ export const SavedMealPlans = () => {
             })}
           </div>
         </ScrollArea>
+
+        {/* Nutrition Plan Detail Dialog */}
+        <Dialog open={!!selectedPlan} onOpenChange={() => setSelectedPlan(null)}>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto p-4">
+            <DialogHeader>
+              <DialogTitle className="truncate">{selectedPlan?.name}</DialogTitle>
+            </DialogHeader>
+            {selectedPlan && (
+              <MultiWeekNutritionDisplay 
+                nutritionPlan={selectedPlan.weekly_plans}
+                onAddMealToLog={(meal) => {
+                  toast({
+                    title: "Meal added!",
+                    description: `${meal.name} has been added to your food log.`,
+                  });
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
