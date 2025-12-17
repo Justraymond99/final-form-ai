@@ -68,7 +68,12 @@ serve(async (req) => {
       console.error('Error fetching profile:', profileError);
     }
 
-    // Build a simpler prompt for faster response
+    // Build the prompt with explicit weekly variations requirement
+    const weeksCount = parseInt(programLength) || 1;
+    const weeklyVariationsExample = Array.from({ length: Math.min(weeksCount, 12) }, (_, i) => 
+      `{ "week": ${i + 1}, "focus": "string", "tip": "string", "calorieAdjustment": number }`
+    ).join(',\n      ');
+
     const prompt = `Generate a ${programLength}-week nutrition plan summary.
 
 User Info:
@@ -83,6 +88,7 @@ Return ONLY valid JSON (no markdown) with this exact structure:
 {
   "weeks": ${programLength},
   "dailyCalories": ${targetCalories},
+  "goal": "${goal}",
   "macros": { "protein": number, "carbs": number, "fat": number },
   "sampleDay": {
     "breakfast": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "items": ["item1", "item2"] },
@@ -91,13 +97,20 @@ Return ONLY valid JSON (no markdown) with this exact structure:
     "snacks": [{ "name": "string", "calories": number }]
   },
   "weeklyVariations": [
-    { "week": 1, "focus": "string", "tip": "string" }
+    YOU MUST include an entry for EVERY week from 1 to ${programLength}. Example format:
+    ${weeklyVariationsExample}
   ],
-  "shoppingList": ["item1", "item2", "item3"],
-  "tips": ["tip1", "tip2"]
+  "shoppingList": ["item1", "item2", "item3", ... include at least 15-20 items],
+  "tips": ["tip1", "tip2", "tip3"]
 }
 
-Use real, specific foods. Keep response concise.`;
+IMPORTANT:
+- weeklyVariations MUST have exactly ${programLength} entries, one for each week
+- Each week should have progressive focus (e.g., Week 1: "Foundation", Week 2: "Building habits", etc.)
+- calorieAdjustment should show gradual changes based on the goal (e.g., -50 for weight loss, +100 for muscle building)
+- shoppingList should include all ingredients from the sample day meals plus pantry staples
+- Use real, specific foods with accurate nutritional values
+- Keep response concise but complete.`;
 
     console.log('Calling Lovable AI...');
 
