@@ -17,7 +17,8 @@ import {
   Shield,
   Sparkles,
   RefreshCw,
-  Apple
+  Apple,
+  Gift
 } from "lucide-react";
 
 const Pricing = () => {
@@ -174,6 +175,23 @@ const Pricing = () => {
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
+          {/* Free Trial Banner */}
+          {!hasPremiumAccess && (
+            <div className="bg-gradient-to-r from-primary via-accent to-secondary p-[1px] rounded-xl">
+              <div className="bg-background rounded-xl p-4">
+                <div className="flex items-center justify-center gap-2 text-lg font-semibold">
+                  <Gift className="h-5 w-5 text-primary" />
+                  <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                    Start Your 7-Day Free Trial
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Try all Pro features free for 7 days. Cancel anytime.
+                </p>
+              </div>
+            </div>
+          )}
+
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             Choose Your Plan
           </h1>
@@ -247,6 +265,15 @@ const Pricing = () => {
 
           {/* Pro Plan */}
           <Card className={`relative border-2 ${hasPremiumAccess ? 'border-primary bg-primary/5' : 'border-primary/50'} backdrop-blur-sm`}>
+            {/* Trial Badge */}
+            {!hasPremiumAccess && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground px-4">
+                  <Gift className="h-3 w-3 mr-1" />
+                  7-Day Free Trial
+                </Badge>
+              </div>
+            )}
             {hasPremiumAccess && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <Badge className="bg-primary text-primary-foreground">
@@ -255,12 +282,17 @@ const Pricing = () => {
                 </Badge>
               </div>
             )}
-            <CardHeader className="text-center pb-8">
+            <CardHeader className="text-center pb-8 pt-6">
               <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
                 <Zap className="h-6 w-6 text-background" />
               </div>
               <CardTitle className="text-2xl">FitTracker Pro</CardTitle>
               <div className="space-y-2">
+                {!hasPremiumAccess && (
+                  <p className="text-sm font-medium text-primary">
+                    Try free for 7 days, then:
+                  </p>
+                )}
                 <div className="text-3xl font-bold">
                   {isYearly ? getPackagePrice('yearly') : getPackagePrice('monthly')}
                   <span className="text-lg font-normal text-muted-foreground">
@@ -309,13 +341,18 @@ const Pricing = () => {
                   )}
                 </div>
               ) : (
-                <Button 
-                  onClick={() => handlePurchase(isYearly ? 'yearly' : 'monthly')}
-                  className="w-full bg-gradient-primary hover:opacity-90 text-background"
-                  disabled={purchasing || loading || !isIOSNative}
-                >
-                  {purchasing ? "Processing..." : isYearly ? "Subscribe Yearly" : "Start Free Trial"}
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => handlePurchase(isYearly ? 'yearly' : 'monthly')}
+                    className="w-full bg-gradient-primary hover:opacity-90 text-background"
+                    disabled={purchasing || loading || !isIOSNative}
+                  >
+                    {purchasing ? "Processing..." : "Start 7-Day Free Trial"}
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    No charge until trial ends. Cancel anytime.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
