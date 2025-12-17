@@ -178,21 +178,41 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const openOAuthUrl = (url: string) => {
+    try {
+      const isFramed = window.self !== window.top;
+      if (isFramed) {
+        // In embedded previews, Google blocks auth in iframes. Open a new tab.
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (!opened) window.location.href = url;
+        return;
+      }
+    } catch {
+      // ignore
+    }
+
+    window.location.href = url;
+  };
+
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth`
-        }
+          redirectTo: `${window.location.origin}/auth`,
+          skipBrowserRedirect: true,
+        },
       });
 
       if (error) throw error;
+      if (!data?.url) throw new Error("No OAuth URL returned");
+
+      openOAuthUrl(data.url);
     } catch (error: any) {
-      setError(error.message);
+      setError(error?.message || "Google sign-in failed");
       setIsLoading(false);
     }
   };
@@ -202,16 +222,20 @@ const Auth = () => {
     setError("");
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
         options: {
-          redirectTo: `${window.location.origin}/auth`
-        }
+          redirectTo: `${window.location.origin}/auth`,
+          skipBrowserRedirect: true,
+        },
       });
 
       if (error) throw error;
+      if (!data?.url) throw new Error("No OAuth URL returned");
+
+      openOAuthUrl(data.url);
     } catch (error: any) {
-      setError(error.message);
+      setError(error?.message || "Apple sign-in failed");
       setIsLoading(false);
     }
   };
