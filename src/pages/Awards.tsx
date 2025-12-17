@@ -115,9 +115,11 @@ const Awards = () => {
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Achievement Progress</span>
-                <span className="text-primary">{stats.totalEarned} / {stats.totalAvailable}</span>
+                <span className="text-primary">
+                  {stats.totalAvailable > 0 ? `${stats.totalEarned} / ${stats.totalAvailable}` : 'Loading...'}
+                </span>
               </div>
-              <Progress value={(stats.totalEarned / stats.totalAvailable) * 100} className="h-2" />
+              <Progress value={stats.totalAvailable > 0 ? (stats.totalEarned / stats.totalAvailable) * 100 : 0} className="h-2" />
             </div>
           </CardContent>
         </Card>

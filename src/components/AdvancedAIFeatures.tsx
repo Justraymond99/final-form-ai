@@ -59,7 +59,7 @@ export const AdvancedAIFeatures = () => {
     {
       id: 'progress-analysis',
       title: 'Progress Photo Analysis',
-      description: 'AI analyzes your progress photos to track muscle growth, fat loss, and posture improvements.',
+      description: 'Analyzes your progress photos to track muscle growth, fat loss, and posture improvements.',
       icon: <Camera className="w-6 h-6" />,
       category: 'analysis',
       isPremium: false
@@ -74,7 +74,7 @@ export const AdvancedAIFeatures = () => {
     },
     {
       id: 'injury-prevention',
-      title: 'Injury Prevention AI',
+      title: 'Injury Prevention',
       description: 'Analyzes movement patterns and suggests modifications to prevent injuries.',
       icon: <Heart className="w-6 h-6" />,
       category: 'health',
@@ -82,7 +82,7 @@ export const AdvancedAIFeatures = () => {
     },
     {
       id: 'ai-coach',
-      title: 'Personal AI Coach',
+      title: 'Personal Coach',
       description: 'Real-time coaching with personalized motivation and form corrections.',
       icon: <Brain className="w-6 h-6" />,
       category: 'coaching',
@@ -91,7 +91,7 @@ export const AdvancedAIFeatures = () => {
     {
       id: 'recovery-optimization',
       title: 'Recovery Optimization',
-      description: 'AI-powered recovery plans based on sleep, stress, and workout intensity.',
+      description: 'Smart recovery plans based on sleep, stress, and workout intensity.',
       icon: <Zap className="w-6 h-6" />,
       category: 'health',
       isPremium: false
