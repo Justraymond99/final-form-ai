@@ -24,27 +24,27 @@ export const SecureAuthProvider = ({ children }: { children: React.ReactNode }) 
     // Initialize security measures
     initializeSecurity();
 
-    // Set up auth state listener with security logging
+    // Set up auth state listener (keep callback synchronous to avoid auth deadlocks)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Log security events
+        // Defer any Supabase calls/logging outside the auth callback.
+        const userId = session?.user?.id;
         if (event === 'SIGNED_IN') {
-          await logSecurityEvent('USER_SIGNED_IN', {
-            userId: session?.user?.id,
-            method: 'email'
-          });
+          setTimeout(() => {
+            void logSecurityEvent('USER_SIGNED_IN', { userId, method: 'email' });
+          }, 0);
         } else if (event === 'SIGNED_OUT') {
-          await logSecurityEvent('USER_SIGNED_OUT', {
-            userId: session?.user?.id
-          });
+          setTimeout(() => {
+            void logSecurityEvent('USER_SIGNED_OUT', { userId });
+          }, 0);
         } else if (event === 'TOKEN_REFRESHED') {
-          await logSecurityEvent('TOKEN_REFRESHED', {
-            userId: session?.user?.id
-          });
+          setTimeout(() => {
+            void logSecurityEvent('TOKEN_REFRESHED', { userId });
+          }, 0);
         }
       }
     );

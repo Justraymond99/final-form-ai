@@ -32,29 +32,53 @@ const Auth = () => {
 
   // Check if user has completed onboarding
   const checkOnboardingStatus = async (userId: string) => {
+    // If we've already marked onboarding complete locally, don't block the UI on a profile fetch.
+    if (localStorage.getItem("onboarding_completed") === "true") {
+      navigate("/home", { replace: true });
+      return;
+    }
+
+    const promiseTimeout = <T,>(promise: PromiseLike<T>, ms: number): Promise<T> => {
+      return Promise.race([
+        Promise.resolve(promise),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("PROFILE_CHECK_TIMEOUT")), ms)
+        ),
+      ]);
+    };
+
     setCheckingOnboarding(true);
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name, fitness_goals, activity_level')
-        .eq('user_id', userId)
+      const profilePromise = supabase
+        .from("profiles")
+        .select("display_name, fitness_goals, activity_level")
+        .eq("user_id", userId)
         .maybeSingle();
 
+      const { data: profile } = await promiseTimeout(profilePromise, 8000);
+
       // If no profile or missing key onboarding data, show onboarding
-      const hasCompletedOnboarding = profile && 
-        profile.display_name && 
-        profile.fitness_goals && 
+      const hasCompletedOnboarding =
+        !!profile?.display_name &&
+        Array.isArray(profile?.fitness_goals) &&
         profile.fitness_goals.length > 0;
 
       if (!hasCompletedOnboarding) {
         setShowOnboarding(true);
       } else {
-        navigate("/home");
+        localStorage.setItem("onboarding_completed", "true");
+        navigate("/home", { replace: true });
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      // If error, just proceed to home
-      navigate("/home");
+      console.error("Error checking onboarding status:", error);
+
+      // Timeout or transient network issue: don't deadlock the auth page.
+      toast({
+        title: "Couldn't load your profile",
+        description: "Continuing without profile check. You can finish onboarding from inside the app.",
+      });
+
+      navigate("/home", { replace: true });
     } finally {
       setCheckingOnboarding(false);
     }
