@@ -68,194 +68,148 @@ serve(async (req) => {
       console.error('Error fetching profile:', profileError);
     }
 
-    // Build prompt for nutrition plan generation
-    const prompt = `Generate a personalized ${programLength}-week nutrition plan based on the following requirements:
+    // Build a simpler prompt for faster response
+    const prompt = `Generate a ${programLength}-week nutrition plan summary.
 
-User Profile:
-- Age: ${profile?.age || 'Not specified'}
-- Weight: ${profile?.weight_kg || 'Not specified'} kg
-- Height: ${profile?.height_cm || 'Not specified'} cm  
-- Activity Level: ${profile?.activity_level || 'moderate'}
-- Primary Goal: ${goal || 'general health'}
+User Info:
+- Goal: ${goal}
+- Target Calories: ${targetCalories}/day
+- Dietary Preferences: ${dietaryPreferences?.join(', ') || 'None'}
+- Allergies: ${allergies?.join(', ') || 'None'}
+- Max Cooking Time: ${cookingTime} min
+- Budget: ${budgetRange}
 
-Nutrition Requirements:
-- Target Calories: ${targetCalories || 2000} per day
-- Meals per Day: 3 main meals + 2 snacks
-- Maximum Cooking Time: ${cookingTime || 30} minutes per meal
-- Budget Level: ${budgetRange || 'moderate'}
-- Dietary Preferences: ${dietaryPreferences?.join(', ') || 'None specified'}
-- Allergies/Restrictions: ${allergies?.join(', ') || 'None'}
-- Additional Notes: ${additionalNotes || 'None'}
-- Program Duration: ${programLength} week(s)
-
-CRITICAL INSTRUCTIONS FOR FOOD ITEMS:
-- Use SPECIFIC, REAL food items with exact measurements (e.g., "8oz boneless skinless chicken breast", not "chicken")
-- Include BRAND NAMES for packaged foods when relevant (e.g., "Fage Total 0% Greek Yogurt", "Nature Valley Granola Bar")
-- Use REAL products that exist in grocery stores
-- Specify exact cuts and types (e.g., "93% lean ground beef", "extra virgin olive oil", "baby spinach")
-- For produce, use specific varieties (e.g., "Granny Smith apple", "Roma tomatoes", "yellow onion")
-- Include specific preparations (e.g., "wild-caught salmon fillet", "organic free-range eggs")
-- All quantities must be precise with proper units (oz, g, cups, tbsp, etc.)
-
-Please generate a comprehensive ${programLength}-week nutrition plan with:
-1. Weekly meal schedules for each week with progressive improvements
-2. Daily meal plans with 5 meals per day (breakfast, lunch, dinner, 2 snacks)
-3. Macro breakdown (protein, carbs, fats) for each meal
-4. Shopping lists for each week with specific brands and products
-5. Meal prep instructions with real ingredient names
-6. Progressive nutrition tips for each week
-
-Format the response as a structured JSON with the following structure:
+Return ONLY valid JSON (no markdown) with this exact structure:
 {
-  "weeks": [
-    {
-      "weekNumber": number,
-      "theme": "Week theme/focus",
-      "targetCalories": number,
-      "targetProtein": number,
-      "targetCarbs": number,
-      "targetFat": number,
-      "days": [
-        {
-          "dayNumber": number,
-          "meals": [
-            {
-              "meal_type": "breakfast/lunch/dinner/snack_am/snack_pm",
-              "name": "Specific meal name with real ingredients",
-              "time": "HH:MM",
-              "calories": number,
-              "protein_g": number,
-              "carbs_g": number,
-              "fat_g": number,
-              "items": [
-                {
-                  "name": "Specific food item with brand/type (e.g., 'Fage Total 0% Greek Yogurt')",
-                  "quantity": "precise amount",
-                  "unit": "oz/g/cup/tbsp/etc",
-                  "calories": number,
-                  "protein_g": number,
-                  "carbs_g": number,
-                  "fat_g": number
-                }
-              ],
-              "instructions": "Brief cooking/prep instructions with specific ingredient names"
-            }
-          ]
-        }
-      ],
-      "shoppingList": [
-        {
-          "category": "Proteins/Vegetables/Grains/Dairy/Snacks/etc",
-          "items": [
-            {
-              "name": "Specific product name with brand when applicable",
-              "quantity": "amount needed for the week",
-              "estimatedCost": "$X.XX"
-            }
-          ]
-        }
-      ],
-      "weeklyTips": [
-        "Week-specific nutrition and prep advice"
-      ]
-    }
+  "weeks": ${programLength},
+  "dailyCalories": ${targetCalories},
+  "macros": { "protein": number, "carbs": number, "fat": number },
+  "sampleDay": {
+    "breakfast": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "items": ["item1", "item2"] },
+    "lunch": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "items": ["item1", "item2"] },
+    "dinner": { "name": "string", "calories": number, "protein": number, "carbs": number, "fat": number, "items": ["item1", "item2"] },
+    "snacks": [{ "name": "string", "calories": number }]
+  },
+  "weeklyVariations": [
+    { "week": 1, "focus": "string", "tip": "string" }
   ],
-  "overallTips": [
-    "General program guidance and tips"
-  ]
+  "shoppingList": ["item1", "item2", "item3"],
+  "tips": ["tip1", "tip2"]
 }
 
-Make sure all meals fit within the calorie target and dietary restrictions. Use only real, specific foods that people can actually purchase.`;
+Use real, specific foods. Keep response concise.`;
 
     console.log('Calling Lovable AI...');
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert nutritionist and meal planner. Generate practical, healthy, and personalized nutrition plans that are easy to follow and budget-friendly. Always respond with valid JSON format.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 55000); // 55 second timeout
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted' }), {
-          status: 402,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw new Error(`Lovable AI error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log('Lovable AI response received');
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response from AI API');
-    }
-
-    const generatedContent = data.choices[0].message.content;
-    
-    // Extract JSON from markdown code blocks if present
-    const extractJSON = (text: string) => {
-      // Try to find JSON within markdown code blocks
-      const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
-      if (codeBlockMatch) {
-        return codeBlockMatch[1];
-      }
-      // Try to find raw JSON object
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        return jsonMatch[0];
-      }
-      return text;
-    };
-    
-    let nutritionPlan;
     try {
-      const cleanedContent = extractJSON(generatedContent);
-      nutritionPlan = JSON.parse(cleanedContent);
-      console.log('Nutrition plan parsed successfully');
-    } catch (parseError) {
-      console.error('Failed to parse AI response as JSON:', parseError);
-      console.error('Raw content:', generatedContent);
-      // Fallback to text response if JSON parsing fails
-      nutritionPlan = {
-        textPlan: generatedContent,
-        error: 'Could not parse structured plan'
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a nutritionist. Return ONLY valid JSON, no markdown or explanation.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Lovable AI error:', response.status, errorText);
+        
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: 'AI credits exhausted' }), {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        throw new Error(`Lovable AI error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Lovable AI response received');
+
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response from AI API');
+      }
+
+      const generatedContent = data.choices[0].message.content;
+      
+      // Extract JSON from markdown code blocks if present
+      const extractJSON = (text: string) => {
+        const codeBlockMatch = text.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+        if (codeBlockMatch) return codeBlockMatch[1];
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) return jsonMatch[0];
+        return text;
       };
+      
+      let nutritionPlan;
+      try {
+        const cleanedContent = extractJSON(generatedContent);
+        nutritionPlan = JSON.parse(cleanedContent);
+        console.log('Nutrition plan parsed successfully');
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', parseError);
+        nutritionPlan = {
+          weeks: parseInt(programLength),
+          dailyCalories: parseInt(targetCalories),
+          macros: { protein: 150, carbs: 200, fat: 65 },
+          sampleDay: {
+            breakfast: { name: "Oatmeal with fruit", calories: 400, protein: 15, carbs: 60, fat: 10, items: ["Oats", "Banana", "Honey"] },
+            lunch: { name: "Grilled chicken salad", calories: 500, protein: 40, carbs: 30, fat: 20, items: ["Chicken breast", "Mixed greens", "Olive oil"] },
+            dinner: { name: "Salmon with vegetables", calories: 600, protein: 45, carbs: 35, fat: 25, items: ["Salmon fillet", "Broccoli", "Brown rice"] },
+            snacks: [{ name: "Greek yogurt", calories: 150 }, { name: "Almonds", calories: 150 }]
+          },
+          tips: ["Stay hydrated", "Eat protein with every meal", "Prep meals on Sunday"]
+        };
+      }
+
+      console.log('Nutrition plan generated successfully');
+
+      return new Response(JSON.stringify({
+        success: true,
+        nutritionPlan
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        console.error('Request timed out');
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Request timed out. Please try again.'
+        }), {
+          status: 504,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw fetchError;
     }
-
-    console.log('Nutrition plan generated successfully');
-
-    return new Response(JSON.stringify({
-      success: true,
-      nutritionPlan
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
 
   } catch (error) {
     console.error('Error in ai-nutrition-generator function:', error);

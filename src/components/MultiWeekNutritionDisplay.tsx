@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,10 +17,10 @@ import {
   Save, 
   Loader2,
   CheckCircle2,
-  TrendingUp,
   Coffee,
   Sun,
-  Moon
+  Moon,
+  Plus
 } from "lucide-react";
 
 interface MultiWeekNutritionDisplayProps {
@@ -43,6 +41,9 @@ export const MultiWeekNutritionDisplay = ({
   const [planDescription, setPlanDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
+  // Extract the actual plan from the response
+  const plan = nutritionPlan?.nutritionPlan || nutritionPlan;
+
   const handleSave = async () => {
     if (!planName.trim()) {
       toast({
@@ -58,9 +59,9 @@ export const MultiWeekNutritionDisplay = ({
       const result = await saveMultiWeekNutritionPlan({
         name: planName,
         description: planDescription,
-        weeks: nutritionPlan.weeks,
-        goal: nutritionPlan.goal,
-        weekly_plans: nutritionPlan.weekly_plans
+        weeks: plan.weeks || 1,
+        goal: plan.goal || 'general',
+        weekly_plans: plan
       });
 
       if (result.success) {
@@ -75,7 +76,7 @@ export const MultiWeekNutritionDisplay = ({
       } else {
         throw new Error(result.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Save failed",
         description: error.message || "Failed to save nutrition program",
@@ -86,314 +87,284 @@ export const MultiWeekNutritionDisplay = ({
     }
   };
 
-  const getMealIcon = (mealName: string) => {
-    const meal = mealName.toLowerCase();
-    if (meal.includes('breakfast')) return Coffee;
-    if (meal.includes('lunch')) return Sun;
-    if (meal.includes('dinner')) return Moon;
-    return Utensils;
+  const handleAddMeal = (mealType: string, meal: any) => {
+    const mealData = {
+      name: meal.name,
+      meal_type: mealType,
+      calories: meal.calories,
+      items: meal.items?.map((item: string) => ({
+        name: item,
+        calories: Math.round(meal.calories / (meal.items?.length || 1)),
+        protein_g: Math.round((meal.protein || 0) / (meal.items?.length || 1)),
+        carbs_g: Math.round((meal.carbs || 0) / (meal.items?.length || 1)),
+        fat_g: Math.round((meal.fat || 0) / (meal.items?.length || 1)),
+      })) || []
+    };
+    onAddMealToLog?.(mealData);
   };
 
-  if (!nutritionPlan) {
-    return null;
+  if (!plan || plan.error) {
+    return (
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p className="text-muted-foreground">
+            {plan?.error || "No nutrition plan generated yet"}
+          </p>
+        </CardContent>
+      </Card>
+    );
   }
+
+  const sampleDay = plan.sampleDay;
+  const macros = plan.macros || { protein: 150, carbs: 200, fat: 65 };
 
   return (
     <div className="space-y-6">
-      {/* Action Buttons */}
+      {/* Save Button */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex gap-3">
-            <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="flex-1">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Program
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Save Nutrition Program</DialogTitle>
-                  <DialogDescription>
-                    Save this {nutritionPlan.weeks}-week nutrition program for future use.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="program-name">Program Name</Label>
-                    <Input
-                      id="program-name"
-                      placeholder="e.g., 12-Week Transformation Plan"
-                      value={planName}
-                      onChange={(e) => setPlanName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="program-description">Description (Optional)</Label>
-                    <Textarea
-                      id="program-description"
-                      placeholder="Describe your nutrition program..."
-                      value={planDescription}
-                      onChange={(e) => setPlanDescription(e.target.value)}
-                      rows={3}
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowSaveDialog(false)}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSave}
-                      disabled={isSaving || !planName.trim()}
-                      className="flex-1"
-                    >
-                      {isSaving ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Save Program
-                        </>
-                      )}
-                    </Button>
-                  </div>
+          <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full">
+                <Save className="h-4 w-4 mr-2" />
+                Save Plan
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Save Nutrition Plan</DialogTitle>
+                <DialogDescription>
+                  Save this {plan.weeks}-week nutrition plan for future use.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="program-name">Plan Name</Label>
+                  <Input
+                    id="program-name"
+                    placeholder="e.g., My Meal Plan"
+                    value={planName}
+                    onChange={(e) => setPlanName(e.target.value)}
+                  />
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="program-description">Description</Label>
+                  <Textarea
+                    id="program-description"
+                    placeholder="Describe your plan..."
+                    value={planDescription}
+                    onChange={(e) => setPlanDescription(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setShowSaveDialog(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={isSaving || !planName.trim()} className="flex-1">
+                    {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
 
-      {/* Program Overview */}
+      {/* Plan Overview */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
-            {nutritionPlan.name}
+            Your Nutrition Plan
           </CardTitle>
-          <div className="text-muted-foreground">{nutritionPlan.description}</div>
-          
-          <div className="flex gap-2 mt-3">
+          <div className="flex gap-2 mt-2">
             <Badge variant="secondary">
               <Calendar className="w-3 h-3 mr-1" />
-              {nutritionPlan.weeks} Weeks
+              {plan.weeks} Week{plan.weeks > 1 ? 's' : ''}
             </Badge>
             <Badge variant="secondary">
               <Target className="w-3 h-3 mr-1" />
-              {nutritionPlan.goal}
-            </Badge>
-            <Badge variant="secondary">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Progressive
+              {plan.dailyCalories} cal/day
             </Badge>
           </div>
         </CardHeader>
         
-        <CardContent>
-          {/* Program Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-primary">{nutritionPlan.weeks}</div>
-              <div className="text-sm text-muted-foreground">Weeks</div>
+        <CardContent className="space-y-6">
+          {/* Macro Targets */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-blue-500/10 rounded-lg">
+              <div className="text-2xl font-bold text-blue-500">{macros.protein}g</div>
+              <div className="text-sm text-muted-foreground">Protein</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-blue-500">
-                {nutritionPlan.average_calories || '2000'}
-              </div>
-              <div className="text-sm text-muted-foreground">Avg Calories/Day</div>
+            <div className="text-center p-4 bg-green-500/10 rounded-lg">
+              <div className="text-2xl font-bold text-green-500">{macros.carbs}g</div>
+              <div className="text-sm text-muted-foreground">Carbs</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-green-500">
-                {nutritionPlan.weekly_plans?.length * 7 || nutritionPlan.weeks * 7}
-              </div>
-              <div className="text-sm text-muted-foreground">Total Meal Plans</div>
-            </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-yellow-500">
-                {nutritionPlan.weekly_plans?.length || 0}
-              </div>
-              <div className="text-sm text-muted-foreground">Shopping Lists</div>
+            <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-500">{macros.fat}g</div>
+              <div className="text-sm text-muted-foreground">Fat</div>
             </div>
           </div>
 
-          {/* Weekly Breakdown */}
-          <Tabs defaultValue="week-1" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-              {nutritionPlan.weekly_plans?.map((week: any, index: number) => (
-                <TabsTrigger 
-                  key={`week-${index + 1}`} 
-                  value={`week-${index + 1}`}
-                  className="text-xs"
-                >
-                  Week {index + 1}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {nutritionPlan.weekly_plans?.map((week: any, index: number) => (
-              <TabsContent key={`week-${index + 1}`} value={`week-${index + 1}`}>
-                <div className="space-y-6">
-                  {/* Week Overview */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        Week {index + 1}: {week.focus}
-                      </CardTitle>
-                      <div className="text-sm text-muted-foreground">
-                        Target: {week.daily_calories} calories/day • {week.description || week.focus}
-                      </div>
-                    </CardHeader>
-                  </Card>
-
-                  {/* Daily Meal Plans */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Utensils className="h-5 w-5" />
-                        Daily Meal Plans
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full">
-                        {week.meal_plans?.map((day: any, dayIndex: number) => (
-                          <AccordionItem key={dayIndex} value={`day-${dayIndex}`}>
-                            <AccordionTrigger className="hover:no-underline">
-                              <div className="flex items-center justify-between w-full pr-4">
-                                <span className="font-medium">{day.day}</span>
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline">
-                                    {day.total_calories || week.daily_calories} cal
-                                  </Badge>
-                                  <Badge variant="outline">
-                                    {day.meals?.length || 3} meals
-                                  </Badge>
-                                </div>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-4 pt-4">
-                                {day.meals?.map((meal: any, mealIndex: number) => {
-                                  const MealIcon = getMealIcon(meal.name);
-                                  return (
-                                    <div key={mealIndex} className="p-4 border rounded-lg">
-                                      <div className="flex items-start justify-between mb-3">
-                                        <div className="flex items-center gap-2">
-                                          <MealIcon className="h-4 w-4" />
-                                          <span className="font-medium">{meal.name}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <Badge variant="secondary">
-                                            {meal.calories} cal
-                                          </Badge>
-                                          <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() => onAddMealToLog?.(meal)}
-                                          >
-                                            Add to Log
-                                          </Button>
-                                        </div>
-                                      </div>
-                                      
-                                      {meal.foods && meal.foods.length > 0 && (
-                                        <div className="space-y-2">
-                                          <h5 className="text-sm font-medium">Ingredients:</h5>
-                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                            {meal.foods.map((food: any, foodIndex: number) => (
-                                              <div key={foodIndex} className="text-sm p-2 bg-muted rounded">
-                                                <span className="font-medium">{food.name}</span>
-                                                <span className="text-muted-foreground ml-2">
-                                                  {food.quantity} ({food.calories} cal)
-                                                </span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {meal.instructions && (
-                                        <div className="mt-3 pt-3 border-t">
-                                          <h5 className="text-sm font-medium mb-2">Instructions:</h5>
-                                          <p className="text-sm text-muted-foreground">{meal.instructions}</p>
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
-
-                  {/* Weekly Shopping List */}
-                  {week.shopping_list && week.shopping_list.length > 0 && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <ShoppingCart className="h-5 w-5" />
-                          Weekly Shopping List
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {week.shopping_list.map((category: any, categoryIndex: number) => (
-                            <div key={categoryIndex} className="space-y-3">
-                              <h4 className="font-medium text-sm uppercase tracking-wider text-muted-foreground">
-                                {category.category}
-                              </h4>
-                              <div className="space-y-2">
-                                {category.items?.map((item: any, itemIndex: number) => (
-                                  <div key={itemIndex} className="flex justify-between items-center text-sm p-2 bg-muted rounded">
-                                    <span>{item.name}</span>
-                                    <div className="text-right">
-                                      <div className="text-xs text-muted-foreground">{item.quantity}</div>
-                                      <div className="font-medium">{item.estimatedCost}</div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
+          {/* Sample Day Meals */}
+          {sampleDay && (
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Utensils className="h-4 w-4" />
+                Sample Day
+              </h3>
+              
+              {/* Breakfast */}
+              {sampleDay.breakfast && (
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <Coffee className="h-4 w-4 text-orange-500" />
+                        <div>
+                          <p className="font-medium">{sampleDay.breakfast.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {sampleDay.breakfast.calories} cal • P:{sampleDay.breakfast.protein}g C:{sampleDay.breakfast.carbs}g F:{sampleDay.breakfast.fat}g
+                          </p>
+                          {sampleDay.breakfast.items && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {sampleDay.breakfast.items.join(', ')}
+                            </p>
+                          )}
                         </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-
-          {/* Nutrition Tips */}
-          {nutritionPlan.nutrition_tips && nutritionPlan.nutrition_tips.length > 0 && (
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Apple className="h-5 w-5" />
-                  Nutrition Tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {nutritionPlan.nutrition_tips.map((tip: string, index: number) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-sm text-muted-foreground">{tip}</p>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => handleAddMeal('breakfast', sampleDay.breakfast)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Lunch */}
+              {sampleDay.lunch && (
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sun className="h-4 w-4 text-yellow-500" />
+                        <div>
+                          <p className="font-medium">{sampleDay.lunch.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {sampleDay.lunch.calories} cal • P:{sampleDay.lunch.protein}g C:{sampleDay.lunch.carbs}g F:{sampleDay.lunch.fat}g
+                          </p>
+                          {sampleDay.lunch.items && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {sampleDay.lunch.items.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => handleAddMeal('lunch', sampleDay.lunch)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Dinner */}
+              {sampleDay.dinner && (
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-2">
+                        <Moon className="h-4 w-4 text-blue-500" />
+                        <div>
+                          <p className="font-medium">{sampleDay.dinner.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {sampleDay.dinner.calories} cal • P:{sampleDay.dinner.protein}g C:{sampleDay.dinner.carbs}g F:{sampleDay.dinner.fat}g
+                          </p>
+                          {sampleDay.dinner.items && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {sampleDay.dinner.items.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <Button size="sm" variant="ghost" onClick={() => handleAddMeal('dinner', sampleDay.dinner)}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Snacks */}
+              {sampleDay.snacks && sampleDay.snacks.length > 0 && (
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Apple className="h-4 w-4 text-green-500" />
+                      <p className="font-medium">Snacks</p>
+                    </div>
+                    <div className="space-y-2">
+                      {sampleDay.snacks.map((snack: any, i: number) => (
+                        <div key={i} className="flex justify-between text-sm">
+                          <span>{snack.name}</span>
+                          <span className="text-muted-foreground">{snack.calories} cal</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Shopping List */}
+          {plan.shoppingList && plan.shoppingList.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <ShoppingCart className="h-4 w-4" />
+                Shopping List
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {plan.shoppingList.map((item: string, i: number) => (
+                  <Badge key={i} variant="outline">{item}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Weekly Variations */}
+          {plan.weeklyVariations && plan.weeklyVariations.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold">Weekly Focus</h3>
+              <div className="space-y-2">
+                {plan.weeklyVariations.map((week: any, i: number) => (
+                  <div key={i} className="p-3 bg-muted rounded-lg">
+                    <p className="font-medium">Week {week.week}: {week.focus}</p>
+                    {week.tip && <p className="text-sm text-muted-foreground">{week.tip}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tips */}
+          {plan.tips && plan.tips.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Apple className="h-4 w-4" />
+                Tips
+              </h3>
+              <div className="space-y-2">
+                {plan.tips.map((tip: string, i: number) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
+                    <p className="text-sm text-muted-foreground">{tip}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
