@@ -150,6 +150,50 @@ export const useShoppingList = () => {
     }
   };
 
+  // Smart unit inference based on item name
+  const inferUnit = (itemName: string): string => {
+    const name = itemName.toLowerCase();
+    
+    // Liquids
+    if (/milk|juice|oil|vinegar|sauce|broth|stock|cream|yogurt|honey|syrup/.test(name)) {
+      return 'cup';
+    }
+    // Produce by count
+    if (/apple|banana|orange|lemon|lime|avocado|onion|pepper|tomato|potato|carrot|cucumber|egg|garlic|zucchini|eggplant|mango|peach|pear/.test(name)) {
+      return 'count';
+    }
+    // Produce by bunch/head
+    if (/lettuce|spinach|kale|cabbage|broccoli|cauliflower|celery|parsley|cilantro|basil|mint/.test(name)) {
+      return 'bunch';
+    }
+    // Proteins by lb/oz
+    if (/chicken|beef|pork|fish|salmon|tuna|shrimp|turkey|steak|meat|ground/.test(name)) {
+      return 'lb';
+    }
+    // Grains/dry goods
+    if (/rice|pasta|oats|quinoa|flour|sugar|beans|lentils|cereal/.test(name)) {
+      return 'cup';
+    }
+    // Cheese/dairy
+    if (/cheese|butter/.test(name)) {
+      return 'oz';
+    }
+    // Bread
+    if (/bread|tortilla|wrap|bagel|muffin|roll/.test(name)) {
+      return 'count';
+    }
+    // Nuts/seeds
+    if (/almond|walnut|peanut|cashew|seed|nut/.test(name)) {
+      return 'cup';
+    }
+    // Canned goods
+    if (/can of|canned/.test(name)) {
+      return 'can';
+    }
+    
+    return 'item';
+  };
+
   const createShoppingListFromItems = async (planName: string, items: string[]) => {
     if (!user) return { success: false, error: 'User not authenticated' };
 
@@ -178,13 +222,13 @@ export const useShoppingList = () => {
         }
       });
 
-      // Create shopping list items
+      // Create shopping list items with smart units
       const shoppingItems = Array.from(itemMap.entries()).map(([name, quantity]) => ({
         shopping_list_id: list.id,
         user_id: user.id,
         product_name: name.charAt(0).toUpperCase() + name.slice(1),
         quantity: quantity,
-        unit: 'piece',
+        unit: inferUnit(name),
         is_purchased: false,
       }));
 

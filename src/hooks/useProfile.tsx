@@ -72,7 +72,7 @@ export const useProfile = () => {
 
     try {
       // Use upsert to handle both insert and update cases
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .upsert({
           user_id: user.id,
@@ -80,11 +80,19 @@ export const useProfile = () => {
           updated_at: new Date().toISOString(),
         }, {
           onConflict: 'user_id'
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
       
-      setProfile(prev => prev ? { ...prev, ...updates } : null);
+      // Update local state with the returned data to ensure consistency
+      if (data) {
+        setProfile(data);
+      } else {
+        // Fallback: merge with existing profile
+        setProfile(prev => prev ? { ...prev, ...updates } : { user_id: user.id, ...updates } as Profile);
+      }
       return { success: true };
     } catch (error) {
       console.error('Error updating profile:', error);
