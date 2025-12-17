@@ -18,9 +18,10 @@ import { MultiWeekWorkoutDisplay } from "@/components/MultiWeekWorkoutDisplay";
 
 interface WorkoutGeneratorProps {
   onWorkoutGenerated?: (workout: any) => void;
+  onWorkoutSaved?: () => void;
 }
 
-export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) => {
+export const WorkoutGenerator = ({ onWorkoutGenerated, onWorkoutSaved }: WorkoutGeneratorProps) => {
   const { user } = useSecureAuth();
   // Always allow access - paywall removed for testing
   const hasPremiumAccess = true;
@@ -367,7 +368,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
               onSave={(name: string, description: string) => {
                 setWorkoutName(name);
                 setWorkoutDescription(description);
-                setShowSaveDialog(true);
+                onWorkoutSaved?.();
               }}
               onStartWorkout={handleStartWorkout}
             />

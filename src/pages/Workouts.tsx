@@ -35,7 +35,7 @@ const Workouts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { templates, recentWorkouts: dbRecentWorkouts, startWorkout, deleteTemplate } = useWorkouts();
-  const { workoutPlans, deleteMultiWeekPlan, loading: plansLoading } = useMultiWeekPlans();
+  const { workoutPlans, deleteMultiWeekPlan, fetchMultiWeekPlans, loading: plansLoading } = useMultiWeekPlans();
   const [showScheduler, setShowScheduler] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
 
@@ -335,6 +335,9 @@ const Workouts = () => {
                   title: "Workout Generated!",
                   description: "Your personalized workout is ready to start",
                 });
+              }}
+              onWorkoutSaved={() => {
+                fetchMultiWeekPlans();
               }}
             />
           </TabsContent>
