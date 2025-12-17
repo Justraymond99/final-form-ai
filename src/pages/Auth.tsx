@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,14 +27,20 @@ const Auth = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [checkingOnboarding, setCheckingOnboarding] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { secureSignIn, secureSignUp, user } = useSecureAuth();
+
+  const redirectAfterAuth = (() => {
+    const from = (location.state as any)?.from;
+    return typeof from === "string" && from !== "/auth" ? from : "/home";
+  })();
 
   // Check if user has completed onboarding
   const checkOnboardingStatus = async (userId: string) => {
     // If we've already marked onboarding complete locally, don't block the UI on a profile fetch.
     if (localStorage.getItem("onboarding_completed") === "true") {
-      navigate("/home", { replace: true });
+      navigate(redirectAfterAuth, { replace: true });
       return;
     }
 
@@ -67,7 +73,7 @@ const Auth = () => {
         setShowOnboarding(true);
       } else {
         localStorage.setItem("onboarding_completed", "true");
-        navigate("/home", { replace: true });
+        navigate(redirectAfterAuth, { replace: true });
       }
     } catch (error) {
       console.error("Error checking onboarding status:", error);
@@ -78,7 +84,7 @@ const Auth = () => {
         description: "Continuing without profile check. You can finish onboarding from inside the app.",
       });
 
-      navigate("/home", { replace: true });
+      navigate(redirectAfterAuth, { replace: true });
     } finally {
       setCheckingOnboarding(false);
     }
@@ -261,7 +267,7 @@ const Auth = () => {
   if (showOnboarding) {
     return (
       <div className="min-h-screen bg-background">
-        <OnboardingFlow onComplete={() => navigate("/home")} />
+        <OnboardingFlow onComplete={() => navigate(redirectAfterAuth)} />
       </div>
     );
   }
