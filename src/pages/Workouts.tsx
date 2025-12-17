@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles, Trash2 } from "lucide-react";
+import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles, Trash2, Calendar, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navigation } from "@/components/Navigation";
 import { WorkoutGenerator } from "@/components/WorkoutGenerator";
 import { WorkoutScheduler } from "@/components/WorkoutScheduler";
+import { MultiWeekWorkoutDisplay } from "@/components/MultiWeekWorkoutDisplay";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { useMultiWeekPlans } from "@/hooks/useMultiWeekPlans";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import {
@@ -21,12 +23,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Workouts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { templates, recentWorkouts: dbRecentWorkouts, startWorkout, deleteTemplate } = useWorkouts();
+  const { workoutPlans, deleteMultiWeekPlan, loading: plansLoading } = useMultiWeekPlans();
   const [showScheduler, setShowScheduler] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
 
   // Format recent workouts for display
   const recentWorkouts = dbRecentWorkouts.map(workout => ({
@@ -63,6 +73,15 @@ const Workouts = () => {
       toast({ title: "Error", description: "Failed to delete template", variant: "destructive" });
     }
   };
+  const handleDeletePlan = async (planId: string, planName: string) => {
+    const result = await deleteMultiWeekPlan(planId, 'workout');
+    if (result?.success) {
+      toast({ title: "Plan Deleted", description: `"${planName}" has been removed.` });
+    } else {
+      toast({ title: "Error", description: "Failed to delete plan", variant: "destructive" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-28">
       <div className="max-w-md mx-auto space-y-6">
@@ -243,6 +262,69 @@ const Workouts = () => {
                 )}
               </CardContent>
             </Card>
+            {/* Saved Programs */}
+            {workoutPlans.length > 0 && (
+              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5 text-green-500" />
+                    Saved Programs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {workoutPlans.map((plan) => (
+                    <div
+                      key={plan.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                      onClick={() => setSelectedPlan(plan)}
+                    >
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h3 className="font-medium truncate">{plan.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{plan.weeks} weeks</span>
+                          <span>•</span>
+                          <span className="capitalize">{plan.difficulty}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Program?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete "{plan.name}". This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeletePlan(plan.id, plan.name)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <Badge variant="outline" className="border-green-500/30 text-green-500">
+                          {plan.weeks}W
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="ai-generator">
@@ -256,6 +338,29 @@ const Workouts = () => {
             />
           </TabsContent>
         </Tabs>
+
+        {/* Plan Detail Dialog */}
+        <Dialog open={!!selectedPlan} onOpenChange={() => setSelectedPlan(null)}>
+          <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto p-4">
+            <DialogHeader>
+              <DialogTitle className="truncate">{selectedPlan?.name}</DialogTitle>
+            </DialogHeader>
+            {selectedPlan && (
+              <MultiWeekWorkoutDisplay 
+                workoutPlan={selectedPlan}
+                onStartWorkout={(workout) => {
+                  localStorage.setItem('currentWorkout', JSON.stringify({
+                    name: workout.workout_name || workout.name,
+                    exercises_data: workout.exercises || [],
+                    duration_minutes: workout.duration || 30,
+                  }));
+                  toast({ title: "Starting workout...", description: "Let's go!" });
+                  navigate('/workout-session');
+                }}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
       
       <Navigation />
