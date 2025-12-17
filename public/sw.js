@@ -1,6 +1,5 @@
-const CACHE_NAME = 'final-form-v1';
+const CACHE_NAME = 'final-form-v2';
 const urlsToCache = [
-  '/',
   '/index.html',
   '/manifest.json',
   '/final-form-logo.png'
@@ -20,30 +19,52 @@ self.addEventListener('install', (event) => {
 
 // Serve cached content when offline
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        if (response) {
+  if (event.request.method !== 'GET') return;
+
+  // Always try network first for navigations so users don't get stuck on a stale app shell
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', responseToCache));
           return response;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  const url = new URL(event.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+
+  // Avoid runtime-caching JS/CSS bundles to prevent mixed/stale bundle states after deployments
+  const dest = event.request.destination;
+  const bypassCache =
+    !isSameOrigin ||
+    dest === 'script' ||
+    dest === 'style' ||
+    dest === 'worker' ||
+    url.pathname.startsWith('/node_modules/') ||
+    url.pathname.includes('/.vite/');
+
+  if (bypassCache) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+
+      return fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         }
-
-        return fetch(event.request).then(
-          (response) => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
-      })
+        return response;
+      });
+    })
   );
 });
 
