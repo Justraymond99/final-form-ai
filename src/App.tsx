@@ -15,6 +15,8 @@ import { TrialNotificationsInit } from "./components/TrialNotificationsInit";
 import { RateAppPrompt } from "./components/RateAppPrompt";
 import { PrefetchInit } from "./components/PrefetchInit";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import { SyncStatus } from "./components/SyncStatus";
+import { PerformanceInit } from "./components/PerformanceInit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +38,9 @@ const App: React.FC = () => (
               <Sonner />
               <BrowserRouter>
                 <PaywallProvider>
+                  <PerformanceInit />
                   <OfflineIndicator />
+                  <SyncStatus />
                   <PrefetchInit />
                   <TrialNotificationsInit />
                   <OnboardingTrialNudge />
