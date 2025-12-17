@@ -91,6 +91,16 @@ export const MultiWeekWorkoutDisplay = ({
     return null;
   }
 
+  // Normalize the plan to ensure all required properties exist
+  const weeks = workoutPlan.weeks || workoutPlan.weekly_plans?.length || 1;
+  const weeklyPlans = workoutPlan.weekly_plans || [];
+  const totalWorkouts = weeklyPlans.reduce((total: number, week: any) => 
+    total + (week.workouts?.length || 0), 0);
+  const totalMinutes = weeklyPlans.reduce((total: number, week: any) => 
+    total + (week.workouts?.reduce((wTotal: number, workout: any) => 
+      wTotal + (Number(workout.duration) || 0), 0) || 0), 0);
+  const totalHours = Math.round(totalMinutes / 60 * 10) / 10; // Round to 1 decimal
+
   return (
     <div className="space-y-6">
       {/* Action Buttons */}
@@ -108,7 +118,7 @@ export const MultiWeekWorkoutDisplay = ({
                 <DialogHeader>
                   <DialogTitle>Save Workout Program</DialogTitle>
                   <DialogDescription>
-                    Save this {workoutPlan.weeks}-week workout program for future use.
+                    Save this {weeks}-week workout program for future use.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -176,11 +186,11 @@ export const MultiWeekWorkoutDisplay = ({
           <div className="flex gap-2 mt-3">
             <Badge variant="secondary">
               <Calendar className="w-3 h-3 mr-1" />
-              {workoutPlan.weeks} Weeks
+              {weeks} {weeks === 1 ? 'Week' : 'Weeks'}
             </Badge>
             <Badge variant="secondary">
               <Target className="w-3 h-3 mr-1" />
-              {workoutPlan.difficulty}
+              {workoutPlan.difficulty || 'Custom'}
             </Badge>
             <Badge variant="secondary">
               <TrendingUp className="w-3 h-3 mr-1" />
@@ -192,32 +202,25 @@ export const MultiWeekWorkoutDisplay = ({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-primary">{workoutPlan.weeks}</div>
-              <div className="text-sm text-muted-foreground">Weeks</div>
+              <div className="text-2xl font-bold text-primary">{weeks}</div>
+              <div className="text-sm text-muted-foreground">{weeks === 1 ? 'Week' : 'Weeks'}</div>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-blue-500">
-                {workoutPlan.weekly_plans?.reduce((total: number, week: any) => 
-                  total + (week.workouts?.length || 0), 0) || 0}
-              </div>
+              <div className="text-2xl font-bold text-blue-500">{totalWorkouts}</div>
               <div className="text-sm text-muted-foreground">Total Workouts</div>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-green-500">
-                {Math.round(
-                  (workoutPlan.weekly_plans?.reduce((total: number, week: any) => 
-                    total + (week.workouts?.reduce((wTotal: number, workout: any) => 
-                      wTotal + (workout.duration || 0), 0) || 0), 0) || 0) / 60
-                )}h
+                {totalHours > 0 ? `${totalHours}h` : `${totalMinutes}m`}
               </div>
-              <div className="text-sm text-muted-foreground">Total Hours</div>
+              <div className="text-sm text-muted-foreground">Total Time</div>
             </div>
           </div>
 
           {/* Weekly Breakdown */}
           <Tabs defaultValue="week-1" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
-              {workoutPlan.weekly_plans?.map((week: any, index: number) => (
+            <TabsList className="flex flex-wrap gap-1 h-auto">
+              {weeklyPlans.map((_: any, index: number) => (
                 <TabsTrigger 
                   key={`week-${index + 1}`} 
                   value={`week-${index + 1}`}
@@ -228,7 +231,7 @@ export const MultiWeekWorkoutDisplay = ({
               ))}
             </TabsList>
 
-            {workoutPlan.weekly_plans?.map((week: any, index: number) => (
+            {weeklyPlans.map((week: any, index: number) => (
               <TabsContent key={`week-${index + 1}`} value={`week-${index + 1}`}>
                 <Card>
                   <CardHeader>
