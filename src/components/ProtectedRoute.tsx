@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { DashboardSkeleton } from "./DashboardSkeleton";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,7 +18,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [user, loading, navigate]);
 
   if (loading) {
-    return <DashboardSkeleton />;
+    return <LoadingSpinner />;
   }
 
   if (!user) {
