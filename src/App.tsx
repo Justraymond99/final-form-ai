@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { SecureAuthProvider } from "./hooks/useSecureAuth";
 import { SubscriptionProvider } from "./hooks/useSubscription";
 import SecurityWrapper from "./components/SecurityWrapper";
@@ -19,19 +20,21 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <SecureAuthProvider>
-      <SubscriptionProvider>
-        <SecurityWrapper>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AnimatedRoutes />
-            </BrowserRouter>
-          </TooltipProvider>
-        </SecurityWrapper>
-      </SubscriptionProvider>
-    </SecureAuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+      <SecureAuthProvider>
+        <SubscriptionProvider>
+          <SecurityWrapper>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </TooltipProvider>
+          </SecurityWrapper>
+        </SubscriptionProvider>
+      </SecureAuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
