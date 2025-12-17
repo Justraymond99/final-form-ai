@@ -12,6 +12,8 @@ import { AdvancedAIFeatures } from "@/components/AdvancedAIFeatures";
 import { ContentLibrary } from "@/components/ContentLibrary";
 import { UserFeedback } from "@/components/UserFeedback";
 import { WeeklyInsights } from "@/components/WeeklyInsights";
+import { RecoveryCoach } from "@/components/RecoveryCoach";
+import { WeeklyCoachInsights } from "@/components/WeeklyCoachInsights";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -350,6 +352,16 @@ const Index = () => {
             difficulty={nextWorkout.difficulty as "Intermediate" | "Beginner" | "Advanced"}
             onStart={() => console.log("Starting workout...")}
           />
+        </div>
+
+        {/* AI Recovery Coach */}
+        <div className="mb-6 sm:mb-8">
+          <RecoveryCoach />
+        </div>
+
+        {/* AI Weekly Coach */}
+        <div className="mb-6 sm:mb-8">
+          <WeeklyCoachInsights />
         </div>
 
         {/* Weekly Insights */}
