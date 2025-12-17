@@ -175,24 +175,24 @@ export const MultiWeekWorkoutDisplay = ({
       </Card>
 
       {/* Program Overview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-            {workoutPlan.name}
+      <Card className="overflow-hidden">
+        <CardHeader className="space-y-3">
+          <CardTitle className="flex items-center gap-2 min-w-0">
+            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <span className="truncate">{workoutPlan.name}</span>
           </CardTitle>
-          <div className="text-muted-foreground">{workoutPlan.description}</div>
+          <p className="text-sm text-muted-foreground line-clamp-2">{workoutPlan.description}</p>
           
-          <div className="flex flex-wrap gap-2 mt-3">
-            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary" className="text-xs">
               <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
               {weeks} {weeks === 1 ? 'Week' : 'Weeks'}
             </Badge>
-            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+            <Badge variant="secondary" className="text-xs">
               <Target className="w-3 h-3 mr-1 flex-shrink-0" />
               {workoutPlan.difficulty || 'Custom'}
             </Badge>
-            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+            <Badge variant="secondary" className="text-xs">
               <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
               Progressive
             </Badge>
@@ -200,109 +200,108 @@ export const MultiWeekWorkoutDisplay = ({
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-primary">{weeks}</div>
-              <div className="text-sm text-muted-foreground">{weeks === 1 ? 'Week' : 'Weeks'}</div>
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="text-center p-3 bg-muted rounded-lg">
+              <div className="text-xl font-bold text-primary">{weeks}</div>
+              <div className="text-xs text-muted-foreground">{weeks === 1 ? 'Week' : 'Weeks'}</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-blue-500">{totalWorkouts}</div>
-              <div className="text-sm text-muted-foreground">Total Workouts</div>
+            <div className="text-center p-3 bg-muted rounded-lg">
+              <div className="text-xl font-bold text-blue-500">{totalWorkouts}</div>
+              <div className="text-xs text-muted-foreground">Workouts</div>
             </div>
-            <div className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-bold text-green-500">
+            <div className="text-center p-3 bg-muted rounded-lg">
+              <div className="text-xl font-bold text-green-500">
                 {totalHours > 0 ? `${totalHours}h` : `${totalMinutes}m`}
               </div>
-              <div className="text-sm text-muted-foreground">Total Time</div>
+              <div className="text-xs text-muted-foreground">Time</div>
             </div>
           </div>
 
           {/* Weekly Breakdown */}
           <Tabs defaultValue="week-1" className="w-full">
-            <TabsList className="flex flex-wrap gap-1 h-auto">
+            <TabsList className="w-full flex flex-wrap h-auto gap-1 p-1">
               {weeklyPlans.map((_: any, index: number) => (
                 <TabsTrigger 
                   key={`week-${index + 1}`} 
                   value={`week-${index + 1}`}
-                  className="text-xs"
+                  className="text-xs px-2 py-1"
                 >
-                  Week {index + 1}
+                  W{index + 1}
                 </TabsTrigger>
               ))}
             </TabsList>
 
             {weeklyPlans.map((week: any, index: number) => (
               <TabsContent key={`week-${index + 1}`} value={`week-${index + 1}`}>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5" />
-                      Week {index + 1}: {week.focus}
+                <Card className="overflow-hidden">
+                  <CardHeader className="p-4">
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Calendar className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">Week {index + 1}: {week.focus}</span>
                     </CardTitle>
-                    <div className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground line-clamp-2">
                       {week.description || `Focus: ${week.focus}`}
-                    </div>
+                    </p>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4 pt-0">
                     <Accordion type="single" collapsible className="w-full">
                       {week.workouts?.map((workout: any, workoutIndex: number) => (
                         <AccordionItem key={workoutIndex} value={`workout-${workoutIndex}`}>
-                          <AccordionTrigger className="hover:no-underline">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full pr-4 gap-2">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <Badge variant="outline" className="text-xs flex-shrink-0">{workout.day}</Badge>
-                                <span className="font-medium text-sm truncate">{workout.workout_name}</span>
+                          <AccordionTrigger className="hover:no-underline py-3">
+                            <div className="flex items-center justify-between w-full pr-2 gap-2 min-w-0">
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <Badge variant="outline" className="text-xs flex-shrink-0 px-1.5">{workout.day}</Badge>
+                                <span className="font-medium text-xs truncate">{workout.workout_name}</span>
                               </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                                <span className="text-xs sm:text-sm">{workout.duration}min</span>
+                              <div className="flex items-center gap-1 flex-shrink-0">
+                                <Clock className="h-3 w-3" />
+                                <span className="text-xs">{workout.duration}m</span>
                                 <Button
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleStartWorkout(workout);
                                   }}
-                                  className="ml-1 sm:ml-2 h-7 px-2 sm:px-3"
+                                  className="ml-1 h-6 px-2 text-xs"
                                 >
-                                  <Play className="h-3 w-3 mr-1" />
-                                  <span className="hidden sm:inline">Start</span>
+                                  <Play className="h-3 w-3" />
                                 </Button>
                               </div>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
-                            <div className="space-y-4 pt-4">
-                              <div className="flex flex-wrap gap-2">
+                            <div className="space-y-3 pt-2">
+                              <div className="flex flex-wrap gap-1">
                                 <Badge variant="secondary" className="text-xs">{workout.type}</Badge>
-                                <Badge variant="outline" className="text-xs max-w-full">
+                                <Badge variant="outline" className="text-xs">
                                   <Dumbbell className="h-3 w-3 mr-1 flex-shrink-0" />
-                                  <span className="truncate">{workout.target_muscles?.slice(0, 3).join(', ') || 'Full Body'}</span>
+                                  {workout.target_muscles?.slice(0, 2).join(', ') || 'Full Body'}
                                 </Badge>
                               </div>
                               
                               {workout.exercises && workout.exercises.length > 0 && (
                                 <div className="space-y-2">
-                                  <h4 className="font-medium text-sm">Exercises:</h4>
+                                  <h4 className="font-medium text-xs">Exercises:</h4>
                                   {workout.exercises.map((exercise: any, exerciseIndex: number) => (
-                                    <div key={exerciseIndex} className="p-3 bg-muted rounded-lg">
-                                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                                    <div key={exerciseIndex} className="p-2 bg-muted rounded-lg">
+                                      <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-sm">{exercise.exercise}</p>
-                                          <p className="text-xs sm:text-sm text-muted-foreground">
-                                            {exercise.sets} sets × {exercise.reps} reps
+                                          <p className="font-medium text-xs truncate">{exercise.exercise}</p>
+                                          <p className="text-xs text-muted-foreground">
+                                            {exercise.sets}×{exercise.reps}
                                           </p>
-                                          {exercise.instructions && (
-                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                              {exercise.instructions}
-                                            </p>
-                                          )}
                                         </div>
                                         {exercise.rest_seconds > 0 && (
-                                          <Badge variant="outline" className="text-xs flex-shrink-0 self-start">
-                                            {exercise.rest_seconds}s rest
+                                          <Badge variant="outline" className="text-[10px] flex-shrink-0 px-1">
+                                            {exercise.rest_seconds}s
                                           </Badge>
                                         )}
                                       </div>
+                                      {exercise.instructions && (
+                                        <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
+                                          {exercise.instructions}
+                                        </p>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
