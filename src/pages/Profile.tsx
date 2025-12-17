@@ -10,6 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { EditProfileDialog } from "@/components/EditProfileDialog";
 import { AppSettingsDialog } from "@/components/AppSettingsDialog";
 import { NotificationSettings } from "@/components/NotificationSettings";
+import { ReferralProgram } from "@/components/ReferralProgram";
 import { useProfile } from "@/hooks/useProfile";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -138,6 +139,9 @@ const Profile = () => {
             ))}
           </CardContent>
         </Card>
+
+        {/* Referral Program */}
+        <ReferralProgram />
 
         {/* Progress Tracking */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
