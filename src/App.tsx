@@ -9,6 +9,8 @@ import { SecureAuthProvider } from "./hooks/useSecureAuth";
 import { SubscriptionProvider } from "./hooks/useSubscription";
 import SecurityWrapper from "./components/SecurityWrapper";
 import { AnimatedRoutes } from "./components/AnimatedRoutes";
+import { PaywallProvider } from "./components/PaywallModal";
+import { OnboardingTrialNudge } from "./components/OnboardingTrialNudge";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,7 +31,10 @@ const App: React.FC = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <AnimatedRoutes />
+                <PaywallProvider>
+                  <OnboardingTrialNudge />
+                  <AnimatedRoutes />
+                </PaywallProvider>
               </BrowserRouter>
             </TooltipProvider>
           </SecurityWrapper>
