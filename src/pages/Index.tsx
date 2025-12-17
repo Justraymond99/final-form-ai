@@ -57,13 +57,15 @@ const Index = () => {
   const [showFeatureTour, setShowFeatureTour] = useState(false);
   const [showAdvancedAI, setShowAdvancedAI] = useState(false);
   const [showContentLibrary, setShowContentLibrary] = useState(false);
+  const [onboardingJustCompleted, setOnboardingJustCompleted] = useState(false);
   
   // Check if user needs onboarding
   useEffect(() => {
-    if (profile && !localStorage.getItem('onboarding_completed')) {
+    const onboardingCompleted = localStorage.getItem('onboarding_completed');
+    if (!profileLoading && !onboardingCompleted) {
       setShowOnboarding(true);
     }
-  }, [profile]);
+  }, [profileLoading]);
   
   // Initialize notifications on mount
   useEffect(() => {
@@ -171,8 +173,8 @@ const Index = () => {
 
   const nextWorkout = getNextWorkout();
 
-  // Show skeleton while loading
-  if (profileLoading) {
+  // Show skeleton while loading (but not if onboarding just completed)
+  if (profileLoading && !onboardingJustCompleted) {
     return <DashboardSkeleton />;
   }
 
@@ -414,6 +416,7 @@ const Index = () => {
       {showOnboarding && (
         <OnboardingFlow 
           onComplete={() => {
+            setOnboardingJustCompleted(true);
             setShowOnboarding(false);
             track('onboarding_completed', {});
             // Show feature tour after onboarding if not completed
