@@ -87,7 +87,9 @@ export const useWorkouts = () => {
   }, [user]);
 
   const getTemplates = () => workouts; // All items from workout_templates are templates
-  const getRecentWorkouts = () => sessions.slice(0, 5); // Recent sessions
+  const getRecentWorkouts = () => sessions
+    .filter(s => s.completed_at) // Only show completed workouts
+    .slice(0, 5);
 
   const startWorkout = async (workoutId: string) => {
     if (!user) return;
