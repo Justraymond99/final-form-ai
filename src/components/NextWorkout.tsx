@@ -76,20 +76,20 @@ export const NextWorkout = ({
       </div>
       
       <div className="space-y-2 sm:space-y-3">
-        <div>
+        <div className="overflow-hidden">
           <p className="text-xs sm:text-sm font-medium text-foreground mb-2">Target Muscles</p>
           <div className="flex flex-wrap gap-1 sm:gap-2">
             {targetMuscles.slice(0, 3).map((muscle, index) => (
               <span 
                 key={index}
-                className="px-2 py-1 sm:px-3 bg-muted rounded-full text-xs font-medium text-muted-foreground"
+                className="px-2 py-0.5 sm:py-1 sm:px-3 bg-muted rounded-full text-xs font-medium text-muted-foreground truncate max-w-[100px]"
               >
                 {muscle}
               </span>
             ))}
             {targetMuscles.length > 3 && (
-              <span className="px-2 py-1 sm:px-3 bg-muted rounded-full text-xs font-medium text-muted-foreground">
-                +{targetMuscles.length - 3} more
+              <span className="px-2 py-0.5 sm:py-1 sm:px-3 bg-muted rounded-full text-xs font-medium text-muted-foreground">
+                +{targetMuscles.length - 3}
               </span>
             )}
           </div>

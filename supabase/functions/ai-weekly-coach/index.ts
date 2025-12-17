@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY') || '';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -197,42 +197,13 @@ Provide a comprehensive weekly review. Return ONLY valid JSON:
 }`;
 
     let weeklyInsights;
-    try {
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: 'You are an elite fitness coach known for motivating athletes while providing data-driven insights.' },
-            { role: 'user', content: prompt }
-          ],
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 429 || response.status === 402) {
-          throw new Error('AI rate limited');
-        }
-        throw new Error(`AI error: ${response.status}`);
-      }
-
-      const aiResponse = await response.json();
-      const content = aiResponse.choices[0].message.content;
-      
-      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found');
-      
-      weeklyInsights = JSON.parse(jsonMatch[1] || jsonMatch[0]);
-      log('info', 'Weekly insights generated successfully');
-
-    } catch (aiError) {
-      log('warn', 'AI failed, using fallback', { error: aiError.message });
+    
+    // Check if API key is available before attempting AI call
+    if (!lovableApiKey || lovableApiKey.length === 0) {
+      log('warn', 'LOVABLE_API_KEY not configured, using fallback insights');
       weeklyInsights = {
         ...fallbackInsights,
+        summary: `You completed ${stats.totalWorkouts} workout${stats.totalWorkouts !== 1 ? 's' : ''} this week with ${stats.consistency}% consistency. ${stats.totalWorkouts > 0 ? 'Great job showing up!' : 'Time to get moving!'}`,
         stats: {
           workoutsCompleted: stats.totalWorkouts,
           totalMinutes: stats.totalDuration,
@@ -241,6 +212,55 @@ Provide a comprehensive weekly review. Return ONLY valid JSON:
           comparedToLastWeek: "same"
         }
       };
+    } else {
+      try {
+        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${lovableApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: 'You are an elite fitness coach known for motivating athletes while providing data-driven insights.' },
+              { role: 'user', content: prompt }
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          log('error', 'AI API error', { status: response.status, body: errorBody });
+          if (response.status === 429 || response.status === 402) {
+            throw new Error('AI rate limited');
+          }
+          throw new Error(`AI error: ${response.status}`);
+        }
+
+        const aiResponse = await response.json();
+        const content = aiResponse.choices[0].message.content;
+        
+        const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('No JSON found');
+        
+        weeklyInsights = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+        log('info', 'Weekly insights generated successfully');
+
+      } catch (aiError) {
+        log('warn', 'AI failed, using fallback', { error: aiError.message });
+        weeklyInsights = {
+          ...fallbackInsights,
+          summary: `You completed ${stats.totalWorkouts} workout${stats.totalWorkouts !== 1 ? 's' : ''} this week. Keep pushing forward!`,
+          stats: {
+            workoutsCompleted: stats.totalWorkouts,
+            totalMinutes: stats.totalDuration,
+            caloriesBurned: stats.totalCaloriesBurned,
+            consistency: `${stats.consistency}%`,
+            comparedToLastWeek: "same"
+          }
+        };
+      }
     }
 
     return new Response(JSON.stringify({

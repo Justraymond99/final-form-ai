@@ -179,13 +179,13 @@ export const MultiWeekNutritionDisplay = ({
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             Your Nutrition Plan
           </CardTitle>
-          <div className="flex gap-2 mt-2">
-            <Badge variant="secondary">
-              <Calendar className="w-3 h-3 mr-1" />
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+              <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
               {plan.weeks} Week{plan.weeks > 1 ? 's' : ''}
             </Badge>
-            <Badge variant="secondary">
-              <Target className="w-3 h-3 mr-1" />
+            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+              <Target className="w-3 h-3 mr-1 flex-shrink-0" />
               {plan.dailyCalories} cal/day
             </Badge>
           </div>
@@ -221,18 +221,18 @@ export const MultiWeekNutritionDisplay = ({
                 <Card className="bg-muted/50">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Coffee className="h-4 w-4 text-orange-500" />
-                        <div>
-                          <p className="font-medium">{sampleDay.breakfast.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {sampleDay.breakfast.calories} cal • P:{sampleDay.breakfast.protein}g C:{sampleDay.breakfast.carbs}g F:{sampleDay.breakfast.fat}g
-                          </p>
-                          {sampleDay.breakfast.items && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {sampleDay.breakfast.items.join(', ')}
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Coffee className="h-4 w-4 text-orange-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{sampleDay.breakfast.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {sampleDay.breakfast.calories} cal • P:{sampleDay.breakfast.protein}g C:{sampleDay.breakfast.carbs}g F:{sampleDay.breakfast.fat}g
                             </p>
-                          )}
+                            {sampleDay.breakfast.items && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                {sampleDay.breakfast.items.join(', ')}
+                              </p>
+                            )}
                         </div>
                       </div>
                       <Button size="sm" variant="ghost" onClick={() => handleAddMeal('breakfast', sampleDay.breakfast)}>
@@ -248,18 +248,18 @@ export const MultiWeekNutritionDisplay = ({
                 <Card className="bg-muted/50">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sun className="h-4 w-4 text-yellow-500" />
-                        <div>
-                          <p className="font-medium">{sampleDay.lunch.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {sampleDay.lunch.calories} cal • P:{sampleDay.lunch.protein}g C:{sampleDay.lunch.carbs}g F:{sampleDay.lunch.fat}g
-                          </p>
-                          {sampleDay.lunch.items && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {sampleDay.lunch.items.join(', ')}
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Sun className="h-4 w-4 text-yellow-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{sampleDay.lunch.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {sampleDay.lunch.calories} cal • P:{sampleDay.lunch.protein}g C:{sampleDay.lunch.carbs}g F:{sampleDay.lunch.fat}g
                             </p>
-                          )}
+                            {sampleDay.lunch.items && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                {sampleDay.lunch.items.join(', ')}
+                              </p>
+                            )}
                         </div>
                       </div>
                       <Button size="sm" variant="ghost" onClick={() => handleAddMeal('lunch', sampleDay.lunch)}>
@@ -275,20 +275,20 @@ export const MultiWeekNutritionDisplay = ({
                 <Card className="bg-muted/50">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <Moon className="h-4 w-4 text-blue-500" />
-                        <div>
-                          <p className="font-medium">{sampleDay.dinner.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {sampleDay.dinner.calories} cal • P:{sampleDay.dinner.protein}g C:{sampleDay.dinner.carbs}g F:{sampleDay.dinner.fat}g
-                          </p>
-                          {sampleDay.dinner.items && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {sampleDay.dinner.items.join(', ')}
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <Moon className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-sm truncate">{sampleDay.dinner.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {sampleDay.dinner.calories} cal • P:{sampleDay.dinner.protein}g C:{sampleDay.dinner.carbs}g F:{sampleDay.dinner.fat}g
                             </p>
-                          )}
+                            {sampleDay.dinner.items && (
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                                {sampleDay.dinner.items.join(', ')}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
                       <Button size="sm" variant="ghost" onClick={() => handleAddMeal('dinner', sampleDay.dinner)}>
                         <Plus className="h-4 w-4" />
                       </Button>
