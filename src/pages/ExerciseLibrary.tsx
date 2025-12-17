@@ -9,6 +9,7 @@ import { Navigation } from "@/components/Navigation";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatLabel } from "@/lib/utils";
 
 const ExerciseLibrary = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,11 +124,11 @@ const ExerciseLibrary = () => {
                     ))}
                   </div>
                   <div className="flex justify-between text-sm">
-                    <Badge variant="outline" className="capitalize">
-                      {exercise.difficulty}
+                    <Badge variant="outline">
+                      {formatLabel(exercise.difficulty)}
                     </Badge>
-                    <span className="text-muted-foreground capitalize">
-                      {exercise.exercise_type}
+                    <span className="text-muted-foreground">
+                      {formatLabel(exercise.exercise_type)}
                     </span>
                   </div>
                   {exercise.equipment && exercise.equipment.length > 0 && (
@@ -197,7 +198,7 @@ const ExerciseLibrary = () => {
                 <div className="flex gap-4">
                   <div>
                     <h3 className="font-semibold mb-1">Difficulty</h3>
-                    <Badge className="capitalize">{selectedExercise.difficulty}</Badge>
+                    <Badge>{formatLabel(selectedExercise.difficulty)}</Badge>
                   </div>
                   <div>
                     <h3 className="font-semibold mb-1">Type</h3>

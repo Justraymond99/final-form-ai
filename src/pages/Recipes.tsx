@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { formatLabel } from "@/lib/utils";
 
 const Recipes = () => {
   const { user } = useSecureAuth();
@@ -342,8 +343,8 @@ const Recipes = () => {
                       {recipe.calories_per_serving} cal/serving
                     </div>
                   )}
-                  <Badge variant="outline" className="capitalize">
-                    {recipe.difficulty}
+                  <Badge variant="outline">
+                    {formatLabel(recipe.difficulty)}
                   </Badge>
                 </CardContent>
               </Card>

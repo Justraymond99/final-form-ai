@@ -10,7 +10,7 @@ import { useScheduledWorkouts } from "@/hooks/useScheduledWorkouts";
 import { Navigation } from "@/components/Navigation";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Plus, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatLabel } from "@/lib/utils";
 
 const WorkoutCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -160,7 +160,7 @@ const WorkoutCalendar = () => {
                             <div>
                               <h4 className="font-semibold">{template?.name}</h4>
                               <p className="text-sm text-muted-foreground">
-                                {template?.estimated_duration} min • {template?.difficulty}
+                                {template?.estimated_duration} min • {formatLabel(template?.difficulty)}
                               </p>
                             </div>
                             {workout.completed && (
