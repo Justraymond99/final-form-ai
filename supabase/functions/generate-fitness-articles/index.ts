@@ -101,24 +101,26 @@ serve(async (req) => {
       );
     }
 
-    const { topic, category, count = 6 } = await req.json();
-    console.log(`User ${userId} generating articles with params:`, { topic, category, count });
+    const { topic, category, count = 4 } = await req.json();
+    // Limit count to prevent resource exhaustion
+    const safeCount = Math.min(count, 4);
+    console.log(`User ${userId} generating ${safeCount} articles`);
 
     if (!openAIApiKey) {
       throw new Error('OpenAI API key not configured');
     }
 
-    const articles: Article[] = [];
-
-    for (let i = 0; i < count; i++) {
+    // Prepare article requests
+    const articlePromises = [];
+    for (let i = 0; i < safeCount; i++) {
       const selectedTopic = topic || fitnessTopics[Math.floor(Math.random() * fitnessTopics.length)];
       const selectedCategory = category || articleCategories[Math.floor(Math.random() * articleCategories.length)];
-      
-      const article = await generateSingleArticle(selectedTopic, selectedCategory);
-      if (article) {
-        articles.push(article);
-      }
+      articlePromises.push(generateSingleArticle(selectedTopic, selectedCategory));
     }
+
+    // Generate in parallel for efficiency
+    const results = await Promise.all(articlePromises);
+    const articles = results.filter((a): a is Article => a !== null);
 
     console.log(`Successfully generated ${articles.length} articles`);
 
@@ -140,18 +142,16 @@ serve(async (req) => {
 
 async function generateSingleArticle(topic: string, category: string): Promise<Article | null> {
   try {
-    const prompt = `Write a comprehensive fitness article about "${topic}" in the "${category}" category. 
+const prompt = `Write a concise fitness article about "${topic}" in the "${category}" category. 
 
 Requirements:
-- Write 800-1200 words
+- Write 400-600 words
 - Include practical, actionable advice
 - Use a friendly but professional tone
-- Structure with clear headings and bullet points
-- Include scientific backing where relevant
+- Structure with clear headings
 - Make it engaging and easy to read
-- Focus on helping people achieve their fitness goals
 
-Format the response as a well-structured article with an engaging title.`;
+Format the response with an engaging title on the first line.`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -171,7 +171,7 @@ Format the response as a well-structured article with an engaging title.`;
             content: prompt
           }
         ],
-        max_tokens: 2000,
+        max_tokens: 1000,
         temperature: 0.7,
       }),
     });
