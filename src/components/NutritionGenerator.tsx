@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { useGenerationHistory } from "@/hooks/useGenerationHistory";
 import { ChefHat, Loader2, X } from "lucide-react";
 import { MultiWeekNutritionDisplay } from "@/components/MultiWeekNutritionDisplay";
 import { Button as ShadButton } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { Button as ShadButton } from "@/components/ui/button";
 export const NutritionGenerator = () => {
   const { user } = useSecureAuth();
   const { toast } = useToast();
+  const { saveGeneration } = useGenerationHistory();
   
   const [goal, setGoal] = useState("");
   const [targetCalories, setTargetCalories] = useState("2000");
@@ -82,6 +84,15 @@ export const NutritionGenerator = () => {
       if (error) throw error;
 
       setGeneratedPlan(data);
+      
+      // Save to generation history
+      await saveGeneration('nutrition', data, `${goal} Meal Plan`, {
+        targetCalories: parseInt(targetCalories),
+        goal,
+        dietaryPreferences,
+        programLength: parseInt(programLength)
+      });
+      
       toast({
         title: "Nutrition plan generated!",
         description: "Your personalized meal program is ready.",

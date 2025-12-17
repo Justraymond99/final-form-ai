@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useWorkouts } from "@/hooks/useWorkouts";
+import { useGenerationHistory } from "@/hooks/useGenerationHistory";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Sparkles, Loader2, X } from "lucide-react";
@@ -24,6 +25,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
   // Always allow access - paywall removed for testing
   const hasPremiumAccess = true;
   const { startWorkout: createWorkoutSession } = useWorkouts();
+  const { saveGeneration } = useGenerationHistory();
   const navigate = useNavigate();
   
   const [workoutType, setWorkoutType] = useState("");
@@ -171,6 +173,17 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
       const plan = (data as any)?.workout ?? data;
       setGeneratedWorkout(plan);
       setWorkoutName(plan?.name || `${workoutType} Program`);
+      
+      // Save to generation history
+      await saveGeneration('workout', plan, plan?.name || `${workoutType} Program`, {
+        workoutType,
+        duration: parseInt(duration),
+        difficulty,
+        targetMuscles,
+        equipment,
+        programLength: parseInt(programLength)
+      });
+      
       toast.success("Workout program generated successfully!");
       onWorkoutGenerated?.(plan);
     } catch (error: any) {

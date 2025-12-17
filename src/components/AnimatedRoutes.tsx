@@ -33,6 +33,7 @@ const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Install = lazy(() => import("@/pages/Install"));
 const Support = lazy(() => import("@/pages/Support"));
+const Insights = lazy(() => import("@/pages/Insights"));
 
 export const AnimatedRoutes = () => {
   const location = useLocation();
@@ -64,6 +65,7 @@ export const AnimatedRoutes = () => {
           <Route path="/exercise-library" element={<ProtectedRoute><PageTransition><ExerciseLibrary /></PageTransition></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute><PageTransition><ProgressAnalytics /></PageTransition></ProtectedRoute>} />
           <Route path="/recipes" element={<ProtectedRoute><PageTransition><Recipes /></PageTransition></ProtectedRoute>} />
+          <Route path="/insights" element={<ProtectedRoute><PageTransition><Insights /></PageTransition></ProtectedRoute>} />
           <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
           <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
           <Route path="/terms" element={<PageTransition><TermsOfService /></PageTransition>} />
