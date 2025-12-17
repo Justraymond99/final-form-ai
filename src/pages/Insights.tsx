@@ -207,20 +207,20 @@ export default function Insights() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-6 w-full">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="saved">Saved</TabsTrigger>
-              <TabsTrigger value="workout">
-                <Dumbbell className="h-4 w-4" />
+            <TabsList className="flex flex-wrap gap-1 h-auto p-1 w-full">
+              <TabsTrigger value="all" className="flex-1 min-w-[60px] text-xs">All</TabsTrigger>
+              <TabsTrigger value="saved" className="flex-1 min-w-[60px] text-xs">Saved</TabsTrigger>
+              <TabsTrigger value="workout" className="flex-1 min-w-[40px]">
+                <Dumbbell className="h-3 w-3 sm:h-4 sm:w-4" />
               </TabsTrigger>
-              <TabsTrigger value="nutrition">
-                <Utensils className="h-4 w-4" />
+              <TabsTrigger value="nutrition" className="flex-1 min-w-[40px]">
+                <Utensils className="h-3 w-3 sm:h-4 sm:w-4" />
               </TabsTrigger>
-              <TabsTrigger value="insights">
-                <Brain className="h-4 w-4" />
+              <TabsTrigger value="insights" className="flex-1 min-w-[40px]">
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4" />
               </TabsTrigger>
-              <TabsTrigger value="recovery">
-                <Heart className="h-4 w-4" />
+              <TabsTrigger value="recovery" className="flex-1 min-w-[40px]">
+                <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
               </TabsTrigger>
             </TabsList>
 

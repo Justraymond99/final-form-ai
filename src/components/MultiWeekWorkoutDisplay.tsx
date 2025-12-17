@@ -183,17 +183,17 @@ export const MultiWeekWorkoutDisplay = ({
           </CardTitle>
           <div className="text-muted-foreground">{workoutPlan.description}</div>
           
-          <div className="flex gap-2 mt-3">
-            <Badge variant="secondary">
-              <Calendar className="w-3 h-3 mr-1" />
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+              <Calendar className="w-3 h-3 mr-1 flex-shrink-0" />
               {weeks} {weeks === 1 ? 'Week' : 'Weeks'}
             </Badge>
-            <Badge variant="secondary">
-              <Target className="w-3 h-3 mr-1" />
+            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+              <Target className="w-3 h-3 mr-1 flex-shrink-0" />
               {workoutPlan.difficulty || 'Custom'}
             </Badge>
-            <Badge variant="secondary">
-              <TrendingUp className="w-3 h-3 mr-1" />
+            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+              <TrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
               Progressive
             </Badge>
           </div>
@@ -248,57 +248,57 @@ export const MultiWeekWorkoutDisplay = ({
                       {week.workouts?.map((workout: any, workoutIndex: number) => (
                         <AccordionItem key={workoutIndex} value={`workout-${workoutIndex}`}>
                           <AccordionTrigger className="hover:no-underline">
-                            <div className="flex items-center justify-between w-full pr-4">
-                              <div className="flex items-center gap-3">
-                                <Badge variant="outline">{workout.day}</Badge>
-                                <span className="font-medium">{workout.workout_name}</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full pr-4 gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <Badge variant="outline" className="text-xs flex-shrink-0">{workout.day}</Badge>
+                                <span className="font-medium text-sm truncate">{workout.workout_name}</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                <span className="text-sm">{workout.duration}min</span>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="text-xs sm:text-sm">{workout.duration}min</span>
                                 <Button
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleStartWorkout(workout);
                                   }}
-                                  className="ml-2"
+                                  className="ml-1 sm:ml-2 h-7 px-2 sm:px-3"
                                 >
                                   <Play className="h-3 w-3 mr-1" />
-                                  Start
+                                  <span className="hidden sm:inline">Start</span>
                                 </Button>
                               </div>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
                             <div className="space-y-4 pt-4">
-                              <div className="flex gap-2">
-                                <Badge variant="secondary">{workout.type}</Badge>
-                                <Badge variant="outline">
-                                  <Dumbbell className="h-3 w-3 mr-1" />
-                                  {workout.target_muscles?.join(', ') || 'Full Body'}
+                              <div className="flex flex-wrap gap-2">
+                                <Badge variant="secondary" className="text-xs">{workout.type}</Badge>
+                                <Badge variant="outline" className="text-xs max-w-full">
+                                  <Dumbbell className="h-3 w-3 mr-1 flex-shrink-0" />
+                                  <span className="truncate">{workout.target_muscles?.slice(0, 3).join(', ') || 'Full Body'}</span>
                                 </Badge>
                               </div>
                               
                               {workout.exercises && workout.exercises.length > 0 && (
                                 <div className="space-y-2">
-                                  <h4 className="font-medium">Exercises:</h4>
+                                  <h4 className="font-medium text-sm">Exercises:</h4>
                                   {workout.exercises.map((exercise: any, exerciseIndex: number) => (
                                     <div key={exerciseIndex} className="p-3 bg-muted rounded-lg">
-                                      <div className="flex justify-between items-start">
-                                        <div>
-                                          <p className="font-medium">{exercise.exercise}</p>
-                                          <p className="text-sm text-muted-foreground">
+                                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                                        <div className="min-w-0 flex-1">
+                                          <p className="font-medium text-sm">{exercise.exercise}</p>
+                                          <p className="text-xs sm:text-sm text-muted-foreground">
                                             {exercise.sets} sets × {exercise.reps} reps
                                           </p>
                                           {exercise.instructions && (
-                                            <p className="text-sm text-muted-foreground mt-1">
+                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                               {exercise.instructions}
                                             </p>
                                           )}
                                         </div>
-                                        {exercise.rest_seconds && (
-                                          <Badge variant="outline" className="text-xs">
+                                        {exercise.rest_seconds > 0 && (
+                                          <Badge variant="outline" className="text-xs flex-shrink-0 self-start">
                                             {exercise.rest_seconds}s rest
                                           </Badge>
                                         )}
