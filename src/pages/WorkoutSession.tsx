@@ -3,13 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Check, X } from "lucide-react";
+import { ArrowLeft, Plus, Check, X, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { useWorkouts } from "@/hooks/useWorkouts";
 import { WorkoutTimer } from "@/components/WorkoutTimer";
+import { formatLabel } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Set {
   id: string;
@@ -22,39 +27,93 @@ interface Exercise {
   id: string;
   name: string;
   sets: Set[];
-  restTime: number; // seconds
+  restTime: number;
+  instructions?: string;
 }
 
 const WorkoutSession = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useSecureAuth();
-  const { completeWorkout } = useWorkouts();
-  const [exercises, setExercises] = useState<Exercise[]>([
-    {
-      id: "1",
-      name: "Bench Press",
-      sets: [
-        { id: "1", reps: 8, weight: 135, completed: false },
-        { id: "2", reps: 8, weight: 155, completed: false },
-        { id: "3", reps: 6, weight: 175, completed: false },
-      ],
-      restTime: 180
-    }
-  ]);
-  
+  const [workoutName, setWorkoutName] = useState("Workout");
+  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [currentRestExercise, setCurrentRestExercise] = useState<{ name: string; restTime: number } | null>(null);
   const [workoutStartTime] = useState(Date.now());
   const [isFinishing, setIsFinishing] = useState(false);
+  const [expandedInstructions, setExpandedInstructions] = useState<string | null>(null);
+
+  // Load workout from localStorage on mount
+  useEffect(() => {
+    const storedWorkout = localStorage.getItem('currentWorkout');
+    if (storedWorkout) {
+      try {
+        const workout = JSON.parse(storedWorkout);
+        setWorkoutName(workout.name || "Workout");
+        
+        // Convert exercises from generated format to session format
+        if (workout.exercises_data && Array.isArray(workout.exercises_data)) {
+          const convertedExercises = workout.exercises_data.map((ex: any, index: number) => {
+            // Parse reps - could be "8-12" or just a number
+            const repsStr = String(ex.reps || ex.target_reps || "10");
+            const repsNum = parseInt(repsStr.split("-")[0]) || 10;
+            
+            // Number of sets
+            const numSets = ex.sets || ex.target_sets || 3;
+            
+            // Create set objects
+            const sets: Set[] = Array.from({ length: numSets }, (_, i) => ({
+              id: `${index}-${i}`,
+              reps: repsNum,
+              weight: 0,
+              completed: false
+            }));
+
+            return {
+              id: String(index),
+              name: formatLabel(ex.exercise || ex.name || `Exercise ${index + 1}`),
+              sets,
+              restTime: ex.rest_seconds || ex.rest || 90,
+              instructions: ex.instructions || ex.notes || ""
+            };
+          });
+          
+          if (convertedExercises.length > 0) {
+            setExercises(convertedExercises);
+          } else {
+            // Fallback if no exercises
+            setExercises([createEmptyExercise()]);
+          }
+        } else {
+          setExercises([createEmptyExercise()]);
+        }
+        
+        // Clear from localStorage after loading
+        localStorage.removeItem('currentWorkout');
+      } catch (error) {
+        console.error('Error loading workout:', error);
+        setExercises([createEmptyExercise()]);
+      }
+    } else {
+      // No stored workout, start with empty exercise
+      setExercises([createEmptyExercise()]);
+    }
+  }, []);
+
+  const createEmptyExercise = (): Exercise => ({
+    id: Date.now().toString(),
+    name: "New Exercise",
+    sets: [{ id: "1", reps: 10, weight: 0, completed: false }],
+    restTime: 90
+  });
 
   const addExercise = () => {
-    const newExercise: Exercise = {
-      id: Date.now().toString(),
-      name: "New Exercise",
-      sets: [{ id: "1", reps: 0, weight: 0, completed: false }],
-      restTime: 120
-    };
-    setExercises([...exercises, newExercise]);
+    setExercises([...exercises, createEmptyExercise()]);
+  };
+
+  const updateExerciseName = (exerciseId: string, name: string) => {
+    setExercises(exercises.map(exercise => 
+      exercise.id === exerciseId ? { ...exercise, name } : exercise
+    ));
   };
 
   const addSet = (exerciseId: string) => {
@@ -63,11 +122,20 @@ const WorkoutSession = () => {
         const lastSet = exercise.sets[exercise.sets.length - 1];
         const newSet: Set = {
           id: Date.now().toString(),
-          reps: lastSet?.reps || 0,
+          reps: lastSet?.reps || 10,
           weight: lastSet?.weight || 0,
           completed: false
         };
         return { ...exercise, sets: [...exercise.sets, newSet] };
+      }
+      return exercise;
+    }));
+  };
+
+  const removeSet = (exerciseId: string, setId: string) => {
+    setExercises(exercises.map(exercise => {
+      if (exercise.id === exerciseId && exercise.sets.length > 1) {
+        return { ...exercise, sets: exercise.sets.filter(s => s.id !== setId) };
       }
       return exercise;
     }));
@@ -88,19 +156,24 @@ const WorkoutSession = () => {
   };
 
   const completeSet = (exerciseId: string, setId: string) => {
-    setExercises(exercises.map(exercise => {
-      if (exercise.id === exerciseId) {
-        const updatedSets = exercise.sets.map(set => 
-          set.id === setId ? { ...set, completed: !set.completed } : set
-        );
-        return { ...exercise, sets: updatedSets };
+    const exercise = exercises.find(e => e.id === exerciseId);
+    const set = exercise?.sets.find(s => s.id === setId);
+    const wasCompleted = set?.completed;
+
+    setExercises(exercises.map(ex => {
+      if (ex.id === exerciseId) {
+        return {
+          ...ex,
+          sets: ex.sets.map(s => 
+            s.id === setId ? { ...s, completed: !s.completed } : s
+          )
+        };
       }
-      return exercise;
+      return ex;
     }));
 
-    // Start rest timer
-    const exercise = exercises.find(e => e.id === exerciseId);
-    if (exercise) {
+    // Start rest timer only when completing a set (not uncompleting)
+    if (!wasCompleted && exercise) {
       setCurrentRestExercise({ name: exercise.name, restTime: exercise.restTime });
     }
   };
@@ -111,9 +184,14 @@ const WorkoutSession = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getWorkoutDuration = () => {
-    const duration = Math.floor((Date.now() - workoutStartTime) / 1000);
-    return formatTime(duration);
+  const getCompletedSets = () => {
+    return exercises.reduce((total, ex) => 
+      total + ex.sets.filter(s => s.completed).length, 0
+    );
+  };
+
+  const getTotalSets = () => {
+    return exercises.reduce((total, ex) => total + ex.sets.length, 0);
   };
 
   const finishWorkout = async () => {
@@ -124,13 +202,12 @@ const WorkoutSession = () => {
 
     setIsFinishing(true);
     try {
-      // Create a workout session in the database
       const durationMinutes = Math.floor((Date.now() - workoutStartTime) / 60000);
       const { error } = await supabase
         .from('workout_sessions')
         .insert({
           user_id: user.id,
-          name: "Quick Workout",
+          name: workoutName,
           started_at: new Date(workoutStartTime).toISOString(),
           completed_at: new Date().toISOString(),
           duration_minutes: durationMinutes,
@@ -141,10 +218,9 @@ const WorkoutSession = () => {
 
       toast({ 
         title: "Workout Complete!", 
-        description: `Great job! You worked out for ${formatTime(durationMinutes * 60)}` 
+        description: `Great job! ${getCompletedSets()}/${getTotalSets()} sets completed in ${formatTime(durationMinutes * 60)}` 
       });
       
-      // Use a timeout to ensure the navigation happens after state updates
       setTimeout(() => {
         navigate("/workouts");
       }, 100);
@@ -160,18 +236,21 @@ const WorkoutSession = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4">
+    <div className="min-h-screen bg-background text-foreground p-4 pb-8">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/workouts")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/workouts")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="text-center">
-            <h1 className="text-xl font-bold">Push Workout</h1>
+          <div className="text-center flex-1 mx-2">
+            <h1 className="text-lg font-bold truncate">{workoutName}</h1>
+            <p className="text-xs text-muted-foreground">
+              {getCompletedSets()}/{getTotalSets()} sets completed
+            </p>
           </div>
-          <Button size="sm" variant="outline" onClick={finishWorkout} disabled={isFinishing}>
-            {isFinishing ? "Finishing..." : "Finish"}
+          <Button size="sm" variant="default" onClick={finishWorkout} disabled={isFinishing}>
+            {isFinishing ? "..." : "Finish"}
           </Button>
         </div>
 
@@ -193,37 +272,64 @@ const WorkoutSession = () => {
         {/* Exercises */}
         {exercises.map((exercise) => (
           <Card key={exercise.id} className="border-border/50 bg-card/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">{exercise.name}</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                <Input
+                  value={exercise.name}
+                  onChange={(e) => updateExerciseName(exercise.id, e.target.value)}
+                  className="font-semibold text-base border-none p-0 h-auto focus-visible:ring-0 bg-transparent"
+                />
+              </CardTitle>
+              {exercise.instructions && (
+                <Collapsible 
+                  open={expandedInstructions === exercise.id}
+                  onOpenChange={(open) => setExpandedInstructions(open ? exercise.id : null)}
+                >
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs text-muted-foreground">
+                      <Info className="h-3 w-3 mr-1" />
+                      {expandedInstructions === exercise.id ? "Hide tips" : "Show tips"}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <p className="text-xs text-muted-foreground mt-2 p-2 bg-muted rounded">
+                      {exercise.instructions}
+                    </p>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2">
               {/* Sets Table Header */}
-              <div className="grid grid-cols-5 gap-2 text-sm font-medium text-muted-foreground">
+              <div className="grid grid-cols-5 gap-2 text-xs font-medium text-muted-foreground px-1">
                 <span>Set</span>
-                <span>Reps</span>
-                <span>Weight</span>
-                <span>Done</span>
+                <span className="text-center">Reps</span>
+                <span className="text-center">Weight</span>
+                <span className="text-center">Done</span>
                 <span></span>
               </div>
               
               {/* Sets */}
               {exercise.sets.map((set, index) => (
-                <div key={set.id} className="grid grid-cols-5 gap-2 items-center">
-                  <Badge variant="outline" className="w-fit">
+                <div 
+                  key={set.id} 
+                  className={`grid grid-cols-5 gap-2 items-center p-1 rounded ${set.completed ? 'bg-primary/10' : ''}`}
+                >
+                  <Badge variant="outline" className="w-8 h-8 flex items-center justify-center">
                     {index + 1}
                   </Badge>
                   <Input
                     type="number"
                     value={set.reps || ""}
                     onChange={(e) => updateSet(exercise.id, set.id, 'reps', parseInt(e.target.value) || 0)}
-                    className="h-8 text-center"
+                    className="h-8 text-center text-sm"
                     placeholder="0"
                   />
                   <Input
                     type="number"
                     value={set.weight || ""}
                     onChange={(e) => updateSet(exercise.id, set.id, 'weight', parseInt(e.target.value) || 0)}
-                    className="h-8 text-center"
+                    className="h-8 text-center text-sm"
                     placeholder="0"
                   />
                   <Button
@@ -232,11 +338,17 @@ const WorkoutSession = () => {
                     onClick={() => completeSet(exercise.id, set.id)}
                     className="h-8 w-8 p-0"
                   >
-                    {set.completed ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+                    {set.completed ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 opacity-30" />}
                   </Button>
-                  <span className="text-xs text-muted-foreground">
-                    {set.completed && "✓"}
-                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => removeSet(exercise.id, set.id)}
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                    disabled={exercise.sets.length <= 1}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
               ))}
               
@@ -245,9 +357,9 @@ const WorkoutSession = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => addSet(exercise.id)}
-                className="w-full"
+                className="w-full h-8 text-xs"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3 w-3 mr-1" />
                 Add Set
               </Button>
             </CardContent>
