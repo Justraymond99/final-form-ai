@@ -260,7 +260,7 @@ export const applyCSP = () => {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co https://api.openai.com",
+    "connect-src 'self' https://*.supabase.co https://api.openai.com https://accounts.google.com https://*.googleapis.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'"
