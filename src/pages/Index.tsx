@@ -439,8 +439,14 @@ const Index = () => {
       
       {/* Advanced AI Features Modal */}
       {showAdvancedAI && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4"
+          onClick={() => setShowAdvancedAI(false)}
+        >
+          <div 
+            className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <AdvancedAIFeatures />
             <div className="p-3 sm:p-4">
               <Button onClick={() => setShowAdvancedAI(false)} className="w-full">Close</Button>
@@ -451,8 +457,14 @@ const Index = () => {
       
       {/* Content Library Modal */}
       {showContentLibrary && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-3 sm:p-4"
+          onClick={() => setShowContentLibrary(false)}
+        >
+          <div 
+            className="bg-background rounded-lg w-full max-w-sm sm:max-w-lg max-h-[85vh] sm:max-h-[80vh] overflow-y-auto animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <ContentLibrary />
             <div className="p-3 sm:p-4">
               <Button onClick={() => setShowContentLibrary(false)} className="w-full">Close</Button>
