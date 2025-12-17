@@ -169,7 +169,6 @@ const WorkoutSession = () => {
           </Button>
           <div className="text-center">
             <h1 className="text-xl font-bold">Push Workout</h1>
-            <p className="text-sm text-muted-foreground">{getWorkoutDuration()}</p>
           </div>
           <Button size="sm" variant="outline" onClick={finishWorkout} disabled={isFinishing}>
             {isFinishing ? "Finishing..." : "Finish"}
