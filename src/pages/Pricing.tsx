@@ -137,7 +137,7 @@ const Pricing = () => {
         ? (p.identifier.includes('annual') || p.identifier.includes('yearly'))
         : (p.identifier.includes('monthly') || p.packageType === 'MONTHLY')
     );
-    return pkg?.product?.priceString || (type === 'yearly' ? '$99.99' : '$9.99');
+    return pkg?.product?.priceString || (type === 'yearly' ? '$79.99' : '$9.99');
   };
 
   const freeFeatures = [
@@ -210,7 +210,7 @@ const Pricing = () => {
           />
           <span className={isYearly ? "font-medium" : "text-muted-foreground"}>
             Yearly 
-            <Badge variant="secondary" className="ml-2">Save 17%</Badge>
+            <Badge variant="secondary" className="ml-2">4 Months Free</Badge>
           </span>
         </div>
 
@@ -268,7 +268,7 @@ const Pricing = () => {
                   </span>
                 </div>
                 {isYearly && (
-                  <p className="text-sm text-green-600">Save 17% with annual billing!</p>
+                  <p className="text-sm text-green-600">4 months free with annual billing!</p>
                 )}
               </div>
               <p className="text-muted-foreground">Unlock AI-powered features</p>
