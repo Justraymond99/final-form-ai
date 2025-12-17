@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { Capacitor } from "@capacitor/core";
 
 // Types for RevenueCat (defined here to avoid import issues in web)
 interface PurchasesPackage {
@@ -30,9 +29,10 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 // RevenueCat iOS Public API Key
 const REVENUECAT_IOS_API_KEY = "appl_FgmYvLdacMBIcQcgaiGzBNqgfPn";
 
-// Check if running on iOS native (safe for web)
-const getIsIOSNative = () => {
+// Check if running on iOS native (safe for web - no static imports)
+const getIsIOSNative = async (): Promise<boolean> => {
   try {
+    const { Capacitor } = await import("@capacitor/core");
     return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
   } catch {
     return false;
@@ -60,13 +60,15 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [purchasesModule, setPurchasesModule] = useState<any>(null);
+  const [isIOSNative, setIsIOSNative] = useState(false);
 
-  const isIOSNative = getIsIOSNative();
-
-  // Dynamically load RevenueCat only on iOS native
+  // Check platform and load RevenueCat only on iOS native
   useEffect(() => {
     const loadRevenueCat = async () => {
-      if (!isIOSNative) {
+      const isIOS = await getIsIOSNative();
+      setIsIOSNative(isIOS);
+      
+      if (!isIOS) {
         console.log("[Subscription] Not on iOS native, skipping RevenueCat");
         setLoading(false);
         return;
@@ -84,7 +86,7 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
     };
 
     loadRevenueCat();
-  }, [isIOSNative]);
+  }, []);
 
   // Initialize RevenueCat once module is loaded
   useEffect(() => {
