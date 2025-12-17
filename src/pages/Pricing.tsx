@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Navigation } from "@/components/Navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from "@capacitor/core";
 import { 
   Check, 
   Zap, 
@@ -14,32 +14,108 @@ import {
   Star,
   Crown,
   Shield,
-  Sparkles
+  Sparkles,
+  RefreshCw,
+  Apple
 } from "lucide-react";
 
 const Pricing = () => {
-  const [isYearly, setIsYearly] = useState(false);
-  const { hasPremiumAccess, isInTrial, subscribed, planType, trialEndDate, createCheckout, openCustomerPortal } = useSubscription();
+  const { 
+    hasPremiumAccess, 
+    isInTrial, 
+    subscribed, 
+    planType, 
+    trialEndDate, 
+    packages,
+    loading,
+    purchasePackage,
+    restorePurchases 
+  } = useSubscription();
   const { toast } = useToast();
+  const [purchasing, setPurchasing] = useState(false);
 
-  const handleSubscribe = async (plan: 'monthly' | 'yearly') => {
+  const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+
+  const handlePurchase = async (packageType: 'monthly' | 'yearly') => {
+    if (!isIOSNative) {
+      toast({
+        title: "iOS Only",
+        description: "Subscriptions are only available on the iOS app",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Find the right package
+    const pkg = packages.find(p => 
+      packageType === 'yearly' 
+        ? (p.identifier.includes('annual') || p.identifier.includes('yearly'))
+        : (p.identifier.includes('monthly') || p.packageType === 'MONTHLY')
+    ) || packages[0]; // Fallback to first package
+
+    if (!pkg) {
+      toast({
+        title: "Error",
+        description: "No subscription packages available",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
-      const url = await createCheckout(plan);
-      if (url) {
-        window.open(url, '_blank');
+      setPurchasing(true);
+      const success = await purchasePackage(pkg);
+      
+      if (success) {
+        toast({
+          title: "Success!",
+          description: "Welcome to FitTracker Pro!",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Purchase Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setPurchasing(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!isIOSNative) {
+      toast({
+        title: "iOS Only",
+        description: "Restore is only available on the iOS app",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setPurchasing(true);
+      const restored = await restorePurchases();
+      
+      if (restored) {
+        toast({
+          title: "Purchases Restored",
+          description: "Your subscription has been restored!",
+        });
       } else {
         toast({
-          title: "Error",
-          description: "Failed to create checkout session",
-          variant: "destructive"
+          title: "No Purchases Found",
+          description: "No previous purchases found to restore.",
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Restore Failed",
+        description: "Could not restore purchases. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setPurchasing(false);
     }
   };
 
@@ -50,6 +126,16 @@ const Pricing = () => {
     const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
+  };
+
+  // Get prices from RevenueCat packages
+  const getPackagePrice = (type: 'monthly' | 'yearly') => {
+    const pkg = packages.find(p => 
+      type === 'yearly' 
+        ? (p.identifier.includes('annual') || p.identifier.includes('yearly'))
+        : (p.identifier.includes('monthly') || p.packageType === 'MONTHLY')
+    );
+    return pkg?.product?.priceString || (type === 'yearly' ? '$99.99' : '$9.99');
   };
 
   const freeFeatures = [
@@ -64,7 +150,6 @@ const Pricing = () => {
   ];
 
   const proFeatures = [
-    "Everything in Free, plus:",
     "AI Workout Generator - Custom routines based on your goals",
     "AI Nutrition Planner - Personalized meal plans",
     "AI Recovery Planner - Optimize rest & recovery",
@@ -102,20 +187,15 @@ const Pricing = () => {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Billing Toggle */}
-        <div className="flex items-center justify-center gap-4">
-          <span className={!isYearly ? "font-medium" : "text-muted-foreground"}>Monthly</span>
-          <Switch
-            checked={isYearly}
-            onCheckedChange={setIsYearly}
-            className="data-[state=checked]:bg-primary"
-          />
-          <span className={isYearly ? "font-medium" : "text-muted-foreground"}>
-            Yearly 
-            <Badge variant="secondary" className="ml-2">Save 17%</Badge>
-          </span>
+          {!isIOSNative && (
+            <div className="bg-muted/50 p-4 rounded-lg border border-border">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Apple className="h-5 w-5" />
+                <span>Subscriptions available on iOS app only</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Plans */}
@@ -166,14 +246,12 @@ const Pricing = () => {
               <CardTitle className="text-2xl">FitTracker Pro</CardTitle>
               <div className="space-y-2">
                 <div className="text-3xl font-bold">
-                  ${isYearly ? '99.99' : '9.99'}
-                  <span className="text-lg font-normal text-muted-foreground">
-                    /{isYearly ? 'year' : 'month'}
-                  </span>
+                  {getPackagePrice('monthly')}
+                  <span className="text-lg font-normal text-muted-foreground">/month</span>
                 </div>
-                {isYearly && (
-                  <p className="text-sm text-green-600">Save $19.89 per year!</p>
-                )}
+                <p className="text-sm text-muted-foreground">
+                  or {getPackagePrice('yearly')}/year (save 17%)
+                </p>
               </div>
               <p className="text-muted-foreground">Unlock AI-powered features</p>
             </CardHeader>
@@ -181,7 +259,7 @@ const Pricing = () => {
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium text-foreground mb-2">Everything in Free, plus:</p>
               </div>
-              <ul className="space-y-3">
+              <ul className="space-y-3 max-h-64 overflow-y-auto">
                 {proFeatures.map((feature, index) => (
                   <li key={index} className="flex items-center gap-3">
                     <div className="w-4 h-4 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -195,13 +273,12 @@ const Pricing = () => {
               {hasPremiumAccess ? (
                 <div className="space-y-3">
                   {subscribed ? (
-                    <Button 
-                      onClick={openCustomerPortal}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      Manage Subscription
-                    </Button>
+                    <div className="text-center p-4 bg-primary/10 rounded-lg">
+                      <p className="text-sm text-primary font-medium">
+                        <Crown className="h-4 w-4 inline mr-1" />
+                        {planType === 'yearly' ? 'Annual' : 'Monthly'} Subscription Active
+                      </p>
+                    </div>
                   ) : (
                     <div className="text-center p-4 bg-primary/10 rounded-lg">
                       <p className="text-sm text-primary font-medium">
@@ -214,16 +291,42 @@ const Pricing = () => {
                   )}
                 </div>
               ) : (
-                <Button 
-                  onClick={() => handleSubscribe(isYearly ? 'yearly' : 'monthly')}
-                  className="w-full bg-gradient-primary hover:opacity-90 text-background"
-                >
-                  Start Free Trial
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => handlePurchase('monthly')}
+                    className="w-full bg-gradient-primary hover:opacity-90 text-background"
+                    disabled={purchasing || loading || !isIOSNative}
+                  >
+                    {purchasing ? "Processing..." : "Subscribe Monthly"}
+                  </Button>
+                  <Button 
+                    onClick={() => handlePurchase('yearly')}
+                    variant="outline"
+                    className="w-full"
+                    disabled={purchasing || loading || !isIOSNative}
+                  >
+                    {purchasing ? "Processing..." : "Subscribe Yearly (Save 17%)"}
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
+
+        {/* Restore Purchases */}
+        {isIOSNative && !hasPremiumAccess && (
+          <div className="text-center">
+            <Button 
+              variant="ghost" 
+              onClick={handleRestore}
+              disabled={purchasing}
+              className="text-muted-foreground"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${purchasing ? 'animate-spin' : ''}`} />
+              Restore Purchases
+            </Button>
+          </div>
+        )}
 
         {/* FAQ/Features */}
         <div className="mt-16 text-center space-y-8">
@@ -259,15 +362,18 @@ const Pricing = () => {
           </div>
         </div>
 
-        {/* Trial Info */}
-        {!hasPremiumAccess && (
-          <div className="bg-card/50 border border-border/50 rounded-lg p-6 text-center">
-            <h3 className="font-semibold mb-2">🎯 Start Your Free Trial Today</h3>
-            <p className="text-sm text-muted-foreground">
-              Try all Pro features free for 7 days. No commitment, cancel anytime.
-            </p>
-          </div>
-        )}
+        {/* Apple Compliance Notice */}
+        <div className="text-center text-xs text-muted-foreground space-y-2 pt-8">
+          <p>
+            Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.
+          </p>
+          <p>
+            Payment will be charged to your Apple ID account at confirmation of purchase.
+          </p>
+          <p>
+            Manage subscriptions in your device's Settings → Apple ID → Subscriptions.
+          </p>
+        </div>
       </div>
       
       <Navigation />

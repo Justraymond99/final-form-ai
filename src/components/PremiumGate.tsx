@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +13,8 @@ interface PremiumGateProps {
 }
 
 export const PremiumGate = ({ children, feature, description }: PremiumGateProps) => {
-  const { hasPremiumAccess, loading, createCheckout } = useSubscription();
+  const { hasPremiumAccess, loading } = useSubscription();
   const navigate = useNavigate();
-  const [isUpgrading, setIsUpgrading] = useState(false);
 
   if (loading) {
     return (
@@ -33,21 +32,7 @@ export const PremiumGate = ({ children, feature, description }: PremiumGateProps
     return <>{children}</>;
   }
 
-  // Otherwise, show the upgrade prompt
-  const handleUpgrade = async () => {
-    setIsUpgrading(true);
-    try {
-      const url = await createCheckout('monthly');
-      if (url) {
-        window.open(url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-    } finally {
-      setIsUpgrading(false);
-    }
-  };
-
+  // Otherwise, show the upgrade prompt - navigate to pricing page for iOS IAP
   return (
     <Card className="border-2 border-primary/50 bg-gradient-to-br from-primary/5 to-accent/5 backdrop-blur-sm">
       <CardHeader className="text-center pb-4">
@@ -72,21 +57,11 @@ export const PremiumGate = ({ children, feature, description }: PremiumGateProps
         
         <div className="space-y-3 pt-4">
           <Button 
-            onClick={handleUpgrade}
-            disabled={isUpgrading}
+            onClick={() => navigate('/pricing')}
             className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
           >
-            {isUpgrading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background mr-2"></div>
-                Processing...
-              </>
-            ) : (
-              <>
-                <Crown className="h-4 w-4 mr-2" />
-                Upgrade to Pro
-              </>
-            )}
+            <Crown className="h-4 w-4 mr-2" />
+            Upgrade to Pro
           </Button>
           
           <Button 
