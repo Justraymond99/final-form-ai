@@ -45,22 +45,30 @@ const WorkoutSession = () => {
   // Load workout from localStorage on mount
   useEffect(() => {
     const storedWorkout = localStorage.getItem('currentWorkout');
+    console.log('Loading workout from localStorage:', storedWorkout);
+    
     if (storedWorkout) {
       try {
         const workout = JSON.parse(storedWorkout);
+        console.log('Parsed workout:', workout);
         setWorkoutName(workout.name || "Workout");
         
-        // Convert exercises from generated format to session format
-        if (workout.exercises_data && Array.isArray(workout.exercises_data)) {
-          const convertedExercises = workout.exercises_data.map((ex: any, index: number) => {
-            // Parse reps - could be "8-12" or just a number
+        // Get exercises array - could be in exercises_data or exercises field
+        const exercisesArray = workout.exercises_data || workout.exercises || [];
+        console.log('Exercises array:', exercisesArray);
+        
+        if (Array.isArray(exercisesArray) && exercisesArray.length > 0) {
+          const convertedExercises = exercisesArray.map((ex: any, index: number) => {
+            console.log(`Converting exercise ${index}:`, ex);
+            
+            // Parse reps - could be "8-12", "10", or just a number
             const repsStr = String(ex.reps || ex.target_reps || "10");
             const repsNum = parseInt(repsStr.split("-")[0]) || 10;
             
-            // Number of sets
-            const numSets = ex.sets || ex.target_sets || 3;
+            // Number of sets - default to 3 if not specified
+            const numSets = Number(ex.sets) || Number(ex.target_sets) || 3;
             
-            // Create set objects
+            // Create set objects with the correct reps
             const sets: Set[] = Array.from({ length: numSets }, (_, i) => ({
               id: `${index}-${i}`,
               reps: repsNum,
@@ -72,18 +80,20 @@ const WorkoutSession = () => {
               id: String(index),
               name: formatLabel(ex.exercise || ex.name || `Exercise ${index + 1}`),
               sets,
-              restTime: ex.rest_seconds || ex.rest || 90,
+              restTime: Number(ex.rest_seconds) || Number(ex.rest) || 90,
               instructions: ex.instructions || ex.notes || ""
             };
           });
           
+          console.log('Converted exercises:', convertedExercises);
+          
           if (convertedExercises.length > 0) {
             setExercises(convertedExercises);
           } else {
-            // Fallback if no exercises
             setExercises([createEmptyExercise()]);
           }
         } else {
+          console.log('No exercises found, using empty exercise');
           setExercises([createEmptyExercise()]);
         }
         

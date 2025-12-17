@@ -23,6 +23,7 @@ import { useMultiWeekPlans } from "@/hooks/useMultiWeekPlans";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useToast } from "@/hooks/use-toast";
 import { ManualStepsDialog } from "@/components/ManualStepsDialog";
 import { ManualMeditationDialog } from "@/components/ManualMeditationDialog";
 import { ManualCalorieDialog } from "@/components/ManualCalorieDialog";
@@ -58,6 +59,7 @@ const Index = () => {
   const { templates, recentWorkouts } = useWorkouts();
   const { workoutPlans } = useMultiWeekPlans();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [actualCalories, setActualCalories] = useState(0);
   const { user } = useSecureAuth();
   const { initializeNotifications } = useNotifications();
@@ -375,20 +377,23 @@ const Index = () => {
                 <Card 
                   key={plan.id} 
                   className="cursor-pointer hover:bg-accent/5 transition-colors"
-                  onClick={() => {
-                    // Get first workout from first week
-                    const firstWeek = plan.weekly_plans?.[0];
-                    const firstWorkout = firstWeek?.workouts?.[0];
-                    if (firstWorkout) {
-                      localStorage.setItem('currentWorkout', JSON.stringify({
-                        name: `${plan.name} - ${firstWorkout.workout_name || firstWorkout.day}`,
-                        exercises_data: firstWorkout.exercises || [],
-                        duration_minutes: firstWorkout.duration || 30,
-                      }));
-                      navigate('/workout-session');
-                    } else {
-                      navigate('/workouts');
-                    }
+                    onClick={() => {
+                      // Get first workout from first week
+                      const firstWeek = plan.weekly_plans?.[0];
+                      const firstWorkout = firstWeek?.workouts?.[0];
+                      console.log('Starting workout from home:', { plan, firstWeek, firstWorkout });
+                      
+                      if (firstWorkout && firstWorkout.exercises?.length > 0) {
+                        localStorage.setItem('currentWorkout', JSON.stringify({
+                          name: `${plan.name} - ${firstWorkout.workout_name || firstWorkout.day}`,
+                          exercises_data: firstWorkout.exercises,
+                          duration_minutes: firstWorkout.duration || 30,
+                        }));
+                        navigate('/workout-session');
+                      } else {
+                        toast({ title: "No exercises found", description: "Open the program to select a workout" });
+                        navigate('/workouts');
+                      }
                   }}
                 >
                   <CardContent className="p-3 flex items-center justify-between">

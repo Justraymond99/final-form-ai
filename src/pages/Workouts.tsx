@@ -364,9 +364,13 @@ const Workouts = () => {
               <MultiWeekWorkoutDisplay 
                 workoutPlan={selectedPlan}
                 onStartWorkout={(workout) => {
+                  console.log('Starting workout from saved plan:', workout);
+                  const exercisesData = workout.exercises || [];
+                  console.log('Exercises data:', exercisesData);
+                  
                   localStorage.setItem('currentWorkout', JSON.stringify({
-                    name: workout.workout_name || workout.name,
-                    exercises_data: workout.exercises || [],
+                    name: workout.workout_name || workout.name || 'Workout',
+                    exercises_data: exercisesData,
                     duration_minutes: workout.duration || 30,
                   }));
                   toast({ title: "Starting workout...", description: "Let's go!" });
