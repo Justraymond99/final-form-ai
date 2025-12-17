@@ -56,36 +56,65 @@ export const SubscriptionProvider = ({ children }: { children: React.ReactNode }
   const [planType, setPlanType] = useState<string | null>(null);
   const [trialEndDate, setTrialEndDate] = useState<string | null>(null);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Start with false on web to avoid loading state issues
+  const [loading, setLoading] = useState(false);
   const [packages, setPackages] = useState<PurchasesPackage[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
   const [purchasesModule, setPurchasesModule] = useState<any>(null);
   const [isIOSNative, setIsIOSNative] = useState(false);
+  const [platformChecked, setPlatformChecked] = useState(false);
 
   // Check platform and load RevenueCat only on iOS native
   useEffect(() => {
+    let mounted = true;
+    
     const loadRevenueCat = async () => {
-      const isIOS = await getIsIOSNative();
-      setIsIOSNative(isIOS);
-      
-      if (!isIOS) {
-        console.log("[Subscription] Not on iOS native, skipping RevenueCat");
-        setLoading(false);
-        return;
-      }
-
       try {
+        const isIOS = await getIsIOSNative();
+        
+        if (!mounted) return;
+        
+        setIsIOSNative(isIOS);
+        setPlatformChecked(true);
+        
+        if (!isIOS) {
+          console.log("[Subscription] Not on iOS native, skipping RevenueCat");
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
         console.log("[Subscription] Loading RevenueCat module...");
         const module = await import("@revenuecat/purchases-capacitor");
+        
+        if (!mounted) return;
+        
         setPurchasesModule(module);
         console.log("[Subscription] RevenueCat module loaded");
       } catch (err) {
         console.error("[Subscription] Failed to load RevenueCat:", err);
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          setPlatformChecked(true);
+        }
       }
     };
 
     loadRevenueCat();
+    
+    // Safety timeout - ensure loading never gets stuck
+    const timeout = setTimeout(() => {
+      if (mounted && !platformChecked) {
+        console.log("[Subscription] Platform check timeout, setting loading to false");
+        setLoading(false);
+        setPlatformChecked(true);
+      }
+    }, 3000);
+    
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+    };
   }, []);
 
   // Initialize RevenueCat once module is loaded
