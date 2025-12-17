@@ -49,7 +49,7 @@ export const FeaturePreviewCard = ({ type, title }: FeaturePreviewCardProps) => 
   if (hasPremiumAccess) return null;
 
   const handleUnlock = () => {
-    showPaywall(type === "workout" ? "AI Workout Generator" : "AI Nutrition Planner");
+    showPaywall(type === "workout" ? "Workout Generator" : "Nutrition Planner");
   };
 
   if (type === "workout") {
@@ -63,7 +63,7 @@ export const FeaturePreviewCard = ({ type, title }: FeaturePreviewCardProps) => 
                 <Brain className="h-5 w-5 text-primary" />
                 {sampleWorkout.name}
               </CardTitle>
-              <Badge variant="secondary">AI Generated</Badge>
+              <Badge variant="secondary">Custom</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -89,7 +89,7 @@ export const FeaturePreviewCard = ({ type, title }: FeaturePreviewCardProps) => 
               <Lock className="h-6 w-6 text-background" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">{title || "AI-Generated Workouts"}</h3>
+              <h3 className="font-semibold text-lg">{title || "Custom Workouts"}</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Personalized routines tailored to your goals
               </p>
@@ -122,7 +122,7 @@ export const FeaturePreviewCard = ({ type, title }: FeaturePreviewCardProps) => 
               <Utensils className="h-5 w-5 text-accent" />
               {sampleMealPlan.name}
             </CardTitle>
-            <Badge variant="secondary">AI Generated</Badge>
+            <Badge variant="secondary">Custom</Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -151,7 +151,7 @@ export const FeaturePreviewCard = ({ type, title }: FeaturePreviewCardProps) => 
             <Lock className="h-6 w-6 text-background" />
           </div>
           <div>
-            <h3 className="font-semibold text-lg">{title || "AI-Generated Meal Plans"}</h3>
+            <h3 className="font-semibold text-lg">{title || "Custom Meal Plans"}</h3>
             <p className="text-sm text-muted-foreground mt-1">
               Custom nutrition tailored to your goals
             </p>
@@ -181,12 +181,12 @@ export const FeaturePreviewCompact = ({ type }: { type: "workout" | "meal" }) =>
   if (hasPremiumAccess) return null;
 
   const config = type === "workout" 
-    ? { icon: Brain, label: "AI Workout", color: "text-primary", bgColor: "bg-primary/10" }
-    : { icon: Utensils, label: "AI Meal Plan", color: "text-accent", bgColor: "bg-accent/10" };
+    ? { icon: Brain, label: "Smart Workout", color: "text-primary", bgColor: "bg-primary/10" }
+    : { icon: Utensils, label: "Meal Plan", color: "text-accent", bgColor: "bg-accent/10" };
 
   return (
     <button
-      onClick={() => showPaywall(type === "workout" ? "AI Workout Generator" : "AI Nutrition Planner")}
+      onClick={() => showPaywall(type === "workout" ? "Workout Generator" : "Nutrition Planner")}
       className={`flex items-center gap-2 px-3 py-2 rounded-lg ${config.bgColor} hover:opacity-80 transition-opacity`}
     >
       <config.icon className={`h-4 w-4 ${config.color}`} />

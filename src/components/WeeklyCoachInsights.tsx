@@ -113,7 +113,7 @@ export const WeeklyCoachInsights = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            AI Weekly Coach
+            Weekly Coach
           </CardTitle>
           <div className="flex items-center gap-2">
             <Badge className={`${gradeColors[insights.grade] || 'bg-muted'} text-white`}>

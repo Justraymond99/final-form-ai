@@ -117,7 +117,7 @@ export const RecoveryCoach = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            AI Recovery Coach
+            Recovery Coach
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={fetchRecoveryAnalysis}>
             <RefreshCw className="h-4 w-4" />

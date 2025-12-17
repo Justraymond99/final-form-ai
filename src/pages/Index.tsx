@@ -394,7 +394,7 @@ const Index = () => {
               onClick={() => setShowAdvancedAI(true)}
             >
               <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              <span className="text-xs sm:text-sm">AI Coach</span>
+              <span className="text-xs sm:text-sm">Smart Coach</span>
             </Button>
             <Button 
               variant="outline" 

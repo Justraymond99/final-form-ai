@@ -94,7 +94,7 @@ export const PremiumGate = ({ children, feature, description, useModal = false }
 
         <div className="bg-background/50 rounded-lg p-4 mt-4">
           <p className="text-xs text-muted-foreground text-center">
-            Unlock AI-powered workouts, nutrition plans, and premium features with FitTracker Pro
+            Unlock personalized workouts, nutrition plans, and premium features with FitTracker Pro
           </p>
         </div>
       </CardContent>
