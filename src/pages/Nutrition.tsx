@@ -313,7 +313,7 @@ const Nutrition = () => {
             </Card>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Button 
                 className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
                 onClick={() => navigate("/food-logger")}
@@ -325,12 +325,12 @@ const Nutrition = () => {
               </Button>
               <Button 
                 variant="outline" 
-                className="h-16 border-hydration/20 hover:bg-hydration/5"
+                className="h-16 border-primary/20 hover:bg-primary/5"
                 onClick={() => handleLogWater(250)}
               >
                 <div className="flex flex-col items-center gap-1">
-                  <Droplets className="h-5 w-5" />
-                  <span className="text-sm">Water</span>
+                  <Droplets className="h-5 w-5 text-blue-500" />
+                  <span className="text-sm">+250ml Water</span>
                 </div>
               </Button>
             </div>
