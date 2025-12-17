@@ -43,6 +43,16 @@ const Landing = () => {
     }
   }, [user, loading, navigate]);
 
+  // Show nothing while checking auth to prevent flash
+  if (loading) {
+    return null;
+  }
+
+  // If user is logged in, don't render (will redirect)
+  if (user) {
+    return null;
+  }
+
   const features = [
     {
       icon: <Dumbbell className="h-8 w-8 text-primary" />,
