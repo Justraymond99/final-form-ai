@@ -59,3 +59,9 @@ verify_jwt = true
 
 [functions.ai-weekly-coach]
 verify_jwt = true
+
+[functions.ai-feature-activation]
+verify_jwt = true
+
+[functions.ai-insights-generator]
+verify_jwt = true
