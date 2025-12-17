@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -6,8 +6,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "next-themes";
-import { Moon, Sun, Monitor } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FileText, Shield } from "lucide-react";
 
 interface AppSettingsDialogProps {
   open: boolean;
@@ -16,8 +16,7 @@ interface AppSettingsDialogProps {
 
 export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps) => {
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const navigate = useNavigate();
   const [settings, setSettings] = useState({
     notifications: true,
     workoutReminders: true,
@@ -25,11 +24,6 @@ export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps
     units: "metric",
     dataSync: true,
   });
-
-  // Ensure theme is mounted before rendering
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleSave = () => {
     toast({
@@ -89,47 +83,6 @@ export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps
 
           <Separator />
 
-          {/* Appearance - Theme Toggle */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Appearance</h3>
-            <div className="space-y-3">
-              <Label className="text-sm">Theme</Label>
-              {mounted && (
-                <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    variant={theme === "light" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTheme("light")}
-                    className="flex items-center gap-2"
-                  >
-                    <Sun className="h-4 w-4" />
-                    Light
-                  </Button>
-                  <Button
-                    variant={theme === "dark" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTheme("dark")}
-                    className="flex items-center gap-2"
-                  >
-                    <Moon className="h-4 w-4" />
-                    Dark
-                  </Button>
-                  <Button
-                    variant={theme === "system" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setTheme("system")}
-                    className="flex items-center gap-2"
-                  >
-                    <Monitor className="h-4 w-4" />
-                    Auto
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
           {/* Units */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium">Units</h3>
@@ -163,6 +116,37 @@ export const AppSettingsDialog = ({ open, onOpenChange }: AppSettingsDialogProps
                 checked={settings.dataSync}
                 onCheckedChange={(checked) => setSettings({...settings, dataSync: checked})}
               />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Legal */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium">Legal</h3>
+            <div className="space-y-2">
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate('/privacy-policy');
+                }}
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Privacy Policy
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate('/terms-of-service');
+                }}
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Terms of Service
+              </Button>
             </div>
           </div>
         </div>

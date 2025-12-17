@@ -101,14 +101,26 @@ const TermsOfService = () => {
               </p>
               <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
                 <li>Pay all fees associated with your subscription</li>
-                <li>Automatic renewal unless cancelled</li>
+                <li>Automatic renewal unless cancelled at least 24 hours before the end of the current period</li>
                 <li>No refunds for partial subscription periods</li>
                 <li>Price changes with 30 days notice</li>
               </ul>
 
+              <h3 className="text-xl font-medium">Apple App Store Subscriptions</h3>
+              <p className="text-foreground/90 leading-relaxed">
+                For subscriptions purchased through the Apple App Store:
+              </p>
+              <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
+                <li>Payment will be charged to your Apple ID account at confirmation of purchase</li>
+                <li>Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period</li>
+                <li>Your account will be charged for renewal within 24 hours prior to the end of the current period</li>
+                <li>You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase</li>
+                <li>Any unused portion of a free trial period will be forfeited when you purchase a subscription</li>
+              </ul>
+
               <h3 className="text-xl font-medium">Cancellation</h3>
               <p className="text-foreground/90 leading-relaxed">
-                You may cancel your subscription at any time through your account settings. Cancellation takes effect at the end of the current billing period.
+                You may cancel your subscription at any time through your Apple ID account settings. Cancellation takes effect at the end of the current billing period. To cancel, go to Settings → [Your Name] → Subscriptions on your iOS device.
               </p>
             </div>
           </section>
