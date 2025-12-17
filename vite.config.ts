@@ -17,13 +17,18 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Force a single React instance to avoid "Invalid hook call" / dispatcher null issues
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
+      "react/jsx-dev-runtime": path.resolve(__dirname, "./node_modules/react/jsx-dev-runtime"),
     },
     dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react/jsx-runtime"],
     esbuildOptions: {
-      resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
+      resolveExtensions: [".js", ".jsx", ".ts", ".tsx"],
     },
   },
 }));
