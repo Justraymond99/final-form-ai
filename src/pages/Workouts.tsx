@@ -38,6 +38,7 @@ const Workouts = () => {
   const { workoutPlans, deleteMultiWeekPlan, fetchMultiWeekPlans, loading: plansLoading } = useMultiWeekPlans();
   const [showScheduler, setShowScheduler] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState("workouts");
 
   // Format recent workouts for display
   const recentWorkouts = dbRecentWorkouts.map(workout => ({
@@ -94,11 +95,16 @@ const Workouts = () => {
           <p className="text-muted-foreground">Build strength, track progress</p>
         </div>
 
-        <Tabs defaultValue="workouts" className="space-y-6">
+        <Tabs defaultValue="workouts" className="space-y-6" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="workouts" className="flex items-center gap-2">
               <Dumbbell className="w-4 h-4" />
               My Workouts
+              {workoutPlans.length > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                  {workoutPlans.length}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="ai-generator" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
@@ -107,12 +113,76 @@ const Workouts = () => {
           </TabsList>
 
           <TabsContent value="workouts" className="space-y-6">
+            {/* Saved Programs - Now First & Prominent */}
+            {workoutPlans.length > 0 && (
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FolderOpen className="h-5 w-5 text-primary" />
+                    Saved Programs
+                    <Badge variant="secondary" className="ml-auto">{workoutPlans.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {workoutPlans.map((plan) => (
+                    <div
+                      key={plan.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 bg-card hover:bg-accent/5 transition-colors cursor-pointer"
+                      onClick={() => setSelectedPlan(plan)}
+                    >
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h3 className="font-medium">{plan.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <span>{plan.weeks} weeks</span>
+                          <span>•</span>
+                          <span>{formatLabel(plan.difficulty)}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Program?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently delete "{plan.name}". This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeletePlan(plan.id, plan.name)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <Badge variant="outline" className="border-primary/30 text-primary">
+                          {plan.weeks}W
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-4">
               <Button 
                 className="h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
                 onClick={async () => {
-                  // Create a quick workout session without a template
                   const result = await startWorkout("");
                   if (result?.success) {
                     toast({ title: "Quick Workout Started!", description: "Let's get moving!" });
@@ -263,69 +333,6 @@ const Workouts = () => {
                 )}
               </CardContent>
             </Card>
-            {/* Saved Programs */}
-            {workoutPlans.length > 0 && (
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FolderOpen className="h-5 w-5 text-green-500" />
-                    Saved Programs
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {workoutPlans.map((plan) => (
-                    <div
-                      key={plan.id}
-                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
-                      onClick={() => setSelectedPlan(plan)}
-                    >
-                      <div className="space-y-1 min-w-0 flex-1">
-                        <h3 className="font-medium truncate">{plan.name}</h3>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <span>{plan.weeks} weeks</span>
-                          <span>•</span>
-                          <span>{formatLabel(plan.difficulty)}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Program?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete "{plan.name}". This action cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeletePlan(plan.id, plan.name)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <Badge variant="outline" className="border-green-500/30 text-green-500">
-                          {plan.weeks}W
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           <TabsContent value="ai-generator">
@@ -338,6 +345,8 @@ const Workouts = () => {
               }}
               onWorkoutSaved={() => {
                 fetchMultiWeekPlans();
+                setActiveTab("workouts");
+                toast({ title: "Program Saved!", description: "View it in My Workouts tab" });
               }}
             />
           </TabsContent>
