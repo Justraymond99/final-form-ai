@@ -33,12 +33,27 @@ interface AIFeature {
   isPremium: boolean;
 }
 
+interface AIInsight {
+  summary: string;
+  achievements: string[];
+  improvements: string[];
+  motivation: string;
+  actionItems: string[];
+  stats: {
+    workoutsCompleted: number;
+    caloriesLogged: number;
+    waterAverage: number;
+    consistencyScore: number;
+  };
+}
+
 export const AdvancedAIFeatures = () => {
   const { toast } = useToast();
   const { user } = useSecureAuth();
   const [activeTab, setActiveTab] = useState('analysis');
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<AIFeature | null>(null);
+  const [insights, setInsights] = useState<AIInsight | null>(null);
 
   const aiFeatures: AIFeature[] = [
     {
@@ -130,10 +145,13 @@ export const AdvancedAIFeatures = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "AI Insights Generated! ✨",
-        description: "Check your dashboard for personalized recommendations.",
-      });
+      if (data?.insights) {
+        setInsights(data.insights);
+        toast({
+          title: "AI Insights Generated! ✨",
+          description: "Your personalized insights are ready below.",
+        });
+      }
 
     } catch (error) {
       toast({
@@ -195,6 +213,93 @@ export const AdvancedAIFeatures = () => {
           >
             {isProcessing ? 'Generating...' : 'Generate AI Insights'}
           </Button>
+
+          {/* Display Generated Insights */}
+          {insights && (
+            <div className="mt-6 space-y-4">
+              {/* Stats Grid */}
+              {insights.stats && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 bg-background rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-primary">{insights.stats.workoutsCompleted}</p>
+                    <p className="text-xs text-muted-foreground">Workouts</p>
+                  </div>
+                  <div className="p-3 bg-background rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-accent">{insights.stats.caloriesLogged}</p>
+                    <p className="text-xs text-muted-foreground">Calories</p>
+                  </div>
+                  <div className="p-3 bg-background rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-secondary">{insights.stats.waterAverage}ml</p>
+                    <p className="text-xs text-muted-foreground">Avg Water</p>
+                  </div>
+                  <div className="p-3 bg-background rounded-lg border text-center">
+                    <p className="text-2xl font-bold text-primary">{insights.stats.consistencyScore}%</p>
+                    <p className="text-xs text-muted-foreground">Consistency</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-4 bg-background rounded-lg border">
+                <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-primary" />
+                  Summary
+                </h4>
+                <p className="text-sm text-muted-foreground">{insights.summary}</p>
+              </div>
+
+              {insights.achievements?.length > 0 && (
+                <div className="p-4 bg-background rounded-lg border">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4 text-accent" />
+                    Achievements
+                  </h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {insights.achievements.map((item, i) => (
+                      <li key={i}>✓ {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {insights.improvements?.length > 0 && (
+                <div className="p-4 bg-background rounded-lg border">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-primary" />
+                    Areas to Improve
+                  </h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {insights.improvements.map((item, i) => (
+                      <li key={i}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {insights.actionItems?.length > 0 && (
+                <div className="p-4 bg-background rounded-lg border">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-secondary" />
+                    Action Items
+                  </h4>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    {insights.actionItems.map((item, i) => (
+                      <li key={i}>→ {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {insights.motivation && (
+                <div className="p-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg border border-primary/30">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    Motivation
+                  </h4>
+                  <p className="text-sm italic">{insights.motivation}</p>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
