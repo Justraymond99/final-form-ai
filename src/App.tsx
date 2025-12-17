@@ -11,6 +11,7 @@ import SecurityWrapper from "./components/SecurityWrapper";
 import { AnimatedRoutes } from "./components/AnimatedRoutes";
 import { PaywallProvider } from "./components/PaywallModal";
 import { OnboardingTrialNudge } from "./components/OnboardingTrialNudge";
+import { TrialNotificationsInit } from "./components/TrialNotificationsInit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,7 @@ const App: React.FC = () => (
               <Sonner />
               <BrowserRouter>
                 <PaywallProvider>
+                  <TrialNotificationsInit />
                   <OnboardingTrialNudge />
                   <AnimatedRoutes />
                 </PaywallProvider>

@@ -15,6 +15,7 @@ import { WeeklyInsights } from "@/components/WeeklyInsights";
 import { RecoveryCoach } from "@/components/RecoveryCoach";
 import { WeeklyCoachInsights } from "@/components/WeeklyCoachInsights";
 import { DashboardSkeleton } from "@/components/DashboardSkeleton";
+import { StreakProtection } from "@/components/StreakProtection";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
@@ -341,11 +342,12 @@ const Index = () => {
         </div>
 
         {/* Streak Section */}
-        <div className="mb-6 sm:mb-8">
+        <div className="mb-6 sm:mb-8 space-y-4">
           <TodayStreak 
             currentStreak={dailyData?.workout_streak || 0} 
             isActiveToday={dailyData?.workout_completed || false} 
           />
+          <StreakProtection />
         </div>
 
         {/* Next Workout */}

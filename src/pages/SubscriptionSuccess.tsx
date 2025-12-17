@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +6,12 @@ import { Navigation } from "@/components/Navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Crown, Sparkles, ArrowRight } from "lucide-react";
+import { PurchaseCelebration } from "@/components/PurchaseCelebration";
 
 const SubscriptionSuccess = () => {
   const { checkSubscription } = useSubscription();
   const navigate = useNavigate();
+  const [showCelebration, setShowCelebration] = useState(true);
 
   useEffect(() => {
     // Refresh subscription status after successful payment
@@ -22,6 +24,7 @@ const SubscriptionSuccess = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-28">
+      <PurchaseCelebration isOpen={showCelebration} onClose={() => setShowCelebration(false)} />
       <div className="max-w-md mx-auto space-y-8">
         {/* Success Animation */}
         <div className="text-center py-12">

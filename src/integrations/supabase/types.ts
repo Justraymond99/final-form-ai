@@ -1277,6 +1277,48 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          reward_claimed: boolean | null
+          reward_months: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          reward_claimed?: boolean | null
+          reward_months?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          reward_claimed?: boolean | null
+          reward_months?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scheduled_workouts: {
         Row: {
           completed: boolean | null
@@ -1449,6 +1491,30 @@ export type Database = {
           name?: string
           store_preference?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      streak_freezes: {
+        Row: {
+          created_at: string
+          freeze_date: string
+          id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          freeze_date?: string
+          id?: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          freeze_date?: string
+          id?: string
+          used_at?: string
           user_id?: string
         }
         Relationships: []
