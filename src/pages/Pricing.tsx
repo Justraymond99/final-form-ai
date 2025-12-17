@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Navigation } from "@/components/Navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 
 const Pricing = () => {
+  const [isYearly, setIsYearly] = useState(false);
   const { 
     hasPremiumAccess, 
     isInTrial, 
@@ -198,6 +200,20 @@ const Pricing = () => {
           )}
         </div>
 
+        {/* Billing Toggle */}
+        <div className="flex items-center justify-center gap-4">
+          <span className={!isYearly ? "font-medium" : "text-muted-foreground"}>Monthly</span>
+          <Switch
+            checked={isYearly}
+            onCheckedChange={setIsYearly}
+            className="data-[state=checked]:bg-primary"
+          />
+          <span className={isYearly ? "font-medium" : "text-muted-foreground"}>
+            Yearly 
+            <Badge variant="secondary" className="ml-2">Save 17%</Badge>
+          </span>
+        </div>
+
         {/* Plans */}
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Free Plan */}
@@ -246,12 +262,14 @@ const Pricing = () => {
               <CardTitle className="text-2xl">FitTracker Pro</CardTitle>
               <div className="space-y-2">
                 <div className="text-3xl font-bold">
-                  {getPackagePrice('monthly')}
-                  <span className="text-lg font-normal text-muted-foreground">/month</span>
+                  {isYearly ? getPackagePrice('yearly') : getPackagePrice('monthly')}
+                  <span className="text-lg font-normal text-muted-foreground">
+                    /{isYearly ? 'year' : 'month'}
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  or {getPackagePrice('yearly')}/year (save 17%)
-                </p>
+                {isYearly && (
+                  <p className="text-sm text-green-600">Save 17% with annual billing!</p>
+                )}
               </div>
               <p className="text-muted-foreground">Unlock AI-powered features</p>
             </CardHeader>
@@ -291,23 +309,13 @@ const Pricing = () => {
                   )}
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <Button 
-                    onClick={() => handlePurchase('monthly')}
-                    className="w-full bg-gradient-primary hover:opacity-90 text-background"
-                    disabled={purchasing || loading || !isIOSNative}
-                  >
-                    {purchasing ? "Processing..." : "Subscribe Monthly"}
-                  </Button>
-                  <Button 
-                    onClick={() => handlePurchase('yearly')}
-                    variant="outline"
-                    className="w-full"
-                    disabled={purchasing || loading || !isIOSNative}
-                  >
-                    {purchasing ? "Processing..." : "Subscribe Yearly (Save 17%)"}
-                  </Button>
-                </div>
+                <Button 
+                  onClick={() => handlePurchase(isYearly ? 'yearly' : 'monthly')}
+                  className="w-full bg-gradient-primary hover:opacity-90 text-background"
+                  disabled={purchasing || loading || !isIOSNative}
+                >
+                  {purchasing ? "Processing..." : isYearly ? "Subscribe Yearly" : "Start Free Trial"}
+                </Button>
               )}
             </CardContent>
           </Card>
