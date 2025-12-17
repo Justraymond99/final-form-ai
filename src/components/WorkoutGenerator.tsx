@@ -336,7 +336,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
 
         {generatedWorkout && (
           <MultiWeekWorkoutDisplay 
-            workoutPlan={generatedWorkout}
+            workoutPlan={normalizePlan(generatedWorkout)}
             onSave={(name: string, description: string) => {
               setWorkoutName(name);
               setWorkoutDescription(description);
