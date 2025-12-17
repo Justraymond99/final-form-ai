@@ -396,30 +396,33 @@ const Nutrition = () => {
             ))}
 
             {/* Recent Foods */}
-            <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-accent" />
-                  Recent Foods
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {["Chicken Breast", "Brown Rice", "Greek Yogurt", "Banana"].map((food, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
-                  >
-                    <div>
-                      <p className="font-medium">{food}</p>
-                      <p className="text-sm text-muted-foreground">Tap to add quickly</p>
+            {todaysFoods.length > 0 && (
+              <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-accent" />
+                    Recent Foods
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {todaysFoods.slice(-4).reverse().map((food) => (
+                    <div
+                      key={food.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border/30 hover:bg-accent/5 transition-colors cursor-pointer"
+                      onClick={() => navigate("/food-logger")}
+                    >
+                      <div>
+                        <p className="font-medium">{food.name}</p>
+                        <p className="text-sm text-muted-foreground">{food.calories} cal • {food.time}</p>
+                      </div>
+                      <Button size="sm" variant="outline">
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button size="sm" variant="outline">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="generator" className="mt-6">
