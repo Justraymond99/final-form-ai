@@ -192,6 +192,26 @@ export const useWorkouts = () => {
     }
   };
 
+  const deleteTemplate = async (templateId: string) => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    try {
+      const { error } = await supabase
+        .from('workout_templates')
+        .delete()
+        .eq('id', templateId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      setWorkouts(prev => prev.filter(w => w.id !== templateId));
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      return { success: false, error };
+    }
+  };
+
   return {
     workouts,
     sessions,
@@ -202,6 +222,7 @@ export const useWorkouts = () => {
     startWorkout,
     pauseWorkout,
     resumeWorkout,
-    completeWorkout
+    completeWorkout,
+    deleteTemplate
   };
 };

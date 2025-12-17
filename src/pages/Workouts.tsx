@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles } from "lucide-react";
+import { Plus, Play, Clock, TrendingUp, Dumbbell, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,11 +10,22 @@ import { WorkoutScheduler } from "@/components/WorkoutScheduler";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Workouts = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { templates, recentWorkouts: dbRecentWorkouts, startWorkout } = useWorkouts();
+  const { templates, recentWorkouts: dbRecentWorkouts, startWorkout, deleteTemplate } = useWorkouts();
   const [showScheduler, setShowScheduler] = useState<string | null>(null);
 
   // Format recent workouts for display
@@ -44,6 +55,14 @@ const Workouts = () => {
     }
   };
 
+  const handleDeleteTemplate = async (templateId: string, templateName: string) => {
+    const result = await deleteTemplate(templateId);
+    if (result?.success) {
+      toast({ title: "Template Deleted", description: `"${templateName}" has been removed.` });
+    } else {
+      toast({ title: "Error", description: "Failed to delete template", variant: "destructive" });
+    }
+  };
   return (
     <div className="min-h-screen bg-background text-foreground p-4 pb-28">
       <div className="max-w-md mx-auto space-y-6">
@@ -173,6 +192,35 @@ const Workouts = () => {
                           >
                             Schedule
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Template?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently delete "{template.name}". This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDeleteTemplate(template.id, template.name)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                           <Badge variant="outline" className="border-accent/30 text-accent">
                             {template.type}
                           </Badge>
