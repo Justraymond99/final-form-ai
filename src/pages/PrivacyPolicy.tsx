@@ -144,8 +144,8 @@ const PrivacyPolicy = () => {
               If you have questions about this Privacy Policy, please contact us at:
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-foreground/90">Email: finalformai1@gmail.com</p>
-              <p className="text-foreground/90">Support: finalformai1@gmail.com</p>
+              <p className="text-foreground/90">Email: legitgamer60@gmail.com</p>
+              <p className="text-foreground/90">Support: legitgamer60@gmail.com</p>
             </div>
           </section>
         </div>
