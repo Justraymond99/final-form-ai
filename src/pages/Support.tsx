@@ -63,7 +63,7 @@ const Support = () => {
       <div className="container max-w-4xl mx-auto p-6 space-y-8">
         <Button
           variant="ghost"
-          onClick={() => navigate(-1)}
+          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
