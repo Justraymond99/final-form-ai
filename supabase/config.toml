@@ -53,3 +53,9 @@ verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.ai-recovery-coach]
+verify_jwt = true
+
+[functions.ai-weekly-coach]
+verify_jwt = true
