@@ -206,8 +206,8 @@ const TermsOfService = () => {
               For questions about these Terms, please contact:
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-foreground/90">Email: legal@finalform.app</p>
-              <p className="text-foreground/90">Support: support@finalform.app</p>
+              <p className="text-foreground/90">Email: legal@final-form-ai.com</p>
+              <p className="text-foreground/90">Support: support@final-form-ai.com</p>
             </div>
           </section>
 
