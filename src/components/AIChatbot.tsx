@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
@@ -63,11 +64,17 @@ export const AIChatbot = () => {
     }]);
 
     try {
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('No active session');
+      }
+
       const response = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxub2NkYnFseGVweHVvaGt0anhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0MzY1NDcsImV4cCI6MjA3MDAxMjU0N30.X5VFL93-2rsM3hlZJuz1vXd2TXhRCpSEaWOVPUTTXoY`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           message: currentInput,
