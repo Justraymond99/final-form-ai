@@ -20,14 +20,29 @@ interface OnboardingData {
   workoutFrequency: string;
   age: number;
   height: number;
+  heightFt: number;
+  heightIn: number;
   weight: number;
   targetWeight: number;
   displayName: string;
+  weightUnit: 'kg' | 'lb';
+  heightUnit: 'cm' | 'ft';
 }
 
 interface OnboardingFlowProps {
   onComplete: () => void;
 }
+
+// Conversion helpers
+const lbToKg = (lb: number) => Math.round(lb * 0.453592 * 10) / 10;
+const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
+const ftInToCm = (ft: number, inches: number) => Math.round((ft * 30.48) + (inches * 2.54));
+const cmToFtIn = (cm: number) => {
+  const totalInches = cm / 2.54;
+  const ft = Math.floor(totalInches / 12);
+  const inches = Math.round(totalInches % 12);
+  return { ft, in: inches };
+};
 
 export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { toast } = useToast();
@@ -41,9 +56,13 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
     workoutFrequency: '',
     age: 0,
     height: 0,
+    heightFt: 0,
+    heightIn: 0,
     weight: 0,
     targetWeight: 0,
-    displayName: ''
+    displayName: '',
+    weightUnit: 'kg',
+    heightUnit: 'cm'
   });
 
   const steps = [
@@ -145,15 +164,26 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const handleComplete = async () => {
     setIsCompleting(true);
     try {
+      // Convert to metric for storage
+      const heightCm = data.heightUnit === 'ft' 
+        ? ftInToCm(data.heightFt, data.heightIn) 
+        : data.height;
+      const weightKg = data.weightUnit === 'lb' 
+        ? lbToKg(data.weight) 
+        : data.weight;
+      const targetWeightKg = data.weightUnit === 'lb' 
+        ? lbToKg(data.targetWeight) 
+        : data.targetWeight;
+
       await updateProfile({
         display_name: data.displayName,
         activity_level: data.fitnessLevel,
         dietary_restrictions: data.dietaryPreferences,
         fitness_goals: data.goals,
         age: data.age,
-        height_cm: data.height,
-        weight_kg: data.weight,
-        target_weight_kg: data.targetWeight,
+        height_cm: heightCm,
+        weight_kg: weightKg,
+        target_weight_kg: targetWeightKg,
       });
       
       localStorage.setItem('onboarding_completed', 'true');
@@ -286,6 +316,49 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
               <h2 className="text-2xl font-bold mb-2">{steps[3].title}</h2>
               <p className="text-muted-foreground">{steps[3].subtitle}</p>
             </div>
+            
+            {/* Unit preference toggles */}
+            <div className="flex justify-center gap-4">
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                <span className="text-sm text-muted-foreground">Weight:</span>
+                <div className="flex rounded-md overflow-hidden border border-border">
+                  <button
+                    type="button"
+                    className={`px-3 py-1 text-sm transition-colors ${data.weightUnit === 'kg' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                    onClick={() => setData(prev => ({ ...prev, weightUnit: 'kg' }))}
+                  >
+                    kg
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-3 py-1 text-sm transition-colors ${data.weightUnit === 'lb' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                    onClick={() => setData(prev => ({ ...prev, weightUnit: 'lb' }))}
+                  >
+                    lb
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                <span className="text-sm text-muted-foreground">Height:</span>
+                <div className="flex rounded-md overflow-hidden border border-border">
+                  <button
+                    type="button"
+                    className={`px-3 py-1 text-sm transition-colors ${data.heightUnit === 'cm' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                    onClick={() => setData(prev => ({ ...prev, heightUnit: 'cm' }))}
+                  >
+                    cm
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-3 py-1 text-sm transition-colors ${data.heightUnit === 'ft' ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-muted'}`}
+                    onClick={() => setData(prev => ({ ...prev, heightUnit: 'ft' }))}
+                  >
+                    ft/in
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="age">Age</Label>
@@ -297,34 +370,59 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
                   placeholder="25"
                 />
               </div>
+              
+              {/* Height input - conditional based on unit */}
+              {data.heightUnit === 'cm' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="height">Height (cm)</Label>
+                  <Input
+                    id="height"
+                    type="number"
+                    value={data.height || ''}
+                    onChange={(e) => setData(prev => ({ ...prev, height: parseInt(e.target.value) || 0 }))}
+                    placeholder="175"
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Height (ft/in)</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={data.heightFt || ''}
+                      onChange={(e) => setData(prev => ({ ...prev, heightFt: parseInt(e.target.value) || 0 }))}
+                      placeholder="5"
+                      className="w-1/2"
+                    />
+                    <Input
+                      type="number"
+                      value={data.heightIn || ''}
+                      onChange={(e) => setData(prev => ({ ...prev, heightIn: parseInt(e.target.value) || 0 }))}
+                      placeholder="10"
+                      className="w-1/2"
+                    />
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-2">
-                <Label htmlFor="height">Height (cm)</Label>
-                <Input
-                  id="height"
-                  type="number"
-                  value={data.height || ''}
-                  onChange={(e) => setData(prev => ({ ...prev, height: parseInt(e.target.value) || 0 }))}
-                  placeholder="175"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="weight">Current Weight (kg)</Label>
+                <Label htmlFor="weight">Current Weight ({data.weightUnit})</Label>
                 <Input
                   id="weight"
                   type="number"
                   value={data.weight || ''}
                   onChange={(e) => setData(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
-                  placeholder="70"
+                  placeholder={data.weightUnit === 'kg' ? '70' : '154'}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="target-weight">Target Weight (kg)</Label>
+                <Label htmlFor="target-weight">Target Weight ({data.weightUnit})</Label>
                 <Input
                   id="target-weight"
                   type="number"
                   value={data.targetWeight || ''}
                   onChange={(e) => setData(prev => ({ ...prev, targetWeight: parseFloat(e.target.value) || 0 }))}
-                  placeholder="65"
+                  placeholder={data.weightUnit === 'kg' ? '65' : '143'}
                 />
               </div>
             </div>
@@ -442,7 +540,8 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       case 2:
         return data.goals.length > 0;
       case 3:
-        return data.age > 0 && data.height > 0 && data.weight > 0 && data.fitnessLevel;
+        const hasHeight = data.heightUnit === 'cm' ? data.height > 0 : (data.heightFt > 0 || data.heightIn > 0);
+        return data.age > 0 && hasHeight && data.weight > 0 && data.fitnessLevel;
       case 4:
         return data.dietaryPreferences.length > 0;
       case 5:
