@@ -1,6 +1,8 @@
-import { Calendar, Trophy, TrendingUp, Award, Target } from "lucide-react";
+import { Calendar, Trophy, TrendingUp, Award, Target, Camera, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { Navigation } from "@/components/Navigation";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
@@ -159,6 +161,26 @@ const Progress = () => {
             ))}
           </CardContent>
         </Card>
+
+        {/* Progress Photos Link */}
+        <Link to="/progress-photos">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-colors cursor-pointer">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Camera className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Progress Photos</h3>
+                    <p className="text-sm text-muted-foreground">Track visual changes over time</p>
+                  </div>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Goals Section */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">

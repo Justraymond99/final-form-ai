@@ -376,6 +376,32 @@ export const AdvancedAIFeatures = () => {
                             </div>
                           )}
                           
+                          {feature.id === 'injury-prevention' && (
+                            <div className="space-y-2">
+                              <h4 className="font-semibold">How it works:</h4>
+                              <ul className="text-sm space-y-1 text-muted-foreground">
+                                <li>• Analyzes your workout history for overtraining patterns</li>
+                                <li>• Detects muscle imbalances from exercise selection</li>
+                                <li>• Suggests warm-up routines based on planned exercises</li>
+                                <li>• Recommends deload weeks when fatigue accumulates</li>
+                                <li>• Alerts you when certain muscle groups need rest</li>
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {feature.id === 'recovery-optimization' && (
+                            <div className="space-y-2">
+                              <h4 className="font-semibold">How it works:</h4>
+                              <ul className="text-sm space-y-1 text-muted-foreground">
+                                <li>• Tracks workout intensity and volume per muscle group</li>
+                                <li>• Calculates optimal rest periods between sessions</li>
+                                <li>• Shows muscle recovery status (ready/recovering)</li>
+                                <li>• Suggests best times to train specific muscle groups</li>
+                                <li>• Adjusts recommendations based on your sleep and stress</li>
+                              </ul>
+                            </div>
+                          )}
+                          
                           <Button 
                             onClick={() => handleFeatureActivation(feature)}
                             disabled={isProcessing}
