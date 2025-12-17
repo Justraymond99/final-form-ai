@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Navigation } from "@/components/Navigation";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
+import { PricingSkeleton } from "@/components/PricingSkeleton";
 import { Capacitor } from "@capacitor/core";
 import { 
   Check, 
@@ -38,6 +39,11 @@ const Pricing = () => {
   const [purchasing, setPurchasing] = useState(false);
 
   const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+
+  // Show skeleton while loading - but only briefly on web
+  if (loading) {
+    return <PricingSkeleton />;
+  }
 
   const handlePurchase = async (packageType: 'monthly' | 'yearly') => {
     if (!isIOSNative) {

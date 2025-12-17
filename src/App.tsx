@@ -13,6 +13,7 @@ import { PaywallProvider } from "./components/PaywallModal";
 import { OnboardingTrialNudge } from "./components/OnboardingTrialNudge";
 import { TrialNotificationsInit } from "./components/TrialNotificationsInit";
 import { RateAppPrompt } from "./components/RateAppPrompt";
+import { PrefetchInit } from "./components/PrefetchInit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ const App: React.FC = () => (
               <Sonner />
               <BrowserRouter>
                 <PaywallProvider>
+                  <PrefetchInit />
                   <TrialNotificationsInit />
                   <OnboardingTrialNudge />
                   <RateAppPrompt />
