@@ -12,7 +12,7 @@ import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, X } from "lucide-react";
 import { MultiWeekWorkoutDisplay } from "@/components/MultiWeekWorkoutDisplay";
 
 interface WorkoutGeneratorProps {
@@ -335,15 +335,26 @@ export const WorkoutGenerator = ({ onWorkoutGenerated }: WorkoutGeneratorProps) 
         </Card>
 
         {generatedWorkout && (
-          <MultiWeekWorkoutDisplay 
-            workoutPlan={normalizePlan(generatedWorkout)}
-            onSave={(name: string, description: string) => {
-              setWorkoutName(name);
-              setWorkoutDescription(description);
-              setShowSaveDialog(true);
-            }}
-            onStartWorkout={handleStartWorkout}
-          />
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 z-10"
+              onClick={() => setGeneratedWorkout(null)}
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear
+            </Button>
+            <MultiWeekWorkoutDisplay 
+              workoutPlan={normalizePlan(generatedWorkout)}
+              onSave={(name: string, description: string) => {
+                setWorkoutName(name);
+                setWorkoutDescription(description);
+                setShowSaveDialog(true);
+              }}
+              onStartWorkout={handleStartWorkout}
+            />
+          </div>
         )}
       </div>
   );

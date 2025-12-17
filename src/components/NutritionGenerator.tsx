@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
-import { ChefHat, Loader2 } from "lucide-react";
+import { ChefHat, Loader2, X } from "lucide-react";
 import { MultiWeekNutritionDisplay } from "@/components/MultiWeekNutritionDisplay";
+import { Button as ShadButton } from "@/components/ui/button";
 
 export const NutritionGenerator = () => {
   const { user } = useSecureAuth();
@@ -262,13 +263,24 @@ export const NutritionGenerator = () => {
       </Card>
 
       {generatedPlan && (
-        <MultiWeekNutritionDisplay 
-          nutritionPlan={generatedPlan}
-          onSave={(name: string, description: string) => {
-            console.log('Saving plan:', name, description);
-          }}
-          onAddMealToLog={handleAddMealToLog}
-        />
+        <div className="relative">
+          <ShadButton
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 z-10"
+            onClick={() => setGeneratedPlan(null)}
+          >
+            <X className="h-4 w-4 mr-1" />
+            Clear
+          </ShadButton>
+          <MultiWeekNutritionDisplay 
+            nutritionPlan={generatedPlan}
+            onSave={(name: string, description: string) => {
+              console.log('Saving plan:', name, description);
+            }}
+            onAddMealToLog={handleAddMealToLog}
+          />
+        </div>
       )}
     </div>
   );
