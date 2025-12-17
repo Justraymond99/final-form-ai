@@ -17,6 +17,7 @@ import { PrefetchInit } from "./components/PrefetchInit";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { SyncStatus } from "./components/SyncStatus";
 import { PerformanceInit } from "./components/PerformanceInit";
+import { NotificationInit } from "./components/NotificationInit";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +40,7 @@ const App: React.FC = () => (
               <BrowserRouter>
                 <PaywallProvider>
                   <PerformanceInit />
+                  <NotificationInit />
                   <OfflineIndicator />
                   <SyncStatus />
                   <PrefetchInit />

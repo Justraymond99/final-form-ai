@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +26,7 @@ export const useAchievements = () => {
   const previousCompletedIds = useRef<Set<string>>(new Set());
 
   // Send browser notification for achievement
-  const sendAchievementNotification = async (achievement: Achievement) => {
+  const sendAchievementNotification = useCallback(async (achievement: Achievement) => {
     // Check if notification preferences allow it
     const prefs = localStorage.getItem('notification_preferences');
     const preferences = prefs ? JSON.parse(prefs) : { achievementNotifications: true };
@@ -35,7 +35,7 @@ export const useAchievements = () => {
 
     // Show toast notification
     toast({
-      title: "🎉 Achievement Unlocked!",
+      title: "🏆 Achievement Unlocked!",
       description: `${achievement.title}: ${achievement.description}`,
     });
 
@@ -44,18 +44,28 @@ export const useAchievements = () => {
       try {
         const registration = await navigator.serviceWorker?.ready;
         if (registration) {
-          await registration.showNotification("🎉 Achievement Unlocked!", {
+          await registration.showNotification("🏆 Achievement Unlocked!", {
             body: `${achievement.title}: ${achievement.description}`,
             icon: '/icon-192.png',
             badge: '/icon-192.png',
-            tag: `achievement-${achievement.id}`
+            tag: `achievement-${achievement.id}`,
+            data: { type: 'achievement', achievementId: achievement.id }
           });
         }
       } catch (error) {
-        console.log('Push notification not available:', error);
+        // Fallback to basic notification
+        try {
+          new Notification("🏆 Achievement Unlocked!", {
+            body: `${achievement.title}: ${achievement.description}`,
+            icon: '/icon-192.png',
+            tag: `achievement-${achievement.id}`
+          });
+        } catch (e) {
+          console.log('Notifications not available:', e);
+        }
       }
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     if (!user) {
