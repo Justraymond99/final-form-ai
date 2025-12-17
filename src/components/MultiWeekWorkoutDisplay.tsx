@@ -235,35 +235,37 @@ export const MultiWeekWorkoutDisplay = ({
             {weeklyPlans.map((week: any, index: number) => (
               <TabsContent key={`week-${index + 1}`} value={`week-${index + 1}`}>
                 <Card className="overflow-hidden">
-                  <CardHeader className="p-4">
-                    <CardTitle className="flex items-center gap-2 text-base">
+                  <CardHeader className="p-3">
+                    <CardTitle className="flex items-center gap-2 text-sm">
                       <Calendar className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">Week {index + 1}: {week.focus}</span>
+                      <span className="truncate">Week {index + 1}: {formatLabel(week.focus)}</span>
                     </CardTitle>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {week.description || `Focus: ${week.focus}`}
-                    </p>
+                    {week.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {week.description}
+                      </p>
+                    )}
                   </CardHeader>
-                  <CardContent className="p-4 pt-0">
+                  <CardContent className="p-3 pt-0">
                     <Accordion type="single" collapsible className="w-full">
                       {week.workouts?.map((workout: any, workoutIndex: number) => (
                         <AccordionItem key={workoutIndex} value={`workout-${workoutIndex}`}>
-                          <AccordionTrigger className="hover:no-underline py-3">
+                          <AccordionTrigger className="hover:no-underline py-2">
                             <div className="flex items-center justify-between w-full pr-2 gap-2 min-w-0">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <Badge variant="outline" className="text-xs flex-shrink-0 px-1.5">{workout.day}</Badge>
-                                <span className="font-medium text-xs truncate">{workout.workout_name}</span>
+                                <Badge variant="outline" className="text-[10px] flex-shrink-0 px-1.5">{workout.day}</Badge>
+                                <span className="font-medium text-xs truncate">{formatLabel(workout.workout_name || workout.name)}</span>
                               </div>
                               <div className="flex items-center gap-1 flex-shrink-0">
                                 <Clock className="h-3 w-3" />
-                                <span className="text-xs">{workout.duration}m</span>
+                                <span className="text-[10px]">{workout.duration}m</span>
                                 <Button
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleStartWorkout(workout);
                                   }}
-                                  className="ml-1 h-6 px-2 text-xs"
+                                  className="ml-1 h-5 px-1.5 text-[10px]"
                                 >
                                   <Play className="h-3 w-3" />
                                 </Button>
@@ -271,35 +273,35 @@ export const MultiWeekWorkoutDisplay = ({
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
-                            <div className="space-y-3 pt-2">
+                            <div className="space-y-2 pt-1">
                               <div className="flex flex-wrap gap-1">
-                                <Badge variant="secondary" className="text-xs">{formatLabel(workout.type)}</Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Dumbbell className="h-3 w-3 mr-1 flex-shrink-0" />
-                                  {workout.target_muscles?.slice(0, 2).join(', ') || 'Full Body'}
-                                </Badge>
+                                {workout.type && (
+                                  <Badge variant="secondary" className="text-[10px]">{formatLabel(workout.type)}</Badge>
+                                )}
+                                {workout.target_muscles?.length > 0 && (
+                                  <Badge variant="outline" className="text-[10px]">
+                                    <Dumbbell className="h-3 w-3 mr-1 flex-shrink-0" />
+                                    {workout.target_muscles.slice(0, 2).map((m: string) => formatLabel(m)).join(', ')}
+                                  </Badge>
+                                )}
                               </div>
                               
                               {workout.exercises && workout.exercises.length > 0 && (
-                                <div className="space-y-2">
-                                  <h4 className="font-medium text-xs">Exercises:</h4>
+                                <div className="space-y-1.5">
+                                  <h4 className="font-medium text-xs text-muted-foreground">Exercises:</h4>
                                   {workout.exercises.map((exercise: any, exerciseIndex: number) => (
-                                    <div key={exerciseIndex} className="p-2 bg-muted rounded-lg">
+                                    <div key={exerciseIndex} className="p-2 bg-muted rounded-md">
                                       <div className="flex justify-between items-start gap-2">
                                         <div className="min-w-0 flex-1">
-                                          <p className="font-medium text-xs truncate">{exercise.exercise}</p>
-                                          <p className="text-xs text-muted-foreground">
+                                          <p className="font-medium text-xs truncate">{formatLabel(exercise.exercise || exercise.name)}</p>
+                                          <p className="text-[10px] text-muted-foreground">
                                             {exercise.sets}×{exercise.reps}
+                                            {exercise.rest_seconds > 0 && ` • ${exercise.rest_seconds}s rest`}
                                           </p>
                                         </div>
-                                        {exercise.rest_seconds > 0 && (
-                                          <Badge variant="outline" className="text-[10px] flex-shrink-0 px-1">
-                                            {exercise.rest_seconds}s
-                                          </Badge>
-                                        )}
                                       </div>
                                       {exercise.instructions && (
-                                        <p className="text-[10px] text-muted-foreground mt-1 line-clamp-2">
+                                        <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">
                                           {exercise.instructions}
                                         </p>
                                       )}

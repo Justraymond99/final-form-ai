@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatLabel } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -346,7 +347,7 @@ export const AIRecoveryPlanner = ({ onRecoveryPlanGenerated }: AIRecoveryPlanner
                           <div className="flex flex-wrap gap-1 mt-2">
                             {stretch.target_muscles.map((muscle: string) => (
                               <Badge key={muscle} variant="secondary" className="text-xs">
-                                {muscle}
+                                {formatLabel(muscle)}
                               </Badge>
                             ))}
                           </div>
