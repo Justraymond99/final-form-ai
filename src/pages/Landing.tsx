@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { 
   Smartphone, 
   Dumbbell, 
@@ -43,14 +44,9 @@ const Landing = () => {
     }
   }, [user, loading, navigate]);
 
-  // Show nothing while checking auth to prevent flash
-  if (loading) {
-    return null;
-  }
-
-  // If user is logged in, don't render (will redirect)
-  if (user) {
-    return null;
+  // Show loading spinner while checking auth
+  if (loading || user) {
+    return <LoadingSpinner />;
   }
 
   const features = [
