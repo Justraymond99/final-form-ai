@@ -60,6 +60,25 @@ const Workouts = () => {
   }));
 
   const handleStartWorkout = async (workoutId: string) => {
+    // Ensure WorkoutSession receives the actual template exercises (not an empty/default session).
+    const template = templates.find((t) => t.id === workoutId);
+    const templateExercises = (template as any)?.exercises;
+
+    if (Array.isArray(templateExercises) && templateExercises.length > 0) {
+      localStorage.setItem(
+        "currentWorkout",
+        JSON.stringify({
+          name: template?.name || "Workout",
+          exercises_data: templateExercises,
+          duration_minutes: (template as any)?.estimated_duration || 30,
+        })
+      );
+    } else {
+      // Avoid accidentally showing stale data from a previously-started workout.
+      localStorage.removeItem("currentWorkout");
+      sessionStorage.removeItem("currentWorkout");
+    }
+
     const result = await startWorkout(workoutId);
     if (result?.success) {
       toast({ title: "Workout Started!", description: "Let's get moving!" });
