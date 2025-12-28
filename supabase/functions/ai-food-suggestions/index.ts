@@ -1,9 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -11,12 +17,33 @@ serve(async (req) => {
   }
 
   try {
-    const { userProfile, mealType } = await req.json();
-    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header');
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-food-suggestions');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    const { userProfile, mealType } = await req.json();
 
     // Build context from user profile
     const profileContext = [];
@@ -46,7 +73,7 @@ Example format:
   {"name": "Grilled Chicken Breast", "brand": null, "reason": "Lean protein for muscle"}
 ]`;
 
-    console.log('Calling AI for food suggestions...');
+    console.log('Calling AI for food suggestions');
     
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -77,6 +78,13 @@ serve(async (req) => {
 
     // Use the authenticated user ID for all operations
     const targetUserId = authenticatedUserId;
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(targetUserId, 'ai-fitness-chat');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
 
     if (!lovableApiKey) {
       throw new Error('Lovable API key not configured');

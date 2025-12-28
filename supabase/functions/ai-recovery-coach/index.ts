@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -13,7 +14,9 @@ const corsHeaders = {
 };
 
 function log(level: 'info' | 'warn' | 'error', message: string, data?: unknown) {
-  console.log(`[ai-recovery-coach] ${level.toUpperCase()}: ${message}`, data ? JSON.stringify(data) : '');
+  // Redact sensitive data from logs
+  const safeData = data && typeof data === 'object' ? '[Object]' : data;
+  console.log(`[ai-recovery-coach] ${level.toUpperCase()}: ${message}`, safeData || '');
 }
 
 interface WorkoutSession {
@@ -144,6 +147,13 @@ serve(async (req) => {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-recovery-coach');
+    if (!rateLimitResult.allowed) {
+      log('warn', 'Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
     }
 
     // Fetch user data

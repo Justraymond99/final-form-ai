@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -40,6 +41,13 @@ serve(async (req) => {
       throw new Error('Invalid or expired token');
     }
 
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-nutrition-generator');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
     const { 
       goal, 
       dietaryPreferences, 
@@ -51,7 +59,7 @@ serve(async (req) => {
       programLength
     } = await req.json();
 
-    console.log('Request data:', { userId: user.id, goal, dietaryPreferences, targetCalories });
+    console.log('Request received:', { goal, targetCalories });
 
     if (!goal || !targetCalories) {
       throw new Error('Goal and target calories are required');

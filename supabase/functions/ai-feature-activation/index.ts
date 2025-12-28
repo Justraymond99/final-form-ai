@@ -1,10 +1,15 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -19,25 +24,29 @@ serve(async (req) => {
       throw new Error('AI service not configured');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
     // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
-    if (userError || !userData.user) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
       throw new Error('User not authenticated');
     }
 
-    const { feature_id, user_id } = await req.json();
-    console.log(`Activating feature: ${feature_id} for user: ${user_id}`);
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-feature-activation');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    const { feature_id } = await req.json();
+    console.log(`Activating feature: ${feature_id}`);
 
     // Define feature prompts
     const featurePrompts: Record<string, string> = {
