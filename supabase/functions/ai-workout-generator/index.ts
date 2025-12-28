@@ -12,10 +12,38 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Structured logging
+// Structured logging - redact sensitive data
 function log(level: 'info' | 'warn' | 'error', message: string, data?: unknown) {
   const timestamp = new Date().toISOString();
-  console[level](`[${timestamp}] [ai-workout-generator] ${message}`, data ? JSON.stringify(data) : '');
+  // Only log non-sensitive metadata, never full user data
+  const safeData = data ? redactSensitiveData(data) : '';
+  console[level](`[${timestamp}] [ai-workout-generator] ${message}`, safeData ? JSON.stringify(safeData) : '');
+}
+
+// Redact sensitive information from logs
+function redactSensitiveData(data: unknown): unknown {
+  if (typeof data === 'string') {
+    return data;
+  }
+  if (Array.isArray(data)) {
+    return `[Array with ${data.length} items]`;
+  }
+  if (typeof data === 'object' && data !== null) {
+    const obj = data as Record<string, unknown>;
+    const redacted: Record<string, unknown> = {};
+    const sensitiveKeys = ['email', 'name', 'display_name', 'password', 'token', 'profile', 'exercises_data', 'content'];
+    for (const [key, value] of Object.entries(obj)) {
+      if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
+        redacted[key] = '[REDACTED]';
+      } else if (typeof value === 'object' && value !== null) {
+        redacted[key] = '[Object]';
+      } else {
+        redacted[key] = value;
+      }
+    }
+    return redacted;
+  }
+  return data;
 }
 
 // Log errors to database
