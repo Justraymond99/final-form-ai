@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -46,15 +47,22 @@ serve(async (req) => {
     );
 
     if (authError || !user) {
-      console.error('Auth error:', authError);
+      console.error('Auth error');
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-recovery-planner');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
     const requestData: RecoveryRequest = await req.json();
-    console.log('Recovery request data:', requestData);
+    console.log('Recovery request received');
 
     // Get user profile data
     const { data: profile, error: profileError } = await supabase

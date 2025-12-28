@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,7 +38,15 @@ serve(async (req) => {
     }
 
     const userId = userData.user.id;
-    console.log('Generating insights for user:', userId);
+
+    // Check rate limit
+    const rateLimitResult = await checkRateLimit(userId, 'ai-insights-generator');
+    if (!rateLimitResult.allowed) {
+      console.log('Rate limit exceeded');
+      return rateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    console.log('Generating insights');
 
     // Fetch user's recent data for context
     const [workoutsResult, nutritionResult, trackingResult] = await Promise.all([
