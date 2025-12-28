@@ -13,11 +13,15 @@ import { useGenerationHistory } from "@/hooks/useGenerationHistory";
 import { ChefHat, Loader2, X } from "lucide-react";
 import { MultiWeekNutritionDisplay } from "@/components/MultiWeekNutritionDisplay";
 import { Button as ShadButton } from "@/components/ui/button";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 export const NutritionGenerator = () => {
   const { user } = useSecureAuth();
   const { toast } = useToast();
   const { saveGeneration } = useGenerationHistory();
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
   
   const [goal, setGoal] = useState("");
   const [targetCalories, setTargetCalories] = useState("2000");
@@ -29,6 +33,9 @@ export const NutritionGenerator = () => {
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState<any>(null);
+  
+  const rateLimitInfo = getRateLimitInfo('ai-nutrition-generator');
+  const maxRequests = AI_RATE_LIMITS['ai-nutrition-generator']?.maxRequests || 15;
 
   const goalOptions = [
     "Weight Loss", "Weight Gain", "Muscle Building", "Maintenance", "Athletic Performance", "General Health"
@@ -68,7 +75,7 @@ export const NutritionGenerator = () => {
     setIsGenerating(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-nutrition-generator', {
+      const response = await supabase.functions.invoke('ai-nutrition-generator', {
         body: {
           targetCalories: parseInt(targetCalories),
           goal,
@@ -81,12 +88,32 @@ export const NutritionGenerator = () => {
         }
       });
 
-      if (error) throw error;
+      // Update rate limit status from response headers if available
+      if (response.data?.remaining !== undefined) {
+        updateRateLimitFromResponse(
+          new Response(null, {
+            headers: {
+              'X-RateLimit-Remaining': response.data.remaining?.toString() || '0',
+              'X-RateLimit-Reset': response.data.resetAt || ''
+            }
+          }),
+          'ai-nutrition-generator'
+        );
+      }
 
-      setGeneratedPlan(data);
+      if (response.error) {
+        // Check if it's a rate limit error
+        if (response.error.message?.includes('429') || response.data?.error?.includes('rate limit')) {
+          handleRateLimitError(response.data || {}, 'ai-nutrition-generator');
+          return;
+        }
+        throw response.error;
+      }
+
+      setGeneratedPlan(response.data);
       
       // Save to generation history
-      await saveGeneration('nutrition', data, `${goal} Meal Plan`, {
+      await saveGeneration('nutrition', response.data, `${goal} Meal Plan`, {
         targetCalories: parseInt(targetCalories),
         goal,
         dietaryPreferences,
@@ -97,8 +124,15 @@ export const NutritionGenerator = () => {
         title: "Nutrition plan generated!",
         description: "Your personalized meal program is ready.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating nutrition plan:', error);
+      
+      // Handle rate limit from error response
+      if (error?.status === 429 || error?.message?.includes('rate limit')) {
+        handleRateLimitError(error, 'ai-nutrition-generator');
+        return;
+      }
+      
       toast({
         title: "Generation failed",
         description: "Unable to generate nutrition plan. Please try again.",
@@ -159,6 +193,15 @@ export const NutritionGenerator = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {rateLimitInfo && (
+            <RateLimitIndicator
+              remaining={rateLimitInfo.remaining}
+              maxRequests={maxRequests}
+              resetAt={rateLimitInfo.resetAt}
+              endpoint="ai-nutrition-generator"
+            />
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="goal">Primary Goal</Label>
             <Select value={goal} onValueChange={setGoal}>
