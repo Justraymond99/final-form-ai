@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 interface RecoveryData {
   restDayRecommended: boolean;
@@ -61,18 +64,45 @@ export const RecoveryCoach = () => {
   const [loading, setLoading] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
   const { toast } = useToast();
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
+  
+  const rateLimitInfo = getRateLimitInfo('ai-recovery-coach');
+  const maxRequests = AI_RATE_LIMITS['ai-recovery-coach']?.maxRequests || 20;
 
   const fetchRecoveryAnalysis = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('ai-recovery-coach');
+      const response = await supabase.functions.invoke('ai-recovery-coach');
       
-      if (error) throw error;
+      // Update rate limit status from response
+      if (response.data?.remaining !== undefined) {
+        updateRateLimitFromResponse(
+          new Response(null, {
+            headers: {
+              'X-RateLimit-Remaining': response.data.remaining?.toString() || '0',
+              'X-RateLimit-Reset': response.data.resetAt || ''
+            }
+          }),
+          'ai-recovery-coach'
+        );
+      }
       
-      setRecovery(data.recovery);
-      setCurrentStreak(data.currentStreak || 0);
-    } catch (error) {
+      if (response.error) {
+        if (response.error.message?.includes('429') || response.data?.error?.includes('rate limit')) {
+          handleRateLimitError(response.data || {}, 'ai-recovery-coach');
+          return;
+        }
+        throw response.error;
+      }
+      
+      setRecovery(response.data.recovery);
+      setCurrentStreak(response.data.currentStreak || 0);
+    } catch (error: any) {
       console.error('Error fetching recovery:', error);
+      if (error?.status === 429 || error?.message?.includes('rate limit')) {
+        handleRateLimitError(error, 'ai-recovery-coach');
+        return;
+      }
       toast({
         title: "Couldn't load recovery data",
         description: "Using default recommendations",
@@ -148,6 +178,15 @@ export const RecoveryCoach = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {rateLimitInfo && (
+          <RateLimitIndicator
+            remaining={rateLimitInfo.remaining}
+            maxRequests={maxRequests}
+            resetAt={rateLimitInfo.resetAt}
+            endpoint="ai-recovery-coach"
+          />
+        )}
+        
         {/* Recovery Score */}
         <div className="flex items-center justify-between">
           <div>

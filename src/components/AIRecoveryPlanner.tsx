@@ -25,6 +25,9 @@ import {
   BedDouble,
   Waves
 } from "lucide-react";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 interface AIRecoveryPlannerProps {
   onRecoveryPlanGenerated?: (plan: any) => void;
@@ -34,6 +37,10 @@ export const AIRecoveryPlanner = ({ onRecoveryPlanGenerated }: AIRecoveryPlanner
   const { user } = useSecureAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [recoveryPlan, setRecoveryPlan] = useState<any>(null);
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
+  
+  const rateLimitInfo = getRateLimitInfo('ai-recovery-planner');
+  const maxRequests = AI_RATE_LIMITS['ai-recovery-planner']?.maxRequests || 10;
   
   // Form state
   const [workoutIntensity, setWorkoutIntensity] = useState("");
@@ -74,7 +81,7 @@ export const AIRecoveryPlanner = ({ onRecoveryPlanGenerated }: AIRecoveryPlanner
     setIsGenerating(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-recovery-planner', {
+      const response = await supabase.functions.invoke('ai-recovery-planner', {
         body: {
           userId: user.id,
           workoutIntensity,
@@ -87,18 +94,39 @@ export const AIRecoveryPlanner = ({ onRecoveryPlanGenerated }: AIRecoveryPlanner
         }
       });
 
-      if (error) {
-        console.error('Error generating recovery plan:', error);
+      // Update rate limit status from response
+      if (response.data?.remaining !== undefined) {
+        updateRateLimitFromResponse(
+          new Response(null, {
+            headers: {
+              'X-RateLimit-Remaining': response.data.remaining?.toString() || '0',
+              'X-RateLimit-Reset': response.data.resetAt || ''
+            }
+          }),
+          'ai-recovery-planner'
+        );
+      }
+
+      if (response.error) {
+        if (response.error.message?.includes('429') || response.data?.error?.includes('rate limit')) {
+          handleRateLimitError(response.data || {}, 'ai-recovery-planner');
+          return;
+        }
+        console.error('Error generating recovery plan:', response.error);
         toast.error("Failed to generate recovery plan. Please try again.");
         return;
       }
 
-      setRecoveryPlan(data.recovery_plan);
-      onRecoveryPlanGenerated?.(data.recovery_plan);
+      setRecoveryPlan(response.data.recovery_plan);
+      onRecoveryPlanGenerated?.(response.data.recovery_plan);
       toast.success("AI recovery plan generated successfully!");
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Recovery plan generation error:', error);
+      if (error?.status === 429 || error?.message?.includes('rate limit')) {
+        handleRateLimitError(error, 'ai-recovery-planner');
+        return;
+      }
       toast.error("An error occurred while generating your recovery plan");
     } finally {
       setIsGenerating(false);
@@ -128,6 +156,15 @@ export const AIRecoveryPlanner = ({ onRecoveryPlanGenerated }: AIRecoveryPlanner
         </CardHeader>
         
         <CardContent className="space-y-6">
+          {rateLimitInfo && (
+            <RateLimitIndicator
+              remaining={rateLimitInfo.remaining}
+              maxRequests={maxRequests}
+              resetAt={rateLimitInfo.resetAt}
+              endpoint="ai-recovery-planner"
+            />
+          )}
+          
           {/* Workout Intensity */}
           <div className="space-y-2">
             <Label htmlFor="workout-intensity">Last Workout Intensity *</Label>
