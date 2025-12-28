@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Sparkles, Loader2, X } from "lucide-react";
 import { MultiWeekWorkoutDisplay } from "@/components/MultiWeekWorkoutDisplay";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
 
 interface WorkoutGeneratorProps {
   onWorkoutGenerated?: (workout: any) => void;
@@ -43,6 +44,7 @@ export const WorkoutGenerator = ({ onWorkoutGenerated, onWorkoutSaved }: Workout
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [workoutName, setWorkoutName] = useState("");
   const [workoutDescription, setWorkoutDescription] = useState("");
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ remaining: number; max: number; resetAt: Date | null } | null>(null);
 
   // Normalize a single-workout plan into a multi-week shape expected by the display
   const normalizePlan = (p: any) => {
@@ -166,6 +168,19 @@ export const WorkoutGenerator = ({ onWorkoutGenerated, onWorkoutSaved }: Workout
 
       if (error) {
         console.error("Function error:", error);
+        // Check for rate limit error
+        const errorContext = error?.context;
+        if (errorContext?.status === 429 || (error as any)?.message?.includes('Rate limit')) {
+          const errorData = typeof errorContext?.body === 'string' ? JSON.parse(errorContext.body) : errorContext?.body;
+          const waitTime = errorData?.retryAfter ? Math.ceil(errorData.retryAfter / 60) : 60;
+          setRateLimitInfo({ 
+            remaining: 0, 
+            max: 15, 
+            resetAt: errorData?.resetAt ? new Date(errorData.resetAt) : new Date(Date.now() + waitTime * 60000)
+          });
+          toast.error(`Rate limit exceeded. Please wait ${waitTime} minute${waitTime === 1 ? '' : 's'}.`);
+          return;
+        }
         const msg = (error as any)?.message || "Failed to generate workout";
         toast.error(msg);
         return;
@@ -224,6 +239,16 @@ export const WorkoutGenerator = ({ onWorkoutGenerated, onWorkoutSaved }: Workout
 
   return (
     <div className="space-y-6">
+      {/* Rate Limit Indicator */}
+      {rateLimitInfo && (
+        <RateLimitIndicator
+          remaining={rateLimitInfo.remaining}
+          maxRequests={rateLimitInfo.max}
+          resetAt={rateLimitInfo.resetAt}
+          endpoint="ai-workout-generator"
+        />
+      )}
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
