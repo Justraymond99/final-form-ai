@@ -45,7 +45,7 @@ async function getRateLimit(ip: string, userId: string | null, endpoint: string)
       .order('created_at', { ascending: false });
     
     if (error) {
-      console.error('Error checking rate limit:', error);
+      console.error('Error checking rate limit');
       return { allowed: true, remaining: config.maxRequests };
     }
     
@@ -82,7 +82,7 @@ async function getRateLimit(ip: string, userId: string | null, endpoint: string)
     
     return { allowed: true, remaining: remaining - 1 };
   } catch (error) {
-    console.error('Rate limit check failed:', error);
+    console.error('Rate limit check failed');
     return { allowed: true, remaining: 100 }; // Fail open
   }
 }
@@ -107,7 +107,7 @@ function validateCSRFToken(req: Request, token: string): boolean {
     // For now, just validate origin - in production, implement proper CSRF token validation
     return isValidOrigin;
   } catch (error) {
-    console.error('CSRF validation error:', error);
+    console.error('CSRF validation error');
     return false;
   }
 }
@@ -285,8 +285,8 @@ serve(async (req) => {
     });
     
   } catch (error) {
-    console.error('Security middleware error:', error);
-    return new Response(JSON.stringify({ 
+    console.error('Security middleware error');
+    return new Response(JSON.stringify({
       error: 'Security check failed' 
     }), {
       status: 500,

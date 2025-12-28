@@ -32,7 +32,7 @@ async function verifyAuth(req: Request): Promise<{ userId: string | null; error:
 
     return { userId: user.id, error: null };
   } catch (error) {
-    console.error('Auth verification error:', error);
+    console.error('Auth verification failed');
     return { userId: null, error: 'Authentication failed' };
   }
 }
@@ -50,7 +50,7 @@ serve(async (req) => {
     // Verify authentication first
     const { userId: authenticatedUserId, error: authError } = await verifyAuth(req);
     if (authError || !authenticatedUserId) {
-      console.warn('Unauthorized ai-fitness-chat request:', authError);
+      console.warn('Unauthorized ai-fitness-chat request');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { 
@@ -65,7 +65,7 @@ serve(async (req) => {
     // CRITICAL: Ensure the requested userId matches the authenticated user
     // This prevents users from accessing other users' fitness data
     if (userId && userId !== authenticatedUserId) {
-      console.warn(`User ${authenticatedUserId} attempted to access data for user ${userId}`);
+      console.warn('User attempted unauthorized data access');
       return new Response(
         JSON.stringify({ error: 'Access denied: Cannot access other users\' data' }),
         { 
@@ -82,11 +82,11 @@ serve(async (req) => {
       throw new Error('Lovable API key not configured');
     }
 
-    console.log('Processing AI fitness chat request for user:', targetUserId, 'stream:', stream);
+    console.log('Processing AI fitness chat request, stream:', stream);
 
     // Get user's fitness context using the authenticated user ID
     const userContext = await getUserFitnessContext(targetUserId);
-    console.log('User fitness context retrieved');
+    console.log('User context retrieved');
 
     // If streaming is requested
     if (stream) {
@@ -113,8 +113,8 @@ serve(async (req) => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('AI gateway error:', response.status, errorText);
+        const errorStatus = response.status;
+        console.error('AI gateway error:', errorStatus);
         
         if (response.status === 429 || response.status === 402) {
           const fallbackResponse = getFallbackResponse(message, userContext);
@@ -163,8 +163,8 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('AI API error:', errorData);
+      const errorStatus = response.status;
+      console.error('AI API error:', errorStatus);
       
       if (response.status === 429 || response.status === 402) {
         const fallbackResponse = getFallbackResponse(message, userContext);
@@ -191,7 +191,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in ai-fitness-chat function:', error);
+    console.error('Error in ai-fitness-chat function');
     
     const fallbackResponse = getFallbackResponse("Hello", {});
     
@@ -274,7 +274,7 @@ async function getUserFitnessContext(userId: string) {
       achievements: achievements || []
     };
   } catch (error) {
-    console.error('Error getting user fitness context:', error);
+    console.error('Error getting user fitness context');
     return {};
   }
 }
