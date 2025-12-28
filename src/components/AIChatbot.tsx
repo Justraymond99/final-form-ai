@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { RateLimitBadge } from "@/components/RateLimitIndicator";
 
 interface Message {
   id: string;
@@ -30,6 +31,7 @@ export const AIChatbot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ remaining: number; max: number } | null>(null);
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +86,28 @@ export const AIChatbot = () => {
       });
 
       if (!response.ok) {
+        // Check for rate limit error
+        if (response.status === 429) {
+          const errorData = await response.json();
+          const waitTime = errorData.retryAfter ? Math.ceil(errorData.retryAfter / 60) : 60;
+          setRateLimitInfo({ remaining: 0, max: 30 });
+          
+          setMessages(prev => 
+            prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, text: `⚠️ Rate limit reached. Please wait ${waitTime} minute${waitTime === 1 ? '' : 's'} before sending more messages.` }
+                : msg
+            )
+          );
+          return;
+        }
         throw new Error('Failed to get response');
+      }
+
+      // Update rate limit info from response headers
+      const remaining = response.headers.get('X-RateLimit-Remaining');
+      if (remaining !== null) {
+        setRateLimitInfo({ remaining: parseInt(remaining, 10), max: 30 });
       }
 
       const contentType = response.headers.get('content-type');
@@ -201,7 +224,12 @@ export const AIChatbot = () => {
   return (
     <Card className="fixed bottom-24 right-4 z-50 w-80 h-[500px] flex flex-col shadow-xl border-border/50 bg-card/95 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 shrink-0">
-        <CardTitle className="text-lg">Athena</CardTitle>
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-lg">Athena</CardTitle>
+          {rateLimitInfo && (
+            <RateLimitBadge remaining={rateLimitInfo.remaining} maxRequests={rateLimitInfo.max} />
+          )}
+        </div>
         <Button
           variant="ghost"
           size="icon"
