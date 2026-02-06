@@ -22,6 +22,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useGenerationHistory } from "@/hooks/useGenerationHistory";
 import { useNavigate } from "react-router-dom";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 interface WeeklyInsights {
   summary: string;
@@ -69,18 +72,40 @@ export const WeeklyCoachInsights = () => {
   const { toast } = useToast();
   const { saveGeneration } = useGenerationHistory();
   const navigate = useNavigate();
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
+
+  const rateLimitInfo = getRateLimitInfo('ai-weekly-coach');
+  const maxRequests = AI_RATE_LIMITS['ai-weekly-coach']?.maxRequests || 10;
 
   const fetchInsights = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-weekly-coach');
       
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('429')) {
+          handleRateLimitError({}, 'ai-weekly-coach');
+          return;
+        }
+        throw error;
+      }
+      
+      // Update rate limit from response
+      if (data?.remaining !== undefined) {
+        updateRateLimitFromResponse(
+          new Response(null, {
+            headers: {
+              'X-RateLimit-Remaining': data.remaining?.toString() || '0',
+              'X-RateLimit-Reset': data.resetAt || ''
+            }
+          }),
+          'ai-weekly-coach'
+        );
+      }
       
       setInsights(data.insights);
       setRawStats(data.rawStats);
       
-      // Save insights to generation history
       if (data.insights) {
         await saveGeneration('insights', data.insights, `Weekly Insights - ${new Date().toLocaleDateString()}`, {
           rawStats: data.rawStats
@@ -169,6 +194,14 @@ export const WeeklyCoachInsights = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {rateLimitInfo && (
+          <RateLimitIndicator
+            remaining={rateLimitInfo.remaining}
+            maxRequests={maxRequests}
+            resetAt={rateLimitInfo.resetAt}
+            endpoint="ai-weekly-coach"
+          />
+        )}
         {/* Summary */}
         <p className="text-sm">{displayInsights.summary}</p>
 

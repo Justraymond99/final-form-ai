@@ -164,6 +164,15 @@ export const analytics = {
   // Errors
   errorOccurred: (errorType: string, errorMessage: string, context?: Record<string, unknown>) =>
     track('error_occurred', { error_type: errorType, error_message: errorMessage, ...context }),
+
+  // Data export
+  dataExported: (format: string) =>
+    track('data_exported', { format }),
+
+  // Onboarding
+  onboardingStep: (step: number, name: string) =>
+    track('onboarding_step', { step_number: step, step_name: name }),
+  onboardingCompleted: () => track('onboarding_completed'),
 };
 
 // Flush on page unload

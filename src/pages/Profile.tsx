@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2, Camera, BarChart3 } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2, Camera, BarChart3, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useDailyTracking } from "@/hooks/useDailyTracking";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { InternationalizationSetup } from "@/components/InternationalizationSetup";
+import { DataExport } from "@/components/DataExport";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useNavigate } from "react-router-dom";
 
@@ -139,6 +140,9 @@ const Profile = () => {
             ))}
           </CardContent>
         </Card>
+
+        {/* Data Export (GDPR) */}
+        <DataExport />
 
         {/* Referral Program */}
         <ReferralProgram />
