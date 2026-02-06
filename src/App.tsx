@@ -18,6 +18,9 @@ import { OfflineIndicator } from "./components/OfflineIndicator";
 import { SyncStatus } from "./components/SyncStatus";
 import { PerformanceInit } from "./components/PerformanceInit";
 import { NotificationInit } from "./components/NotificationInit";
+import { AnalyticsInit } from "./components/AnalyticsInit";
+import { SkipNav } from "./components/SkipNav";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,33 +32,39 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-      <SecureAuthProvider>
-        <SubscriptionProvider>
-          <SecurityWrapper>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <PaywallProvider>
-                  <PerformanceInit />
-                  <NotificationInit />
-                  <OfflineIndicator />
-                  <SyncStatus />
-                  <PrefetchInit />
-                  <TrialNotificationsInit />
-                  <OnboardingTrialNudge />
-                  <RateAppPrompt />
-                  <AnimatedRoutes />
-                </PaywallProvider>
-              </BrowserRouter>
-            </TooltipProvider>
-          </SecurityWrapper>
-        </SubscriptionProvider>
-      </SecureAuthProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+        <SecureAuthProvider>
+          <SubscriptionProvider>
+            <SecurityWrapper>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <PaywallProvider>
+                    <SkipNav />
+                    <PerformanceInit />
+                    <NotificationInit />
+                    <AnalyticsInit />
+                    <OfflineIndicator />
+                    <SyncStatus />
+                    <PrefetchInit />
+                    <TrialNotificationsInit />
+                    <OnboardingTrialNudge />
+                    <RateAppPrompt />
+                    <main id="main-content">
+                      <AnimatedRoutes />
+                    </main>
+                  </PaywallProvider>
+                </BrowserRouter>
+              </TooltipProvider>
+            </SecurityWrapper>
+          </SubscriptionProvider>
+        </SecureAuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

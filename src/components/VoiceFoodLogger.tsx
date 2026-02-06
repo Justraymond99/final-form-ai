@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { RateLimitIndicator } from "@/components/RateLimitIndicator";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 interface ParsedFood {
   name: string;
@@ -31,7 +34,10 @@ export const VoiceFoodLogger = ({ onFoodParsed, selectedMeal }: VoiceFoodLoggerP
   const [transcript, setTranscript] = useState("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
 
+  const rateLimitInfo = getRateLimitInfo('ai-food-suggestions');
+  const maxRequests = AI_RATE_LIMITS['ai-food-suggestions']?.maxRequests || 20;
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -159,6 +165,14 @@ export const VoiceFoodLogger = ({ onFoodParsed, selectedMeal }: VoiceFoodLoggerP
     <Card className="border-dashed border-2 border-primary/30">
       <CardContent className="p-4">
         <div className="flex flex-col items-center gap-3">
+          {rateLimitInfo && (
+            <RateLimitIndicator
+              remaining={rateLimitInfo.remaining}
+              maxRequests={maxRequests}
+              resetAt={rateLimitInfo.resetAt}
+              endpoint="ai-food-suggestions"
+            />
+          )}
           <div className="text-center">
             <h3 className="font-medium text-sm">Voice Food Logger</h3>
             <p className="text-xs text-muted-foreground">

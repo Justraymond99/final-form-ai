@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useSecureAuth } from "@/hooks/useSecureAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { RateLimitBadge } from "@/components/RateLimitIndicator";
+import { useRateLimitStatus } from "@/hooks/useRateLimitStatus";
+import { AI_RATE_LIMITS } from "@/lib/rateLimitConfig";
 
 interface Message {
   id: string;
@@ -31,7 +33,9 @@ export const AIChatbot = () => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [rateLimitInfo, setRateLimitInfo] = useState<{ remaining: number; max: number } | null>(null);
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
+  const rateLimitInfo = getRateLimitInfo('ai-fitness-chat');
+  const maxRequests = AI_RATE_LIMITS['ai-fitness-chat']?.maxRequests || 30;
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -90,7 +94,7 @@ export const AIChatbot = () => {
         if (response.status === 429) {
           const errorData = await response.json();
           const waitTime = errorData.retryAfter ? Math.ceil(errorData.retryAfter / 60) : 60;
-          setRateLimitInfo({ remaining: 0, max: 30 });
+          handleRateLimitError(errorData, 'ai-fitness-chat');
           
           setMessages(prev => 
             prev.map(msg => 
@@ -107,7 +111,7 @@ export const AIChatbot = () => {
       // Update rate limit info from response headers
       const remaining = response.headers.get('X-RateLimit-Remaining');
       if (remaining !== null) {
-        setRateLimitInfo({ remaining: parseInt(remaining, 10), max: 30 });
+        updateRateLimitFromResponse(response, 'ai-fitness-chat');
       }
 
       const contentType = response.headers.get('content-type');
@@ -227,7 +231,7 @@ export const AIChatbot = () => {
         <div className="flex items-center gap-2">
           <CardTitle className="text-lg">Athena</CardTitle>
           {rateLimitInfo && (
-            <RateLimitBadge remaining={rateLimitInfo.remaining} maxRequests={rateLimitInfo.max} />
+            <RateLimitBadge remaining={rateLimitInfo.remaining} maxRequests={maxRequests} />
           )}
         </div>
         <Button

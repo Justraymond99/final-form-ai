@@ -23,6 +23,9 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSecureAuth } from '@/hooks/useSecureAuth';
+import { useRateLimitStatus } from '@/hooks/useRateLimitStatus';
+import { RateLimitIndicator } from '@/components/RateLimitIndicator';
+import { AI_RATE_LIMITS } from '@/lib/rateLimitConfig';
 
 interface AIFeature {
   id: string;
@@ -54,6 +57,10 @@ export const AdvancedAIFeatures = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<AIFeature | null>(null);
   const [insights, setInsights] = useState<AIInsight | null>(null);
+  const { updateRateLimitFromResponse, handleRateLimitError, getRateLimitInfo } = useRateLimitStatus();
+
+  const rateLimitInfo = getRateLimitInfo('ai-insights-generator');
+  const maxRequests = AI_RATE_LIMITS['ai-insights-generator']?.maxRequests || 10;
 
   const aiFeatures: AIFeature[] = [
     {
@@ -143,7 +150,25 @@ export const AdvancedAIFeatures = () => {
         body: { user_id: user?.id }
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('429')) {
+          handleRateLimitError({}, 'ai-insights-generator');
+          return;
+        }
+        throw error;
+      }
+
+      if (data?.remaining !== undefined) {
+        updateRateLimitFromResponse(
+          new Response(null, {
+            headers: {
+              'X-RateLimit-Remaining': data.remaining?.toString() || '0',
+              'X-RateLimit-Reset': data.resetAt || ''
+            }
+          }),
+          'ai-insights-generator'
+        );
+      }
 
       if (data?.insights) {
         setInsights(data.insights);
@@ -189,6 +214,14 @@ export const AdvancedAIFeatures = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {rateLimitInfo && (
+            <RateLimitIndicator
+              remaining={rateLimitInfo.remaining}
+              maxRequests={maxRequests}
+              resetAt={rateLimitInfo.resetAt}
+              endpoint="ai-insights-generator"
+            />
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="text-center p-4 bg-background/50 rounded-lg">
               <Activity className="w-8 h-8 text-primary mx-auto mb-2" />
