@@ -715,7 +715,7 @@ const Landing = () => {
           </div>
           
           <div className="mt-8 pt-8 border-t border-border/10 text-center text-sm text-muted-foreground">
-            <p>© 2024 Final Form. All rights reserved. Your AI-powered fitness companion.</p>
+            <p>© 2025 Final Form. All rights reserved. Your AI-powered fitness companion.</p>
           </div>
         </div>
       </footer>

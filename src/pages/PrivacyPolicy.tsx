@@ -20,13 +20,13 @@ const PrivacyPolicy = () => {
         <div className="space-y-6">
           <h1 className="text-4xl font-bold">Privacy Policy</h1>
           <p className="text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString()}
+            Last updated: February 10, 2025
           </p>
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">Introduction</h2>
             <p className="text-foreground/90 leading-relaxed">
-              Final Form ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our fitness tracking application.
+              Final Form ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our fitness tracking application ("App") available on iOS, Android, and the web.
             </p>
           </section>
 
@@ -42,20 +42,21 @@ const PrivacyPolicy = () => {
                 <li>Profile information (age, height, weight, fitness goals)</li>
                 <li>Workout data (exercises, sets, reps, weights)</li>
                 <li>Nutrition data (meals, calories, macros)</li>
-                <li>Progress photos and measurements</li>
-                <li>Health and activity data</li>
+                <li>Progress photos and body measurements</li>
+                <li>Health and activity data (including Apple Health data, if you grant access)</li>
+                <li>Voice recordings (when using voice food logging, processed for transcription only)</li>
               </ul>
             </div>
 
             <div className="space-y-3">
               <h3 className="text-xl font-medium">Automatically Collected Information</h3>
               <p className="text-foreground/90 leading-relaxed">
-                When you use our app, we may automatically collect:
+                When you use our App, we may automatically collect:
               </p>
               <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
-                <li>Device information (device type, operating system)</li>
-                <li>Usage data (features used, time spent in app)</li>
-                <li>Location data (with your permission)</li>
+                <li>Device information (device type, operating system, unique device identifiers)</li>
+                <li>Usage data (features used, time spent in app, crash reports)</li>
+                <li>Performance and analytics data</li>
               </ul>
             </div>
           </section>
@@ -67,12 +68,28 @@ const PrivacyPolicy = () => {
             </p>
             <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
               <li>Provide and maintain our services</li>
-              <li>Generate personalized workout and nutrition plans</li>
+              <li>Generate personalized workout and nutrition plans using AI</li>
               <li>Track your fitness progress and achievements</li>
-              <li>Improve and optimize our app</li>
+              <li>Process your voice input for food logging (audio is not stored after processing)</li>
+              <li>Improve and optimize our App</li>
               <li>Send you updates and notifications (with your consent)</li>
               <li>Provide customer support</li>
+              <li>Process payments and manage subscriptions</li>
               <li>Ensure security and prevent fraud</li>
+            </ul>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold">Third-Party Services</h2>
+            <p className="text-foreground/90 leading-relaxed">
+              We use the following third-party services to operate our App. Each has its own privacy policy governing the use of your information:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
+              <li><strong>Supabase:</strong> Cloud database and authentication services for storing your account and fitness data securely.</li>
+              <li><strong>RevenueCat:</strong> Subscription and in-app purchase management for processing and managing your Premium subscriptions.</li>
+              <li><strong>Google AI (Gemini):</strong> AI model used to generate personalized workout plans, nutrition recommendations, and chat responses. Your fitness profile data may be sent to this service for AI processing.</li>
+              <li><strong>USDA FoodData Central:</strong> Nutritional database used for food search and calorie information.</li>
+              <li><strong>Apple Health (HealthKit):</strong> With your explicit permission, we read and write health and workout data to Apple Health.</li>
             </ul>
           </section>
 
@@ -83,7 +100,7 @@ const PrivacyPolicy = () => {
             </p>
             <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
               <li><strong>With your consent:</strong> When you explicitly agree to share data</li>
-              <li><strong>Service providers:</strong> Third-party services that help us operate (e.g., cloud hosting)</li>
+              <li><strong>Service providers:</strong> Third-party services listed above that help us operate the App</li>
               <li><strong>Legal requirements:</strong> When required by law or to protect our rights</li>
               <li><strong>Business transfers:</strong> In connection with a merger, sale, or acquisition</li>
             </ul>
@@ -139,13 +156,25 @@ const PrivacyPolicy = () => {
           </section>
 
           <section className="space-y-4">
+            <h2 className="text-2xl font-semibold">Health Data</h2>
+            <p className="text-foreground/90 leading-relaxed">
+              We treat all health and fitness data with the highest level of care. Health-related data collected through the App (including workout data, nutrition data, body measurements, and any data synced with Apple Health) is:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
+              <li>Never sold to third parties, including advertising platforms or data brokers</li>
+              <li>Never used for advertising or marketing purposes</li>
+              <li>Only shared with third-party services strictly necessary to provide the App's functionality</li>
+              <li>Encrypted in transit and at rest</li>
+            </ul>
+          </section>
+
+          <section className="space-y-4">
             <h2 className="text-2xl font-semibold">Contact Us</h2>
             <p className="text-foreground/90 leading-relaxed">
-              If you have questions about this Privacy Policy, please contact us at:
+              If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us at:
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-foreground/90">Email: legitgamer60@gmail.com</p>
-              <p className="text-foreground/90">Support: legitgamer60@gmail.com</p>
+              <p className="text-foreground/90">Email: support@finalform.app</p>
             </div>
           </section>
         </div>

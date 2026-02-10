@@ -2,11 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   iOS Info.plist Template for Final Form
-  
-  IMPORTANT: After running `npx cap add ios`, merge these keys into ios/App/App/Info.plist
-  
+  Bundle ID: com.finalform.app
+
+  IMPORTANT: After running `npx cap add ios`, merge these keys into ios/App/App/Info.plist.
+
   These privacy descriptions are REQUIRED by Apple for App Store approval.
-  Customize the descriptions based on your actual app functionality.
+  Without them, the App Store review will reject the build.
 -->
 <plist version="1.0">
 <dict>
@@ -32,6 +33,10 @@
     <key>NSHealthUpdateUsageDescription</key>
     <string>Final Form writes workout data to Apple Health to keep your fitness data in sync.</string>
     
+    <!-- Microphone Permission (for voice food logging) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Final Form uses your microphone for voice-powered food logging so you can log meals hands-free.</string>
+
     <!-- Motion and Fitness (for step counting) -->
     <key>NSMotionUsageDescription</key>
     <string>Final Form uses motion data to track your steps and daily activity.</string>

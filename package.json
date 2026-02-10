@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "final-form-fitness",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Final Form - AI-Powered Fitness & Nutrition Companion",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -20,7 +20,7 @@ const TermsOfService = () => {
         <div className="space-y-6">
           <h1 className="text-4xl font-bold">Terms of Service</h1>
           <p className="text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString()}
+            Last updated: February 10, 2025
           </p>
 
           <section className="space-y-4">
@@ -120,9 +120,28 @@ const TermsOfService = () => {
 
               <h3 className="text-xl font-medium">Cancellation</h3>
               <p className="text-foreground/90 leading-relaxed">
-                You may cancel your subscription at any time through your Apple ID account settings. Cancellation takes effect at the end of the current billing period. To cancel, go to Settings → [Your Name] → Subscriptions on your iOS device.
+                You may cancel your subscription at any time through your Apple ID account settings. Cancellation takes effect at the end of the current billing period. To cancel, go to Settings &rarr; [Your Name] &rarr; Subscriptions on your iOS device.
+              </p>
+
+              <h3 className="text-xl font-medium">Free Trials</h3>
+              <p className="text-foreground/90 leading-relaxed">
+                We may offer free trial periods for Premium subscriptions. If you do not cancel before the trial ends, your Apple ID account will automatically be charged for the subscription plan you selected. Any unused portion of a free trial period will be forfeited when you purchase a subscription.
               </p>
             </div>
+          </section>
+
+          <section className="space-y-4">
+            <h2 className="text-2xl font-semibold">End User License Agreement (EULA)</h2>
+            <p className="text-foreground/90 leading-relaxed">
+              This agreement constitutes the End User License Agreement for the Final Form application. By downloading or using the App, you agree to this EULA. If you do not agree, do not use the App.
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-foreground/90 ml-4">
+              <li>We grant you a limited, non-exclusive, non-transferable, revocable license to use the App for personal, non-commercial purposes.</li>
+              <li>You may not copy, modify, distribute, sell, or lease any part of the App or its content.</li>
+              <li>This license does not grant you ownership of any intellectual property in the App.</li>
+              <li>We may revoke this license at any time if you violate these Terms.</li>
+              <li>This EULA is governed by and supplements the Apple Media Services Terms and Conditions.</li>
+            </ul>
           </section>
 
           <section className="space-y-4">
@@ -206,8 +225,7 @@ const TermsOfService = () => {
               For questions about these Terms, please contact:
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-foreground/90">Email: legitgamer60@gmail.com</p>
-              <p className="text-foreground/90">Support: legitgamer60@gmail.com</p>
+              <p className="text-foreground/90">Email: support@finalform.app</p>
             </div>
           </section>
 

@@ -78,7 +78,7 @@ const Pricing = () => {
       if (success) {
         toast({
           title: "Success!",
-          description: "Welcome to FitTracker Pro!",
+          description: "Welcome to Final Form Pro!",
         });
       }
     } catch (error: any) {
@@ -284,7 +284,7 @@ const Pricing = () => {
               <div className="mx-auto mb-4 w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
                 <Zap className="h-6 w-6 text-background" />
               </div>
-              <CardTitle className="text-2xl">FitTracker Pro</CardTitle>
+              <CardTitle className="text-2xl">Final Form Pro</CardTitle>
               <div className="space-y-2">
                 {!hasPremiumAccess && (
                   <p className="text-sm font-medium text-primary">
@@ -373,7 +373,7 @@ const Pricing = () => {
 
         {/* FAQ/Features */}
         <div className="mt-16 text-center space-y-8">
-          <h2 className="text-2xl font-bold">Why Choose FitTracker Pro?</h2>
+          <h2 className="text-2xl font-bold">Why Choose Final Form Pro?</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center space-y-3">
               <div className="mx-auto w-12 h-12 gradient-strength rounded-full flex items-center justify-center">
@@ -408,14 +408,19 @@ const Pricing = () => {
         {/* Apple Compliance Notice */}
         <div className="text-center text-xs text-muted-foreground space-y-2 pt-8">
           <p>
-            Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period.
-          </p>
-          <p>
             Payment will be charged to your Apple ID account at confirmation of purchase.
+            Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.
+            Your account will be charged for renewal within 24 hours prior to the end of the current period.
           </p>
           <p>
-            Manage subscriptions in your device's Settings → Apple ID → Subscriptions.
+            You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
+            Any unused portion of a free trial period will be forfeited when you purchase a subscription.
           </p>
+          <div className="flex items-center justify-center gap-4 pt-2">
+            <a href="/privacy" className="underline hover:text-foreground transition-colors">Privacy Policy</a>
+            <span>|</span>
+            <a href="/terms" className="underline hover:text-foreground transition-colors">Terms of Service</a>
+          </div>
         </div>
       </div>
       

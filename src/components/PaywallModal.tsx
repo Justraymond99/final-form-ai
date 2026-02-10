@@ -121,19 +121,25 @@ export const PaywallProvider = ({ children }: PaywallProviderProps) => {
 
           {/* CTA */}
           <div className="space-y-3 pt-2">
-            <Button 
+            <Button
               onClick={handleStartTrial}
               className="w-full bg-gradient-primary hover:opacity-90 text-background h-12 text-base"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               Start 7-Day Free Trial
             </Button>
-            
+
             <p className="text-xs text-center text-muted-foreground">
-              No charge until trial ends. Cancel anytime.
+              No charge until trial ends. Cancel anytime. Subscription auto-renews after trial.
             </p>
-            
-            <button 
+
+            <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+              <a href="/privacy" className="underline hover:text-foreground transition-colors">Privacy Policy</a>
+              <span>|</span>
+              <a href="/terms" className="underline hover:text-foreground transition-colors">Terms</a>
+            </div>
+
+            <button
               onClick={hidePaywall}
               className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
             >
