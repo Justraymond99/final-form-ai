@@ -48,28 +48,14 @@ export const RateAppPrompt = () => {
             className="space-y-2"
           >
             <p className="text-sm text-muted-foreground">
-              Enjoying Final Form? A quick review helps others find us too!
+              Enjoying Final Form? We'd love to hear your feedback on the App Store!
             </p>
-
-            {/* Star rating visual */}
-            <div className="flex justify-center gap-1 py-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <motion.div
-                  key={star}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + star * 0.1 }}
-                >
-                  <Star className="h-8 w-8 text-yellow-400 fill-yellow-400" />
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.5 }}
             className="space-y-2 pt-2"
           >
             <Button
@@ -77,7 +63,7 @@ export const RateAppPrompt = () => {
               className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white"
             >
               <Heart className="h-4 w-4 mr-2" />
-              Rate Us 5 Stars
+              Leave a Review
             </Button>
             <Button
               variant="ghost"

@@ -1,13 +1,15 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.97e01a4005924d06bc0df350295addf5',
+  appId: 'com.finalform.app',
   appName: 'Final Form',
   webDir: 'dist',
-  server: {
-    url: "https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com?forceHideBadge=true",
-    cleartext: true
-  },
+  // NOTE: For local development, uncomment the server block below.
+  // It MUST remain commented out for production/App Store builds.
+  // server: {
+  //   url: "https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com?forceHideBadge=true",
+  //   cleartext: true,
+  // },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
@@ -36,9 +38,9 @@ const config: CapacitorConfig = {
   ios: {
     contentInset: "automatic",
     preferredContentMode: "mobile",
-    scheme: "Final Form",
-    // Privacy descriptions for iOS permissions (required by Apple)
-    // These go in Info.plist - add via Xcode or native config
+    scheme: "FinalForm",
+    // Privacy descriptions for iOS permissions are in Info.plist.
+    // See ios/App/App/Info.plist.template for required keys.
   },
   android: {
     allowMixedContent: false,

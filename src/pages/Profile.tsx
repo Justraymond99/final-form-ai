@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2, Camera, BarChart3, Download } from "lucide-react";
+import { Settings, Target, User, Edit3, LogOut, Ruler, Trophy as TrophyIcon, MessageSquare, Bell, HelpCircle, Shield, FileText, Trash2, Camera, BarChart3, Download, Crown, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +21,8 @@ import { InternationalizationSetup } from "@/components/InternationalizationSetu
 import { DataExport } from "@/components/DataExport";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/useSubscription";
+import { Capacitor } from "@capacitor/core";
 
 const Profile = () => {
   const { toast } = useToast();
@@ -35,7 +37,10 @@ const Profile = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
   const navigate = useNavigate();
+  const { hasPremiumAccess, restorePurchases } = useSubscription();
+  const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
   
   // Real goals with starting values of 0
   const goals = [
@@ -260,11 +265,69 @@ const Profile = () => {
           </CardContent>
         </Card>
 
+        {/* Subscription */}
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              Subscription
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {hasPremiumAccess ? (
+              <div className="text-center p-3 bg-primary/10 rounded-lg">
+                <p className="text-sm text-primary font-medium">
+                  Final Form Pro Active
+                </p>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => navigate("/pricing")}
+              >
+                <Crown className="h-4 w-4 mr-2" />
+                Upgrade to Pro
+              </Button>
+            )}
+            {isIOSNative && (
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                disabled={isRestoring}
+                onClick={async () => {
+                  setIsRestoring(true);
+                  try {
+                    const restored = await restorePurchases();
+                    toast({
+                      title: restored ? "Purchases Restored" : "No Purchases Found",
+                      description: restored
+                        ? "Your subscription has been restored!"
+                        : "No previous purchases found to restore.",
+                    });
+                  } catch {
+                    toast({
+                      title: "Restore Failed",
+                      description: "Could not restore purchases. Please try again.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsRestoring(false);
+                  }
+                }}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                {isRestoring ? "Restoring..." : "Restore Purchases"}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Account Actions */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
           <CardContent className="p-4 space-y-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={() => setShowEditDialog(true)}
             >
