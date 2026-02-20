@@ -35,6 +35,7 @@ import { useSecureAuth } from "@/hooks/useSecureAuth";
 const Landing = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [currentScreenshot, setCurrentScreenshot] = useState(0);
   const { user, loading } = useSecureAuth();
 
   // Redirect logged-in users to home
@@ -152,8 +153,6 @@ const Landing = () => {
       gradient: "from-primary/20 to-secondary/20"
     }
   ];
-
-  const [currentScreenshot, setCurrentScreenshot] = useState(0);
 
   const nextScreenshot = () => {
     setCurrentScreenshot((prev) => (prev + 1) % appScreenshots.length);
@@ -550,11 +549,11 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6">
-              Loved by 
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Thousands</span>
+              Loved by
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Our Users</span>
             </h2>
             <p className="text-xl text-muted-foreground">
-              See what our users have to say about their fitness transformation
+              See what people are saying about their fitness transformation
             </p>
           </div>
           
