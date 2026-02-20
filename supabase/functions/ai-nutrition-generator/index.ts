@@ -8,7 +8,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -23,8 +23,8 @@ serve(async (req) => {
   try {
     console.log('AI Nutrition Generator function called');
     
-    if (!lovableApiKey) {
-      throw new Error('Lovable API key not configured');
+    if (!geminiApiKey) {
+      throw new Error('Gemini API key not configured');
     }
 
     // Get user from auth
@@ -120,16 +120,16 @@ IMPORTANT:
 - Use real, specific foods with accurate nutritional values
 - Keep response concise but complete.`;
 
-    console.log('Calling Lovable AI...');
+    console.log('Calling Gemini AI...');
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 55000); // 55 second timeout
 
     try {
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
+          'Authorization': `Bearer ${geminiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -152,7 +152,7 @@ IMPORTANT:
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Lovable AI error:', response.status, errorText);
+        console.error('Gemini AI error:', response.status, errorText);
         
         if (response.status === 429) {
           return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
@@ -166,11 +166,11 @@ IMPORTANT:
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        throw new Error(`Lovable AI error: ${response.status}`);
+        throw new Error(`Gemini AI error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('Lovable AI response received');
+      console.log('Gemini AI response received');
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error('Invalid response from AI API');

@@ -3,13 +3,11 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Register service worker for offline support
-// Note: disable in Lovable preview to avoid stale cached bundles during rapid iteration
-const isLovablePreview = window.location.hostname.endsWith('lovableproject.com');
-
+// Register service worker for offline support (production only)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
-    if (isLovablePreview || import.meta.env.DEV) {
+    if (import.meta.env.DEV) {
+      // In development, unregister any existing service workers to avoid stale caches
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map((r) => r.unregister()));
       return;

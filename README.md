@@ -1,73 +1,128 @@
-# Welcome to your Lovable project
+# Final Form - AI-Powered Fitness & Nutrition
 
-## Project info
+An AI-powered fitness companion with personalized workouts, smart nutrition tracking, and progress analytics. Built with React, Capacitor, and Supabase.
 
-**URL**: https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5
+## Tech Stack
 
-## How can I edit this code?
+- **Frontend**: React 18, TypeScript, Vite
+- **UI**: shadcn/ui, Tailwind CSS, Framer Motion
+- **Mobile**: Capacitor (iOS & Android)
+- **Backend**: Supabase (Auth, Database, Edge Functions)
+- **AI**: Google Gemini (via OpenAI-compatible API)
+- **Payments**: RevenueCat (iOS in-app subscriptions)
+- **Offline**: Service Worker + IndexedDB
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5) and start prompting.
+- Node.js 20+ (install with [nvm](https://github.com/nvm-sh/nvm))
+- npm
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/Justraymond99/final-form-ai.git
+cd final-form-ai
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Build for Production
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### iOS / Android
 
-## What technologies are used for this project?
+```sh
+# Build web assets first
+npm run build
 
-This project is built with:
+# Add platform (first time only)
+npx cap add ios
+npx cap add android
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+# Sync web assets to native projects
+npx cap sync
 
-## How can I deploy this project?
+# Open in IDE
+npx cap open ios       # Opens Xcode
+npx cap open android   # Opens Android Studio
+```
 
-Simply open [Lovable](https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5) and click on Share -> Publish.
+## Environment Variables
 
-## Can I connect a custom domain to my Lovable project?
+### Frontend (.env)
 
-Yes, you can!
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Supabase Edge Functions
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Set these in your Supabase project dashboard under Edge Functions > Secrets:
+
+```
+GEMINI_API_KEY=your-google-gemini-api-key
+```
+
+To get a Gemini API key:
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Create an API key
+3. Add it to Supabase Edge Functions secrets as `GEMINI_API_KEY`
+
+## Project Structure
+
+```
+src/
+  pages/          # Route pages (lazy-loaded)
+  components/     # React components
+  hooks/          # Custom React hooks
+  lib/            # Utility libraries
+  integrations/   # Supabase client & types
+  test/           # Test files
+
+supabase/
+  functions/      # Edge Functions (AI, payments, search)
+  migrations/     # Database migrations
+
+ios/              # iOS native project (Capacitor)
+public/           # Static assets, PWA manifest, service worker
+```
+
+## Key Features
+
+- AI workout generation with multi-week periodization
+- AI nutrition planning with voice food logging
+- Barcode scanning for food lookup
+- Progress tracking (weight, measurements, photos)
+- AI fitness coach chatbot (Athena)
+- Offline support with background sync
+- RevenueCat subscription management
+- Apple Health integration (iOS)
+
+## Documentation
+
+- [Architecture](ARCHITECTURE.md) - System design and data flows
+- [App Store Guide](APP_STORE_ASSETS.md) - iOS/Android submission checklist
+- [Testing Guide](TESTING_GUIDE.md) - Comprehensive test plan
+- [Google OAuth Setup](GOOGLE_OAUTH_SETUP.md) - Authentication configuration
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server (port 8080) |
+| `npm run build` | Production build |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build |

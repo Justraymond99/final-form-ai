@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -86,8 +86,8 @@ serve(async (req) => {
       return rateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    if (!lovableApiKey) {
-      throw new Error('Lovable API key not configured');
+    if (!geminiApiKey) {
+      throw new Error('Gemini API key not configured');
     }
 
     console.log('Processing AI fitness chat request, stream:', stream);
@@ -98,22 +98,22 @@ serve(async (req) => {
 
     // If streaming is requested
     if (stream) {
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
+          'Authorization': `Bearer ${geminiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { 
-              role: 'system', 
+            {
+              role: 'system',
               content: createSystemPrompt(userContext)
             },
-            { 
-              role: 'user', 
-              content: message 
+            {
+              role: 'user',
+              content: message
             }
           ],
           stream: true,
@@ -149,22 +149,22 @@ serve(async (req) => {
     }
 
     // Non-streaming fallback
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${geminiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { 
-            role: 'system', 
+          {
+            role: 'system',
             content: createSystemPrompt(userContext)
           },
-          { 
-            role: 'user', 
-            content: message 
+          {
+            role: 'user',
+            content: message
           }
         ],
       }),

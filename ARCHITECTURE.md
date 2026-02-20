@@ -5,8 +5,8 @@
 Final Form is a comprehensive AI-powered fitness and nutrition application built with:
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Edge Functions + Auth + Storage)
-- **AI**: Lovable AI Gateway (Google Gemini 2.5 Flash)
-- **Payments**: Stripe Subscriptions
+- **AI**: Google Gemini 2.5 Flash (via OpenAI-compatible endpoint)
+- **Payments**: RevenueCat (iOS) / Stripe (web)
 - **Mobile**: Capacitor for iOS/Android
 
 ---
@@ -59,8 +59,8 @@ Final Form is a comprehensive AI-powered fitness and nutrition application built
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        EXTERNAL SERVICES                             │
 ├─────────────────────────────────────────────────────────────────────┤
-│  Lovable AI Gateway                                                  │
-│  └── google/gemini-2.5-flash (chat, workout gen, meal plans)        │
+│  Google Gemini API                                                    │
+│  └── gemini-2.5-flash (chat, workout gen, meal plans)               │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Stripe                                                              │
 │  ├── Checkout Sessions                                               │
@@ -84,7 +84,7 @@ Fetch User Context (profile, recent workouts, goals)
     ↓
 Check AI Cache (optional, for common patterns)
     ↓
-Call Lovable AI Gateway with personalized prompt
+Call Google Gemini API with personalized prompt
     ↓
 Validate AI Response (Zod schema)
     ↓
@@ -202,8 +202,7 @@ WITH CHECK (auth.uid() = user_id)
 ### Secrets Management
 Stored in Supabase secrets:
 - STRIPE_SECRET_KEY
-- LOVABLE_API_KEY
-- OPENAI_API_KEY (legacy)
+- GEMINI_API_KEY
 - USDA_API_KEY
 
 ---
@@ -233,9 +232,9 @@ Stored in Supabase secrets:
 ## Deployment
 
 ### Frontend
-- Automatic deployment via Lovable
 - Production build with `npm run build`
-- CDN distribution via Lovable
+- Deploy `dist/` to any static hosting (Vercel, Netlify, Cloudflare Pages, etc.)
+- Or use Capacitor for native iOS/Android builds
 
 ### Edge Functions
 - Automatic deployment with code changes

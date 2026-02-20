@@ -4,7 +4,7 @@ import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY') || '';
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY') || '';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -209,8 +209,8 @@ Provide a comprehensive weekly review. Return ONLY valid JSON:
     let weeklyInsights;
     
     // Check if API key is available before attempting AI call
-    if (!lovableApiKey || lovableApiKey.length === 0) {
-      log('warn', 'LOVABLE_API_KEY not configured, using fallback insights');
+    if (!geminiApiKey || geminiApiKey.length === 0) {
+      log('warn', 'GEMINI_API_KEY not configured, using fallback insights');
       weeklyInsights = {
         ...fallbackInsights,
         summary: `You completed ${stats.totalWorkouts} workout${stats.totalWorkouts !== 1 ? 's' : ''} this week with ${stats.consistency}% consistency. ${stats.totalWorkouts > 0 ? 'Great job showing up!' : 'Time to get moving!'}`,
@@ -224,10 +224,10 @@ Provide a comprehensive weekly review. Return ONLY valid JSON:
       };
     } else {
       try {
-        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${lovableApiKey}`,
+            'Authorization': `Bearer ${geminiApiKey}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({

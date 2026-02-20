@@ -5,7 +5,7 @@ import { checkRateLimit, rateLimitResponse } from '../_shared/rate-limiter.ts';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -188,12 +188,12 @@ Return ONLY a valid JSON object with this structure:
   "personalized_notes": "Additional advice specific to this user's situation"
 }`;
 
-    console.log('Sending request to Lovable AI for recovery planning...');
-    
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    console.log('Sending request to Gemini AI for recovery planning...');
+
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
+        'Authorization': `Bearer ${geminiApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -213,7 +213,7 @@ Return ONLY a valid JSON object with this structure:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
+      console.error('Gemini AI error:', response.status, errorText);
       
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
@@ -227,11 +227,11 @@ Return ONLY a valid JSON object with this structure:
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      throw new Error(`Lovable AI error: ${response.status}`);
+      throw new Error(`Gemini AI error: ${response.status}`);
     }
 
     const aiResponse = await response.json();
-    console.log('Lovable AI recovery response received');
+    console.log('Gemini AI recovery response received');
 
     // Extract JSON from markdown code blocks if present
     const extractJSON = (text: string) => {

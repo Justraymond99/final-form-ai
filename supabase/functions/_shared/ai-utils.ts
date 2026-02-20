@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
+const geminiApiKey = Deno.env.get('GEMINI_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -116,10 +116,10 @@ export async function callAI(
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${lovableApiKey}`,
+          'Authorization': `Bearer ${geminiApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -138,7 +138,7 @@ export async function callAI(
         await logError(
           functionName,
           response.status === 429 ? 'rate_limit' : 'payment_required',
-          `AI gateway returned ${response.status}`,
+          `Gemini API returned ${response.status}`,
           undefined,
           undefined,
           userId,
@@ -150,7 +150,7 @@ export async function callAI(
       }
 
       const errorText = await response.text();
-      lastError = new Error(`AI gateway error: ${response.status} - ${errorText}`);
+      lastError = new Error(`Gemini API error: ${response.status} - ${errorText}`);
       
       log('warn', functionName, `AI call attempt ${attempt + 1} failed`, { 
         status: response.status, 
