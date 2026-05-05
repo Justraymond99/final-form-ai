@@ -12,24 +12,40 @@ if ('serviceWorker' in navigator) {
       return;
     }
 
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        registration.addEventListener('updatefound', () => {
-          const sw = registration.installing;
-          if (!sw) return;
-          sw.addEventListener('statechange', () => {
-            if (sw.state === 'installed' && navigator.serviceWorker.controller) {
-              window.location.reload();
-            }
-          });
-        });
+    try {
+      const registration = await navigator.serviceWorker.register('/sw.js');
 
-        console.log('Service Worker registered:', registration);
-      })
-      .catch((error) => {
-        console.log('Service Worker registration failed:', error);
+      // When a brand-new service worker takes control of the page (i.e. after
+      // a redeploy), reload once so the page is served by the up-to-date SW
+      // and no stale lazy chunks linger. Using `controllerchange` is safer
+      // than reacting to `installing -> installed` because the page is no
+      // longer in the middle of an active render at this point.
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
       });
+
+      // Tell any waiting SW to activate immediately so users don't have to
+      // close all tabs to pick up a new build.
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+      registration.addEventListener('updatefound', () => {
+        const sw = registration.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            sw.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+
+      console.log('Service Worker registered:', registration);
+    } catch (error) {
+      console.log('Service Worker registration failed:', error);
+    }
   });
 }
 

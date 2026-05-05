@@ -1,13 +1,15 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const STATIC_CACHE = `final-form-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `final-form-dynamic-${CACHE_VERSION}`;
 const API_CACHE = `final-form-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `final-form-images-${CACHE_VERSION}`;
 
-// Static assets to pre-cache on install
+// Static assets to pre-cache on install.
+// IMPORTANT: do NOT pre-cache '/' or '/index.html'. Caching the HTML shell
+// pins the page to a specific build's chunk hashes; after a redeploy the
+// cached HTML references chunk files that no longer exist, which can break
+// lazy-loaded routes and produce React hook errors. Always fetch HTML fresh.
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/final-form-logo.png',
   '/icon-192.png',
@@ -114,9 +116,18 @@ self.addEventListener('fetch', (event) => {
   // Skip edge functions (never cache)
   if (url.pathname.includes('/functions/')) return;
   
-  // Strategy 1: Network-first for navigation (HTML pages)
+  // Strategy 1: Always fetch HTML fresh from the network so chunk hashes
+  // stay in sync with the deployed build. Fall back to a minimal offline
+  // response only if the network is unreachable.
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirstWithCache(request, STATIC_CACHE));
+    event.respondWith(
+      fetch(request).catch(() =>
+        new Response(
+          '<!doctype html><html><body><p>You appear to be offline. Please reconnect and reload.</p></body></html>',
+          { headers: { 'Content-Type': 'text/html' } }
+        )
+      )
+    );
     return;
   }
   
