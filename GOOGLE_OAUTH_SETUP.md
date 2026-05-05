@@ -57,11 +57,10 @@ This guide will help you configure Google Sign-In for your Final Form fitness ap
 4. Name it: `Final Form Web Client`
 
 5. **Authorized JavaScript origins**:
-   Add both your preview and production URLs:
+   Add your production URL (and any preview/staging URLs):
    ```
-   https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com
    https://yourdomain.com
-   http://localhost:5173
+   http://localhost:8080
    ```
    (Add localhost for local development)
 
@@ -112,15 +111,14 @@ Still in Supabase Dashboard:
 
 2. Set **Site URL**:
    ```
-   https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com
+   https://yourdomain.com
    ```
    (Or your custom domain)
 
 3. Add **Redirect URLs** (one per line):
    ```
-   https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com/**
    https://yourdomain.com/**
-   http://localhost:5173/**
+   http://localhost:8080/**
    ```
 
 4. Click **Save**

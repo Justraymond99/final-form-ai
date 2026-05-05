@@ -253,7 +253,7 @@ const Auth = () => {
         <div className="text-center space-y-4">
           <div className="w-16 h-16 mx-auto animate-pulse">
             <img 
-              src="/lovable-uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
+              src="/uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
               alt="Final Form Logo" 
               className="w-full h-full object-contain"
             />
@@ -278,7 +278,7 @@ const Auth = () => {
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto w-20 h-20 mb-4">
             <img 
-              src="/lovable-uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
+              src="/uploads/916b399e-40b7-47e8-b381-e3bd51e6c3c3.png" 
               alt="Final Form Logo" 
               className="w-full h-full object-contain"
               style={{ 

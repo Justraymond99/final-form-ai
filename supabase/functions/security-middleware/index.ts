@@ -95,7 +95,6 @@ function validateCSRFToken(req: Request, token: string): boolean {
     
     // Check if request comes from allowed origins
     const allowedOrigins = [
-      'https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com',
       'http://localhost:8080',
       'http://127.0.0.1:8080'
     ];

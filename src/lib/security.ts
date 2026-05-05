@@ -256,7 +256,7 @@ export const applyCSP = () => {
   
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://97e01a40-0592-4d06-bc0d-f350295addf5.lovableproject.com",
+    "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",

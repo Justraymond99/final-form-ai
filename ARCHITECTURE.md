@@ -5,7 +5,7 @@
 Final Form is a comprehensive AI-powered fitness and nutrition application built with:
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Edge Functions + Auth + Storage)
-- **AI**: Lovable AI Gateway (Google Gemini 2.5 Flash)
+- **AI**: AI Gateway (Google Gemini 2.5 Flash)
 - **Payments**: Stripe Subscriptions
 - **Mobile**: Capacitor for iOS/Android
 
@@ -59,7 +59,7 @@ Final Form is a comprehensive AI-powered fitness and nutrition application built
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        EXTERNAL SERVICES                             │
 ├─────────────────────────────────────────────────────────────────────┤
-│  Lovable AI Gateway                                                  │
+│  AI Gateway                                                          │
 │  └── google/gemini-2.5-flash (chat, workout gen, meal plans)        │
 ├─────────────────────────────────────────────────────────────────────┤
 │  Stripe                                                              │
@@ -84,7 +84,7 @@ Fetch User Context (profile, recent workouts, goals)
     ↓
 Check AI Cache (optional, for common patterns)
     ↓
-Call Lovable AI Gateway with personalized prompt
+Call AI Gateway with personalized prompt
     ↓
 Validate AI Response (Zod schema)
     ↓
@@ -233,9 +233,8 @@ Stored in Supabase secrets:
 ## Deployment
 
 ### Frontend
-- Automatic deployment via Lovable
 - Production build with `npm run build`
-- CDN distribution via Lovable
+- Deploy `dist/` to your CDN / static host of choice (Vercel, Netlify, Cloudflare Pages, etc.)
 
 ### Edge Functions
 - Automatic deployment with code changes

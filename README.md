@@ -1,73 +1,90 @@
-# Welcome to your Lovable project
+# Final Form
 
-## Project info
+AI-powered fitness and nutrition companion. Plan workouts, track meals, and get personalized coaching backed by AI.
 
-**URL**: https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5
+## Tech Stack
 
-## How can I edit this code?
+- **Frontend**: Vite + React 18 + TypeScript
+- **UI**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth, Edge Functions, Storage)
+- **AI**: Google Gemini 2.5 Flash via AI gateway
+- **Payments**: Stripe
+- **Mobile**: Capacitor (iOS + Android)
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5) and start prompting.
+- [Node.js](https://nodejs.org/) 18+ and npm (install via [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- A Supabase project (for auth + database + edge functions)
+- An AI gateway API key (for the AI features)
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Local Development
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone the repository
+git clone https://github.com/Justraymond99/final-form-ai.git
+cd final-form-ai
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Configure environment variables
+# Copy .env and fill in your Supabase project credentials
+#   VITE_SUPABASE_PROJECT_ID
+#   VITE_SUPABASE_PUBLISHABLE_KEY
+#   VITE_SUPABASE_URL
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Start the dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at [http://localhost:8080](http://localhost:8080).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Building for Production
 
-**Use GitHub Codespaces**
+```sh
+npm run build      # production build to dist/
+npm run preview    # preview the production build locally
+npm run lint       # run ESLint
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+  pages/          Top-level routes (Auth, Dashboard, Workouts, Nutrition, Goals, ...)
+  components/     Reusable UI and feature components
+  hooks/          Custom React hooks (state, API, analytics)
+  lib/            Utilities, validation, security helpers
+  integrations/   Third-party clients (Supabase, etc.)
+supabase/
+  functions/      Edge Functions (AI, payments, analytics, search, ...)
+ios/              Capacitor iOS project
+public/           Static assets (icons, manifest, service worker)
+```
 
-This project is built with:
+See `ARCHITECTURE.md` for a deeper look at the system design and data flow.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Mobile Builds
 
-## How can I deploy this project?
+Capacitor is configured for both iOS and Android. After running `npm run build`:
 
-Simply open [Lovable](https://lovable.dev/projects/97e01a40-0592-4d06-bc0d-f350295addf5) and click on Share -> Publish.
+```sh
+npx cap sync
+npx cap open ios       # opens in Xcode
+npx cap open android   # opens in Android Studio
+```
 
-## Can I connect a custom domain to my Lovable project?
+See `APP_STORE_ASSETS.md` for store listing requirements.
 
-Yes, you can!
+## Documentation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- `ARCHITECTURE.md` — system architecture, data flow, edge functions
+- `TESTING_GUIDE.md` — testing strategy and how to run tests
+- `GOOGLE_OAUTH_SETUP.md` — configuring Google Sign-In
+- `APP_STORE_ASSETS.md` — assets required for App Store / Play Store
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## License
+
+Proprietary — all rights reserved.

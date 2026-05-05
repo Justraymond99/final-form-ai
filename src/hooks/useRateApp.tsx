@@ -65,7 +65,7 @@ export const useRateApp = () => {
       window.open("https://apps.apple.com/app/id<YOUR_APP_ID>", "_blank");
     } else if (isAndroid) {
       // Replace with your actual Play Store package
-      window.open("https://play.google.com/store/apps/details?id=app.lovable.97e01a4005924d06bc0df350295addf5", "_blank");
+      window.open("https://play.google.com/store/apps/details?id=com.finalform.app", "_blank");
     }
   }, []);
 
