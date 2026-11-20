@@ -1,0 +1,11 @@
+{
+  "name": "justraymond99/final-form-phpunit-assignment",
+  "description": "Isolated PHPUnit assignment for Final Form BMI validation",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": "^11.5"
+  },
+  "scripts": {
+    "test": "phpunit --colors=always tests"
+  }
+}
